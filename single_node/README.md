@@ -3,7 +3,7 @@ Below are the steps for setting up a FullNode that connects to the TRON Network.
 
 ## Prerequisites
 
-### Hardware Requirements
+### Hardware requirements
 Minimum:
 - CPU with 8+ cores
 - 16GB RAM
@@ -25,14 +25,14 @@ Please download and install the latest version of Docker from the official Docke
 
 Then check the Docker resource settings to ensure it has at least 16GB of memory.
 
-## Get docker image
-There are two ways to obtain the Tron image:
-- Pull it from the Tron Docker Hub.
+## Get Docker image
+There are two ways to obtain the TRON image:
+- Pull it from the TRON Docker Hub.
 - Build it from the java-tron source code.
 
 ### Using the official Docker images
 
-The quick start way is to use the official images. Download the official docker image from [Docker Hub](https://hub.docker.com/r/tronprotocol/java-tron/tags) using the following command:
+The quick start way is to use the official images. Download the official Docker image from [Docker Hub](https://hub.docker.com/r/tronprotocol/java-tron/tags) using the following command:
 
 ```
 docker pull tronprotocol/java-tron
@@ -64,7 +64,7 @@ docker run -it --name tron -d --memory="16g" \
 tronprotocol/java-tron 
 ```
 The `-p` flag specifies the ports that the container needs to map to the host machine.
-`--memory="16g"` sets the memory limit to 16GB, ensuring that the Tron container gets enough memory. 
+`--memory="16g"` sets the memory limit to 16GB, ensuring that the TRON container gets enough memory. 
 
 By default, it will use the [configuration](https://github.com/tronprotocol/java-tron/blob/develop/framework/src/main/resources/config.conf),
 which sets the fullNode to connect to the mainnet with genesis block settings in `genesis.block`.
@@ -102,22 +102,22 @@ Inside the `config-localtest.conf` file `node.p2p.version` is used to set the P2
 Please note that if you want to switch to a different network, such as Mainnet or Nile, make sure you change the following:
 
 - **Configuration File**:
-  - For Mainnet, use [main_net_config.conf](https://github.com/tronprotocol/tron-docker/blob/master/conf/main_net_config.conf).
-  - For NileNet, use the configuration file available on this [page](https://nileex.io/join/getJoinPage) or [nile_net_config.conf](https://github.com/tronprotocol/tron-docker/blob/master/conf/nile_net_config.conf).
+  - For Mainnet, use [main_net_config.conf](https://github.com/tronprotocol/tron-docker/blob/main/conf/main_net_config.conf).
+  - For NileNet, use the configuration file available on this [page](https://nileex.io/join/getJoinPage) or [nile_net_config.conf](https://github.com/tronprotocol/tron-docker/blob/main/conf/nile_net_config.conf).
 
   The main differences between these two files are:
   - `genesis.block`: Used for initial account asset and witness setup.
   - `seed.node`: Used for P2P nodes discovery.
   - `node.p2p.version`: Differentiates the network.
-  - `block.maintenanceTimeInterval` and `block.proposalExpireTime`: Used for Tron core protocol.
+  - `block.maintenanceTimeInterval` and `block.proposalExpireTime`: Used for TRON core protocol.
 
 - **Data Snapshot**:
   - Ensure that the data snapshot you download corresponds to the correct network.
 
-### Close Docker Application
-Java-Tron supports application shutdown with `kill -15`, which sends a `SIGTERM` signal to the application, allowing it to gracefully shut down. Java-Tron is also compatible with force shutdown using `kill -9`, which sends a `SIGKILL` signal.
+### Close Docker application
+java-tron supports application shutdown with `kill -15`, which sends a `SIGTERM` signal to the application, allowing it to gracefully shut down. java-tron is also compatible with force shutdown using `kill -9`, which sends a `SIGKILL` signal.
 
-Thus, you can use the command `docker stop <container_id>` or `docker kill <container_id>` to close the Java-Tron container.
+Thus, you can use the command `docker stop <container_id>` or `docker kill <container_id>` to close the java-tron container.
 
 ## Interact with FullNode
 After the fullnode runs successfully, you can interact with it using the HTTP API or wallet-cli. For more details, please refer to [guidance](https://tronprotocol.github.io/documentation-en/getting_started/getting_started_with_javatron/#interacting-with-java-tron-nodes-using-curl).
@@ -150,14 +150,14 @@ Response:
 **Notice**: Before the local full node has synced with the latest block transactions, requests for account state or transaction information may be outdated or empty.
 
 ## Troubleshot
-After starting the docker container, use `docker exec -it tron tail -f ./logs/tron.log` to check if the full node is functioning as expected and to identify any errors when interacting with the full node.
+After starting the Docker container, use `docker exec -it tron tail -f ./logs/tron.log` to check if the full node is functioning as expected and to identify any errors when interacting with the full node.
 
 If the following error cases do not cover your issue, please refer to [Issue Work Flow](https://tronprotocol.github.io/documentation-en/developers/issue-workflow/#issue-work-flow), then raise issue in [Github](https://github.com/tronprotocol/tron-docker/issues).
 
-### Error Case Handling
+### Error case handling
 
-#### Zero Peer Connection
-If the logs show `Peer stats: all 0, active 0, passive 0`, it means Tron node cannot use **P2P Node Discovering Protocol** to find neighbors.
+#### Zero peer connection
+If the logs show `Peer stats: all 0, active 0, passive 0`, it means tron node cannot use **P2P Node Discovering Protocol** to find neighbors.
 This protocol operates over UDP through port 18888. Therefore, the most likely cause of this issue is a network problem.
 Try debugging with the following steps:
 - Use the command `docker ps` to check if the ports mapping includes `-p 18888:18888`.

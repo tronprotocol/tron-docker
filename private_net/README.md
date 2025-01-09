@@ -1,12 +1,12 @@
 # Private Network
 
-Here is a quick-start guide for setting up a Tron private network using Docker.
+Here is a quick-start guide for setting up a TRON private network using Docker.
 
 A private chain needs at least one fullnode run by a [Super Representative (SR)](https://tronprotocol.github.io/documentation-en/mechanism-algorithm/sr/) to produce blocks, and any number of fullnodes to synchronize blocks and broadcast transactions.
 
 ## Prerequisites
 
-### Minimum Hardware Requirements
+### Minimum hardware requirements
 - CPU with 8+ cores
 - 32GB RAM
 - 100GB free storage space
@@ -18,15 +18,15 @@ Please download and install the latest version of Docker from the official Docke
 * Docker Installation for [Windows](https://docs.docker.com/docker-for-windows/install/)
 * Docker Installation for [Linux](https://docs.docker.com/desktop/setup/install/linux/)
 
-Then check the Docker resource settings to ensure it has at least 12GB of memory per Tron node.
+Then check the Docker resource settings to ensure it has at least 12GB of memory per TRON node.
 
-## Quick-Start Using Docker
+## Quick-Start using Docker
 Download the folder [private_net](../private_net) and [docker-compose.yml](./docker-compose.yml) from GitHub. Enter the directory and run the docker-composer.
 ```
 cd ./private_net
 docker-compose up -d
 ```
-A Tron private network will be started with one [SR](https://tronprotocol.github.io/documentation-en/mechanism-algorithm/sr/#super-representative) and a normal FullNode.
+A TRON private network will be started with one [SR](https://tronprotocol.github.io/documentation-en/mechanism-algorithm/sr/#super-representative) and a normal FullNode.
 
 Check the witness logs by running the command below:
 ```
@@ -53,11 +53,11 @@ After initialization, it should show messages about syncing blocks, just followi
 
 **What docker-compose do?**
 
-Check the docker-compose.yml, the two container services use the same Tron image with different configurations.
+Check the docker-compose.yml, the two container services use the same TRON image with different configurations.
 
-- `ports`: Used in the tron_witness1 service are exposed for API requests to interact with the Tron private network.
+- `ports`: Used in the tron_witness1 service are exposed for API requests to interact with the TRON private network.
 
-- `command`: Used for Java-Tron image start-up arguments.
+- `command`: Used for java-tron image start-up arguments.
     - `-jvm` is used for Java Virtual Machine parameters, which must be enclosed in double quotes and braces. `"{-Xmx10g -Xms10g}"` sets the maximum and initial heap size to 10GB.
     - `-c` defines the configuration file to use.
     - `-d` defines the database file to use. By mounting a local data directory, it ensures that the block data is persistent.
@@ -71,7 +71,7 @@ If you want to add more witness or other syncing fullnodes, you need to make bel
 
 Inside the docker-compose.yml, refer to the commented containers `tron_witness2` and `tron_node2`. Make sure the configuration files are changed accordingly, following the details below.
 
-**Common Settings**
+**Common settings**
 
 For all configurations, you need to set `node.p2p.version` to the same value and `node.discovery.enable = true`.
 ```
@@ -88,7 +88,7 @@ node.discovery = {
 }
 ```
 
-**Witness Setting**
+**Witness setting**
 
 Make sure only one SR witness sets `needSyncCheck = false`, while the rest of the witnesses and other fullnodes set it to `true`. This ensures that there is only one source of truth for block data.
 ```
@@ -101,7 +101,7 @@ block = {
 If you want to add more witnesses:
 
 - First, add the witness private key to the `localwitness` field in the corresponding witness configuration file. If you don't want to use this way of specifying the private key in plain text, you can use the [keystore + password](https://tronprotocol.github.io/documentation-en/using_javatron/installing_javatron/#others) method.
-- Then, add initial values to the `genesis.block` for all configuration files. Tron will use this to initialize the genesis block, and nodes with different genesis blocks will be disconnected.
+- Then, add initial values to the `genesis.block` for all configuration files. TRON will use this to initialize the genesis block, and nodes with different genesis blocks will be disconnected.
 
 ```
 localwitness = [
@@ -151,7 +151,7 @@ seed.node = {
   ]
 }
 ```
-### Advanced Configuration
+### Advanced configuration
 Besides the above settings, there are many fields you can modify to customize the behavior of private networks. The configurations that you can change, though not exhaustively listed, include:
 
 - Ethereum compatible virtual machine in `vm = {...}`
@@ -181,12 +181,12 @@ allowTvmTransferTrc10
 ```
 If you encounter any difficulties or need more customized operations, check the Troubleshooting section below.
 
-### Close Docker Application
-Java-Tron supports application shutdown with `kill -15`, which sends a `SIGTERM` signal to the application, allowing it to gracefully shut down. Java-Tron is also compatible with force shutdown using `kill -9`, which sends a `SIGKILL` signal.
+### Close Docker application
+java-tron supports application shutdown with `kill -15`, which sends a `SIGTERM` signal to the application, allowing it to gracefully shut down. java-tron is also compatible with force shutdown using `kill -9`, which sends a `SIGKILL` signal.
 
 Thus, you can use the command `docker-compose stop/down` or `docker-compose kill` to stop or close all the services.
 
-## Interact with Tron Private Network
+## Interact with TRON private network
 In docker-compose.yml, notice the ports mapping:
 ```
 ports:
@@ -243,7 +243,7 @@ If you request block info with a number greater than 0, it should return block_h
 
 For more API usage, please refer to the [guidance](https://tronprotocol.github.io/documentation-en/getting_started/getting_started_with_javatron/#interacting-with-java-tron-nodes-using-curl).
 
-As you could notice, for now the block produced by SR contains 0 transaction. To send a transaction on Tron network, the data must be signed. To easily trigger a transaction on the Tron network, [wallet-cli](https://tronprotocol.github.io/documentation-en/clients/wallet-cli/) is recommended. Refer to the installation [guidance](https://github.com/tronprotocol/wallet-cli/blob/develop/README.md). Make sure you edit `config.conf` in [src/main/resources](https://github.com/tronprotocol/wallet-cli/blob/develop/src/main/resources/config.conf) as below:
+As you could notice, for now the block produced by SR contains 0 transaction. To send a transaction on TRON network, the data must be signed. To easily trigger a transaction on the TRON network, [wallet-cli](https://tronprotocol.github.io/documentation-en/clients/wallet-cli/) is recommended. Refer to the installation [guidance](https://github.com/tronprotocol/wallet-cli/blob/develop/README.md). Make sure you edit `config.conf` in [src/main/resources](https://github.com/tronprotocol/wallet-cli/blob/develop/src/main/resources/config.conf) as below:
 ```
 fullnode = {
   ip.list = [
