@@ -12,10 +12,6 @@ This repository includes Docker configurations to quickly start a single Tron Fu
 
 You can also use this repository to set up a private Tron blockchain network. This is useful for development and testing purposes. The provided configurations make it straightforward to deploy and manage your own private chain.
 
-### Node Monitoring with Prometheus and Grafana
-
-Monitoring the health and performance of your Tron nodes is made easy with integrated Prometheus and Grafana services. The repository includes configurations to set up these monitoring tools, allowing you to visualize and track various metrics in real time.
-
 ## Getting Started
 
 ### Prerequisites
@@ -35,7 +31,6 @@ Monitoring the health and performance of your Tron nodes is made easy with integ
    Navigate to the corresponding directory and follow the instructions in the respective README. Then you can easily start the services.
    - To start a single FullNode, use the folder [single_node](./single_node).
    - To set up a private Tron network, use the folder [private_net](./private_net).
-   - To monitor the Tron node, use the folder [metric_monitor](./metric_monitor).
 
 ## Troubleshooting
 If you encounter any difficulties, please refer to the [Issue Work Flow](https://tronprotocol.github.io/documentation-en/developers/issue-workflow/#issue-work-flow), then raise an issue on [GitHub](https://github.com/tronprotocol/tron-docker/issues). For general questions, please use [Discord](https://discord.gg/cGKSsRVCGm) or [Telegram](https://t.me/TronOfficialDevelopersGroupEn).
