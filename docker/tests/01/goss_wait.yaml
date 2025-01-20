@@ -1,0 +1,39 @@
+---
+# runtime docker tests for interfaces & ports
+port:
+  tcp:18888:
+    listening: true
+    ip:
+      - 0.0.0.0
+  udp:18888:
+    listening: true
+    ip:
+      - 0.0.0.0
+  tcp:50051:
+    listening: true
+    ip:
+      - 0.0.0.0
+  tcp:8090:
+    listening: true
+    ip:
+      - 0.0.0.0
+  tcp:8091:
+    listening: true
+    ip:
+      - 0.0.0.0
+addr:
+  tcp://localhost:8090:
+    reachable: true
+    timeout: 500
+
+http:
+  http://localhost:8090/wallet/getnowblock:
+    method: GET
+    status: 200
+    body:
+      - "\"blockID\":\"00000000000000001ebf88508a03865c71d452e25f4d51194196a1d22b6653dc\""
+
+command:
+  /goss/testSync.sh: # use absolute directory to run shell
+    exit-status: 0
+    timeout: 10000000

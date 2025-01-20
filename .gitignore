@@ -1,0 +1,10 @@
+*.bak
+*.swp
+*.tmp
+.gradle/
+.vscode/
+.idea/
+docker/reports/
+build/
+tmp/
+target/
