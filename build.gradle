@@ -54,7 +54,7 @@ def buildTime() {
 // set the shell command to use according to os
 def shell = org.gradle.internal.os.OperatingSystem.current().isWindows() ? "${projectDir}\\wslsh.bat" : '/bin/bash'
 
-def dockerBuildVersion = project.hasProperty('release.releaseVersion') ? project.property('release.releaseVersion') : "${rootProject.version}"
+def dockerBuildVersion = project.hasProperty('release.releaseVersion') ? project.getProperty('release.releaseVersion') : "${rootProject.version}"
 def dockerOrgName = project.hasProperty('dockerOrgName') ? project.getProperty("dockerOrgName") : "dockerrepomia"
 def dockerArtifactName = project.hasProperty("dockerArtifactName") ? project.getProperty("dockerArtifactName") : "trontest"
 def dockerImageName = "${dockerOrgName}/${dockerArtifactName}"
