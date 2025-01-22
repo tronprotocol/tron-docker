@@ -16,7 +16,7 @@ apply plugin: "java-library"
 
 def getGitCommitDetails(length = 8) {
     try {
-        def gitFolder = "$projectDir/.git/"
+        def gitFolder = "$rootDir/.git/"
         if (!file(gitFolder).isDirectory()) {
             gitFolder = file(gitFolder).text.substring(length).trim() + "/"
         }
@@ -63,15 +63,15 @@ def dockerArtifactName = project.hasProperty("dockerArtifactName") ? project.get
 def dockerImageName = "${dockerOrgName}/${dockerArtifactName}"
 
 task sourceDocker {
-    def dockerBuildDir = "build/docker-tron/"
+    def dockerBuildDir = "${rootDir}/build/docker-tron/"
 
     doLast {
         copy {
-            from file("${projectDir}/docker/Dockerfile")
+            from file("${rootDir}/docker/Dockerfile")
             into(dockerBuildDir)
         }
         copy {
-            from file("${projectDir}/docker/docker-entrypoint.sh")
+            from file("${rootDir}/docker/docker-entrypoint.sh")
             into "${dockerBuildDir}"
         }
         exec {
@@ -111,7 +111,7 @@ task testDocker {
     doLast {
         exec {
             def image = project.hasProperty('release.releaseVersion') ? "${dockerImageName}:" + project.property('release.releaseVersion') : "${dockerImageName}:${project.version}"
-            workingDir "${projectDir}/docker"
+            workingDir "${rootDir}/docker"
             executable shell
             args "-c", "./test.sh ${image}"
         }

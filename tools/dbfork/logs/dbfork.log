@@ -1,0 +1,70 @@
+17:58:36.335 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) witness Delete type=3 #1
+
+17:58:36.342 INFO  [Test worker] [DB](LevelDbDataSourceImpl.java:143) DB witness open success with writeBufferSize 16 M, cacheSize 32 M, maxOpenFiles 100.
+17:58:36.345 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) witness_schedule Delete type=3 #1
+
+17:58:36.346 INFO  [Test worker] [DB](LevelDbDataSourceImpl.java:143) DB witness_schedule open success with writeBufferSize 16 M, cacheSize 32 M, maxOpenFiles 100.
+17:58:36.348 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) account Delete type=3 #1
+
+17:58:36.349 INFO  [Test worker] [DB](LevelDbDataSourceImpl.java:143) DB account open success with writeBufferSize 16 M, cacheSize 32 M, maxOpenFiles 100.
+17:58:36.351 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) properties Delete type=3 #1
+
+17:58:36.351 INFO  [Test worker] [DB](LevelDbDataSourceImpl.java:143) DB properties open success with writeBufferSize 16 M, cacheSize 32 M, maxOpenFiles 100.
+17:58:36.352 INFO  [Test worker] [dbfork](DBFork.java:119) Choose the DB engine: leveldb.
+17:58:36.354 INFO  [Test worker] [dbfork](DBFork.java:123) Erase the previous witnesses and active witnesses.
+17:58:36.367 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) witness Delete type=3 #1
+
+17:58:36.367 INFO  [Test worker] [DB](LevelDbDataSourceImpl.java:143) DB witness open success with writeBufferSize 16 M, cacheSize 32 M, maxOpenFiles 100.
+17:58:36.466 INFO  [Test worker] [dbfork](DBFork.java:169) 3 witnesses and 3 active witnesses have been modified.
+17:58:36.609 INFO  [Test worker] [dbfork](DBFork.java:223) 4 accounts have been modified.
+17:58:36.612 INFO  [Test worker] [dbfork](DBFork.java:233) The latest block header timestamp has been modified as 1735628883000.
+17:58:36.612 INFO  [Test worker] [dbfork](DBFork.java:244) The maintenance time interval has been modified as 21600000.
+17:58:36.613 INFO  [Test worker] [dbfork](DBFork.java:254) The next maintenance time has been modified as 1735628894000.
+17:58:36.613 INFO  [Test worker] [DB](TronDatabase.java:79) ******** Begin to close TronDatabase. ********
+17:58:36.614 INFO  [Test worker] [DB](TronDatabase.java:85) ******** End to close TronDatabase. ********
+17:58:36.614 INFO  [Test worker] [DB](TronDatabase.java:79) ******** Begin to close TronDatabase. ********
+17:58:36.614 INFO  [Test worker] [DB](TronDatabase.java:85) ******** End to close TronDatabase. ********
+17:58:36.614 INFO  [Test worker] [DB](TronDatabase.java:79) ******** Begin to close TronDatabase. ********
+17:58:36.615 INFO  [Test worker] [DB](TronDatabase.java:85) ******** End to close TronDatabase. ********
+17:58:36.615 INFO  [Test worker] [DB](TronDatabase.java:79) ******** Begin to close TronDatabase. ********
+17:58:36.615 INFO  [Test worker] [DB](TronDatabase.java:85) ******** End to close TronDatabase. ********
+17:58:36.616 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) witness Recovering log #3
+17:58:36.616 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) witness Level-0 table #5: started
+17:58:36.617 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) witness Level-0 table #5: 238 bytes OK
+17:58:36.619 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) witness Delete type=0 #3
+
+17:58:36.619 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) witness Delete type=3 #2
+
+17:58:36.619 INFO  [Test worker] [DB](LevelDbDataSourceImpl.java:143) DB witness open success with writeBufferSize 16 M, cacheSize 32 M, maxOpenFiles 100.
+17:58:36.621 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) witness_schedule Recovering log #3
+17:58:36.621 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) witness_schedule Level-0 table #5: started
+17:58:36.622 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) witness_schedule Level-0 table #5: 202 bytes OK
+17:58:36.624 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) witness_schedule Delete type=0 #3
+
+17:58:36.624 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) witness_schedule Delete type=3 #2
+
+17:58:36.624 INFO  [Test worker] [DB](LevelDbDataSourceImpl.java:143) DB witness_schedule open success with writeBufferSize 16 M, cacheSize 32 M, maxOpenFiles 100.
+17:58:36.625 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) account Recovering log #3
+17:58:36.625 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) account Level-0 table #5: started
+17:58:36.625 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) account Level-0 table #5: 286 bytes OK
+17:58:36.627 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) account Delete type=0 #3
+
+17:58:36.627 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) account Delete type=3 #2
+
+17:58:36.627 INFO  [Test worker] [DB](LevelDbDataSourceImpl.java:143) DB account open success with writeBufferSize 16 M, cacheSize 32 M, maxOpenFiles 100.
+17:58:36.628 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) properties Recovering log #3
+17:58:36.628 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) properties Level-0 table #5: started
+17:58:36.629 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) properties Level-0 table #5: 208 bytes OK
+17:58:36.630 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) properties Delete type=0 #3
+
+17:58:36.630 INFO  [Test worker] [LEVELDB](LevelDbDataSourceImpl.java:74) properties Delete type=3 #2
+
+17:58:36.631 INFO  [Test worker] [DB](LevelDbDataSourceImpl.java:143) DB properties open success with writeBufferSize 16 M, cacheSize 32 M, maxOpenFiles 100.
+17:58:36.638 INFO  [Test worker] [DB](TronDatabase.java:79) ******** Begin to close TronDatabase. ********
+17:58:36.638 INFO  [Test worker] [DB](TronDatabase.java:85) ******** End to close TronDatabase. ********
+17:58:36.638 INFO  [Test worker] [DB](TronDatabase.java:79) ******** Begin to close TronDatabase. ********
+17:58:36.638 INFO  [Test worker] [DB](TronDatabase.java:85) ******** End to close TronDatabase. ********
+17:58:36.638 INFO  [Test worker] [DB](TronDatabase.java:79) ******** Begin to close TronDatabase. ********
+17:58:36.639 INFO  [Test worker] [DB](TronDatabase.java:85) ******** End to close TronDatabase. ********
+17:58:36.639 INFO  [Test worker] [DB](TronDatabase.java:79) ******** Begin to close TronDatabase. ********
+17:58:36.639 INFO  [Test worker] [DB](TronDatabase.java:85) ******** End to close TronDatabase. ********
