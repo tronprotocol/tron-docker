@@ -1,5 +1,5 @@
 rootProject.name = 'tron-docker'
 include('docker')
 project(':docker').projectDir = new File(rootDir, '../docker')
-include('tools:dbfork')
-project(':tools:dbfork').projectDir = new File(rootDir, '../tools/dbfork')
+include('dbfork')
+project(':dbfork').projectDir = new File(rootDir, '../dbfork')

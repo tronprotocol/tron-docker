@@ -4,7 +4,7 @@
 .gradle/
 .vscode/
 .idea/
-docker/reports/
+tools/docker/reports/
 build/
 tmp/
 target/

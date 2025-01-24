@@ -17,7 +17,7 @@ developers can connect and interact with the node by [wallet-cli](https://tronpr
 
 The whole procedure of shadow fork is described in the following figure:
 
-![image](./shadow-fork.png)
+![image](../../images/shadow-fork.png)
 
 ### Obtain the state data
 To use the DBFork tool, we need to obtain the state data of the public chain first. There are three possible ways:
@@ -119,11 +119,11 @@ Execute database fork command:
 # clone the tron-docker
 git clone https://github.com/tronprotocol/tron-docker.git
 # enter the directory
-cd tron-docker/gradlew
+cd tron-docker/tools/gradlew
 # compile the database fork tool
-./gradlew :tools:dbfork:build 
+./gradlew :dbfork:build 
 # execute full command
-cd .. && java -jar tools/dbfork/build/libs/dbfork.jar -c fork.conf -d output-directory
+java -jar ../dbfork/build/libs/dbfork.jar -c /path/to/fork.conf -d /path/to/output-directory
 ```
 
 ### Launch the FullNode
