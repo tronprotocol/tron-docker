@@ -61,7 +61,7 @@ jar {
 
 checkstyle {
     toolVersion = '8.41'
-    configFile = file("../config/checkstyle/checkStyle.xml")
+    configFile = file("../../conf/checkstyle/checkStyle.xml")
 }
 
 task checkstyleDBForkMain(type: Checkstyle) {
