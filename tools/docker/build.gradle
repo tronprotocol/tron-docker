@@ -102,7 +102,7 @@ def isInterimBuild(dockerBuildVersion) {
 
 task testDocker {
     dependsOn sourceDocker
-    def dockerReportsDir = "reports/"
+    def dockerReportsDir = "${rootDir}/../docker/reports/"
 
     doFirst {
         new File(dockerReportsDir).mkdir()
