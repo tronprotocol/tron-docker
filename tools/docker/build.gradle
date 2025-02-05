@@ -121,25 +121,11 @@ task testDocker {
 // Make sure to `docker login` first
 task dockerUpload {
     dependsOn sourceDocker
-    def architecture = System.getenv('architecture')
-    if (architecture == null) {
-        architecture = "amd64" //set default as amd64
-    }
     def image = "${dockerImageName}:${dockerBuildVersion}"
-    def additionalTags = []
-
-    if (project.hasProperty('branch') && project.property('branch') == 'main') {
-        additionalTags.add('develop')
-    }
-
-    if (!isInterimBuild(dockerBuildVersion)) {
-        additionalTags.add(dockerBuildVersion.split(/\./)[0..1].join('.'))
-    }
 
     doLast {
         exec {
-            def archVariantImage = "${image}-${architecture}"
-            def cmd = "docker tag '${image}' '${archVariantImage}' && docker push '${archVariantImage}'"
+            def cmd = "docker push '${image}'"
             println "Executing '${cmd}'"
             executable shell
             args "-c", cmd
