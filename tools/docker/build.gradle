@@ -57,7 +57,7 @@ def buildTime() {
 // set the shell command to use according to os
 def shell = org.gradle.internal.os.OperatingSystem.current().isWindows() ? "${projectDir}\\wslsh.bat" : '/bin/bash'
 
-def dockerBuildVersion = project.hasProperty('release.releaseVersion') ? project.getProperty('release.releaseVersion') : "${version}"
+def dockerBuildVersion = project.hasProperty('release.releaseVersion') ? project.getProperty('release.releaseVersion') : "latest"
 def dockerOrgName = project.hasProperty('dockerOrgName') ? project.getProperty("dockerOrgName") : "tronprotocol"
 def dockerArtifactName = project.hasProperty("dockerArtifactName") ? project.getProperty("dockerArtifactName") : "java-tron"
 def dockerImageName = "${dockerOrgName}/${dockerArtifactName}"
@@ -90,13 +90,6 @@ task sourceDocker {
             args "-c", "docker build ${dockerPlatform} --build-arg BUILD_DATE=${buildTime()} --build-arg VERSION=${dockerBuildVersion} --build-arg VCS_REF=${gitDetails.hash} -t ${image} ."
         }
     }
-}
-
-// Takes the version and if it contains SNAPSHOT, alpha, beta or RC in version then return true indicating an interim build
-def isInterimBuild(dockerBuildVersion) {
-    return (dockerBuildVersion ==~ /.*-SNAPSHOT/) || (dockerBuildVersion ==~ /.*-alpha/)
-            || (dockerBuildVersion ==~ /.*-beta/) || (dockerBuildVersion ==~ /.*-RC.*/)
-            || (dockerBuildVersion ==~ /.*develop.*/)
 }
 
 
