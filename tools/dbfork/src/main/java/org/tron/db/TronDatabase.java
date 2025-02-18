@@ -68,6 +68,10 @@ public class TronDatabase {
     dbSource.deleteData(key);
   }
 
+  public boolean has(byte[] key) {
+    return dbSource.getData(key) != null;
+  }
+
   /**
    * reset the database.
    */

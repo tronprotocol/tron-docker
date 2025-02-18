@@ -9,7 +9,7 @@ The following configuration files are required:
 	- Configuration file(by default, these exist in the current repository directory)
 		main network: ./conf/main_net_config.conf
 		nile network: ./conf/nile_net_config.conf
-		private network: ./conf/private_net_config_*.conf
+		private network: ./conf/private_net_config.conf
 	- Docker compose file(by default, these exist in the current repository directory)
 		main network: ./single_node/docker-compose.fullnode.main.yml
 		nile network: ./single_node/docker-compose.fullnode.nile.yml

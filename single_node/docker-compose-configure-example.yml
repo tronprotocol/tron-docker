@@ -1,0 +1,20 @@
+services:
+  tron-node:
+    container_name: tron-node
+    image: tronprotocol/java-tron:latest  # Add specific tag if needed
+    mem_limit: 16g
+    ports:
+      - "8090:8090"
+      - "8091:8091"
+      - "18888:18888"
+      - "18888:18888/udp"
+      - "50051:50051"
+    volumes:
+      - ../conf:/java-tron/conf
+      - ../logs:/java-tron/logs
+      - ../output-directory:/java-tron/output-directory
+    command: >
+      -jvm "{-Xmx14g -Xms12g -XX:+UseConcMarkSweepGC}"
+      -c /java-tron/conf/main_net_config.conf
+      -d /java-tron/output-directory
+      -w

@@ -8,6 +8,7 @@ implement shadow fork testing, which includes:
 - Write new witnesses to the state and update new active witnesses
 - Write new balance for new addresses
 - Modify the owner permission of existing account to simulate the account operation
+- Modify the TRC10 and TRC20 balances
 - Set the new `latesteBlockHeaderTimestamp` to avoid the delay in producing blocks
 - Set the new `maintenanceTimeInterval` and `nextMaintenanceTime` optionally to facilitate testing
 
@@ -86,6 +87,26 @@ accounts = [
   {
     address = "TLLM21wteSPs4hKjbxgmH1L6poyMjeTbHm"
     owner = "TS1hu4ZCcwBFYpQqUGoWy1GWBzamqxiT5W"
+  },
+  {
+    address = "TRY18iTFy6p8yhWiCt1dhd2gz2c15ungq3"
+    trc10Id = "1000001"
+    trc10Balance = 100000000
+  }
+]
+
+trc20Contracts = [
+  {
+    contractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+    balancesSlotPosition = 0
+    address = "TRY18iTFy6p8yhWiCt1dhd2gz2c15ungq3"
+    balance = "98800000000000000"
+  },
+  {
+    contractAddress = "TSSMHYeV2uE9qYH95DqyoCuNCzEL1NvU3S"
+    balancesSlotPosition = 0
+    address = "TRY18iTFy6p8yhWiCt1dhd2gz2c15ungq3"
+    balance = "128745186062510400000000000"
   }
 ]
 
@@ -105,14 +126,26 @@ For the `accounts`, we can configure the following properties:
 - `accountType`: set the account type, namely `Normal`, `AssetIssue` and `Contract`
 - `balance`: set the balance of the account
 - `owner`: set the owner permission of the account
+- `trc10Id`: the TRC10 token ID
+- `trc10Balance`: change the balance of `trc10Id`
 
-*Note*: If you need to add new address, you can use the [tronlink](https://www.tronlink.org/) or [wallet-cli](https://github.com/tronprotocol/wallet-cli?tab=readme-ov-file#account-related-commands) to
-genrate the private key and address.
+*Note*: If you need to add new address, you can use the [tronlink](https://www.tronlink.org/) or [wallet-cli](https://github.com/tronprotocol/wallet-cli?tab=readme-ov-file#account-related-commands) to genrate the private key and address.
+
+For the `trc20Contracts`, we can configure the following properties:
+- `contractAddress`: set the TRC20 contract address
+- `balancesSlotPosition`: set the `balances` slot position in the TRC20 contract storage layout
+- `address`: set the account address
+- `balance`: set the TRC20 balance
+
+*Note*: the `balancesSlotPosition` sets slot position for
+`mapping(address account => uint256) private _balances` variable in the TRC20 contract.
+For most standard TRC20 contracts, the `balancesSlotPosition` is 0. For some special cases,
+you may need to change the `balancesSlotPosition` value. For more details about the variable slot position
+in the contract, please refer [layout_in_storage](https://docs.soliditylang.org/en/latest/internals/layout_in_storage.html).
 
 set `latestBlockHeaderTimestamp` as current millisecond time to avoid the delay in producing blocks.
 
 set `maintenanceTimeInterval` and `nextMaintenanceTime` optionally to facilitate testing.
-
 
 Execute database fork command:
 ```shell script

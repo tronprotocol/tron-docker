@@ -1,5 +1,5 @@
 services:
-  tron-node:
+  tron-node-private:
     container_name: tron-witness1
     image: tronprotocol/java-tron:latest  # Add specific tag if needed
     mem_limit: 6g
@@ -11,8 +11,8 @@ services:
       - "50051:50051"
     volumes:
       - ../conf:/java-tron/conf
-      - ../logs:/java-tron/logs
-      - ../output-directory:/java-tron/output-directory
+      - ../logs/private:/java-tron/logs
+      - ../output-directory/private:/java-tron/output-directory
     command:
       - -jvm
       - "{-Xmx4g -Xms2g -XX:+UseConcMarkSweepGC}"  # Using environment variable for JVM arguments

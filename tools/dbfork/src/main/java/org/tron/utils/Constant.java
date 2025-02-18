@@ -12,6 +12,15 @@ public class Constant {
   public static final String ACCOUNT_ADDRESS = "address";
   public static final String ACCOUNT_BALANCE = "balance";
   public static final String ACCOUNT_OWNER = "owner";
+  public static final String ACCOUNT_TRC10_ID = "trc10Id";
+  public static final String ACCOUNT_TRC10_BALANCE = "trc10Balance";
+
+  public static final String TRC20_CONTRACTS_KEY = "trc20Contracts";
+  public static final String TRC20_CONTRACT_ADDRESS = "contractAddress";
+  public static final String TRC20_BALANCES_POSITION = "balancesSlotPosition";
+  public static final String TRC20_ACCOUNT = "address";
+  public static final String TRC20_BALANCE = "balance";
+
   public static final String LATEST_BLOCK_TIMESTAMP = "latestBlockHeaderTimestamp";
   public static final String MAINTENANCE_INTERVAL = "maintenanceTimeInterval";
   public static final String NEXT_MAINTENANCE_TIME = "nextMaintenanceTime";
@@ -21,6 +30,10 @@ public class Constant {
   public static final String WITNESS_SCHEDULE_STORE = "witness_schedule";
   public static final String ACCOUNT_STORE = "account";
   public static final String DYNAMIC_PROPERTY_STORE = "properties";
+  public static final String ASSET_ISSUE_V2 = "asset-issue-v2";
+  public static final String ACCOUNT_ASSET = "account-asset";
+  public static final String CONTRACT_STORE = "contract";
+  public static final String STORAGE_ROW_STORE = "storage-row";
 
   public static final byte[] LATEST_BLOCK_HEADER_TIMESTAMP = "latest_block_header_timestamp"
       .getBytes();

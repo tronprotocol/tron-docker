@@ -1,0 +1,11 @@
+services:
+  tron-node:
+    container_name: tron-node
+    image: tronprotocol/java-tron:latest  # Add specific tag if needed
+    mem_limit: 16g
+    ports:
+      - "8090:8090"
+      - "8091:8091"
+      - "18888:18888"
+      - "18888:18888/udp"
+      - "50051:50051"

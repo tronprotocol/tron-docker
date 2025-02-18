@@ -10,13 +10,13 @@ This tool bundles multiple commands into one, enabling the community to quickly 
 ### Examples
 
 ```
-# Help information for docker command
+# Help information for java-tron docker image build and testing command
 $ ./trond docker
 
-# Help information for snapshot command
+# Help information for database snapshot download related command
 $ ./trond snapshot
 
-# Help information for node command
+# Help information for Tron single FullNode deployment command
 $ ./trond node
 
 ```

@@ -1,5 +1,6 @@
 package org.tron;
 
+import com.google.common.primitives.Bytes;
 import com.google.protobuf.ByteString;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -20,6 +21,7 @@ import org.tron.core.capsule.WitnessCapsule;
 import org.tron.db.TronDatabase;
 import org.tron.utils.Utils;
 import picocli.CommandLine;
+
 import static org.tron.utils.Constant.*;
 
 public class DBForkTest {
@@ -28,6 +30,10 @@ public class DBForkTest {
   private TronDatabase witnessScheduleStore;
   private TronDatabase accountStore;
   private TronDatabase dynamicPropertiesStore;
+  private TronDatabase accountAssetStore;
+  private TronDatabase assetIssueV2Store;
+  private TronDatabase contractStore;
+  private TronDatabase storageRowStore;
 
   @Rule
   public final TemporaryFolder folder = new TemporaryFolder();
@@ -37,11 +43,13 @@ public class DBForkTest {
 
   public void init() {
     witnessStore = new TronDatabase(dbPath, WITNESS_STORE, dbEngine);
-    witnessScheduleStore = new TronDatabase(dbPath, WITNESS_SCHEDULE_STORE,
-        dbEngine);
+    witnessScheduleStore = new TronDatabase(dbPath, WITNESS_SCHEDULE_STORE, dbEngine);
     accountStore = new TronDatabase(dbPath, ACCOUNT_STORE, dbEngine);
-    dynamicPropertiesStore = new TronDatabase(dbPath, DYNAMIC_PROPERTY_STORE,
-        dbEngine);
+    dynamicPropertiesStore = new TronDatabase(dbPath, DYNAMIC_PROPERTY_STORE, dbEngine);
+    accountAssetStore = new TronDatabase(dbPath, ACCOUNT_ASSET, dbEngine);
+    assetIssueV2Store = new TronDatabase(dbPath, ASSET_ISSUE_V2, dbEngine);
+    contractStore = new TronDatabase(dbPath, CONTRACT_STORE, dbEngine);
+    storageRowStore = new TronDatabase(dbPath, STORAGE_ROW_STORE, dbEngine);
   }
 
   public void close() {
@@ -49,6 +57,10 @@ public class DBForkTest {
     witnessScheduleStore.close();
     accountStore.close();
     dynamicPropertiesStore.close();
+    accountAssetStore.close();
+    assetIssueV2Store.close();
+    contractStore.close();
+    storageRowStore.close();
   }
 
   @Test
@@ -137,8 +149,21 @@ public class DBForkTest {
               Assert.assertArrayEquals(Commons.decodeFromBase58Check(a.getString(ACCOUNT_OWNER)),
                   account.getPermissionById(0).getKeys(0).getAddress().toByteArray());
             }
-          }
-      );
+            if (a.hasPath(ACCOUNT_TRC10_ID) && a.hasPath(ACCOUNT_TRC10_BALANCE)
+                && a.getLong(ACCOUNT_TRC10_BALANCE) > 0) {
+              String trc10Id = a.getString(ACCOUNT_TRC10_ID);
+              if (assetIssueV2Store.has(ByteArray.fromString(trc10Id))) {
+                if (account.getAssetOptimized()) {
+                  byte[] k = Bytes.concat(address, ByteArray.fromString(trc10Id));
+                  byte[] value = accountAssetStore.get(k);
+                  Assert.assertEquals(a.getLong(ACCOUNT_TRC10_BALANCE), ByteArray.toLong(value));
+                } else {
+                  long value = account.getAssetMapV2().get(trc10Id);
+                  Assert.assertEquals(a.getLong(ACCOUNT_TRC10_BALANCE), value);
+                }
+              }
+            }
+          });
     }
 
     if (forkConfig.hasPath(LATEST_BLOCK_TIMESTAMP)) {

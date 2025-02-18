@@ -21,13 +21,13 @@ var rootCmd = &cobra.Command{
 			This tool bundles multiple commands into one, enabling the community to quickly get started with TRON network interaction and development.
 		`),
 	Example: heredoc.Doc(`
-			# Help information for docker command
+			# Help information for java-tron docker image build and testing command
 			$ ./trond docker
 
-			# Help information for snapshot command
+			# Help information for database snapshot download related command
 			$ ./trond snapshot
 
-			# Help information for node command
+			# Help information for Tron single FullNode deployment command
 			$ ./trond node
 		`),
 	// Uncomment the following line if your bare application
@@ -70,7 +70,7 @@ var genDocsCmd = &cobra.Command{
 			$ ./trond gen-docs
 		`),
 	Run: func(cmd *cobra.Command, args []string) {
-		docsDir := "./docs"
+		docsDir := "./tools/trond/docs"
 
 		// Create docs directory if it doesn't exist
 		if _, err := os.Stat(docsDir); os.IsNotExist(err) {

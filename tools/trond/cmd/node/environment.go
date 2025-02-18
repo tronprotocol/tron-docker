@@ -19,7 +19,6 @@ var envCmd = &cobra.Command{
 
 			The following files are required:
 
-				- Database directory: ./output-directory (if not exists, will create it)
 				- Configuration file(by default, these exist in the current repository directory)
 					main network: ./conf/main_net_config.conf
 					nile network: ./conf/nile_net_config.conf
@@ -31,18 +30,17 @@ var envCmd = &cobra.Command{
 						private network: ./single_node/docker-compose.witness.private.yml
 					multiple nodes
 						private network: ./private_net/docker-compose.private.yml
-				- Log directory: ./logs (if not exists, will create it)
 		`),
 	Example: heredoc.Doc(`
 			# Check and configure node local environment
 			$ ./trond node env
 		`),
 	Run: func(cmd *cobra.Command, args []string) {
-		checkEnv()
+		checkEnvFailed()
 	},
 }
 
-func checkEnv() bool {
+func checkEnvFailed() bool {
 	checkFalse := false
 
 	if yes, err := utils.PwdEndsWith("tron-docker"); err != nil || !yes {
@@ -51,17 +49,14 @@ func checkEnv() bool {
 	}
 
 	checkDirectory := map[string]bool{
-		"./conf":             false,
-		"./output-directory": true,
-		"./logs":             true,
-		"./single_node":      false,
-		"./private_net":      false,
+		"./conf":        false,
+		"./single_node": false,
+		"./private_net": false,
 	}
 
 	checkFile := []string{
 		"./conf/main_net_config.conf",
 		"./conf/nile_net_config.conf",
-		"./conf/private_net_config.conf",
 		"./conf/private_net_config_witness1.conf",
 		"./conf/private_net_config_witness2.conf",
 		"./conf/private_net_config_others.conf",

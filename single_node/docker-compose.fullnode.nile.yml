@@ -1,5 +1,5 @@
 services:
-  tron-node:
+  tron-node-nile:
     container_name: tron-node
     image: tronprotocol/java-tron:latest  # Add specific tag if needed
     mem_limit: 16g
@@ -11,8 +11,8 @@ services:
       - "50051:50051"
     volumes:
       - ../conf:/java-tron/conf
-      - ../logs:/java-tron/logs
-      - ../output-directory:/java-tron/output-directory
+      - ../logs/nile:/java-tron/logs
+      - ../output-directory/nile:/java-tron/output-directory
     command:
       - -jvm
       - "{-Xmx14g -Xms12g -XX:+UseConcMarkSweepGC}"  # Using environment variable for JVM arguments

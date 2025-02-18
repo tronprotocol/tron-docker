@@ -13,20 +13,24 @@ var runSingleCmd = &cobra.Command{
 	Use:   "run-single",
 	Short: "Run single java-tron node for different networks.",
 	Long: heredoc.Doc(`
-			You need to make sure the local environment is ready before running the node. Run "./trond node env" to check the environment before starting the node.
+	You need to make sure the local environment is ready before running the node. Run "./trond node env" to check the environment before starting the node.
 
-			The following files are required:
+	The following files are required:
 
-				- Database directory: ./output-directory
-				- Configuration file(by default, these exist in the current repository directory)
-					main network: ./conf/main_net_config.conf
-					nile network: ./conf/nile_net_config.conf
-					private network: ./conf/private_net_config.conf
-				- Docker compose file(by default, these exist in the current repository directory)
-					main network: ./single_node/docker-compose.fullnode.main.yml
-					nile network: ./single_node/docker-compose.fullnode.nile.yml
-					private network: ./single_node/docker-compose.witness.private.yml
-				- Log directory: ./logs
+		- Configuration file(by default, these exist in the current repository directory)
+			main network: ./conf/main_net_config.conf
+			nile network: ./conf/nile_net_config.conf
+			private network: ./conf/private_net_config.conf
+		- Docker compose file(by default, these exist in the current repository directory)
+			main network: ./single_node/docker-compose.fullnode.main.yml
+			nile network: ./single_node/docker-compose.fullnode.nile.yml
+			private network: ./single_node/docker-compose.witness.private.yml
+
+
+	The following directory will be created after you start any type of java-tron fullnode:
+
+		- Log directory: ./logs/$type
+		- Database directory: ./output-directory/$type
 		`),
 	Example: heredoc.Doc(`
 			# Run single java-tron fullnode for main network
@@ -39,7 +43,7 @@ var runSingleCmd = &cobra.Command{
 			$ ./trond node run-single -t witness-private
 		`),
 	Run: func(cmd *cobra.Command, args []string) {
-		if !checkEnv() {
+		if checkEnvFailed() {
 			fmt.Println("Error: local environment check failed, please redownload this repository and try")
 			return
 		}
@@ -69,7 +73,18 @@ var runSingleCmd = &cobra.Command{
 			return
 		}
 		fmt.Println("Node started successfully.")
-		fmt.Println("You can check the log file in ./logs directory. Run 'tail -f ./logs/tron.log' to check the log.")
+
+		var directory string
+		switch nType {
+		case "full-main":
+			directory = "/mainnet"
+		case "full-nile":
+			directory = "/nile"
+		case "witness-private":
+			directory = "/private"
+		}
+		fmt.Println(fmt.Sprintf("You can check the log file in ./logs%s directory. Run 'tail -f ./logs%s/tron.log' to check the log.", directory, directory))
+
 		fmt.Println("You can also check the docker container's status by running 'docker ps'.")
 	},
 }
@@ -118,7 +133,6 @@ var runSingleStopCmd = &cobra.Command{
 			fmt.Println("Error: file not exists or not a file:", dockerComposeFile)
 		}
 
-		fmt.Println("Starting node...")
 		fmt.Println("Using docker compose file: ", dockerComposeFile)
 		if msg, err := utils.StopDockerCompose(dockerComposeFile); err != nil {
 			fmt.Println("Error: ", err)

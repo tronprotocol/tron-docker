@@ -13,11 +13,7 @@ A private chain needs at least one fullnode run by a [Super Representative (SR)]
 
 ### Docker
 
-Please download and install the latest version of Docker from the official Docker website:
-* Docker Installation for [Mac](https://docs.docker.com/docker-for-mac/install/)
-* Docker Installation for [Windows](https://docs.docker.com/docker-for-windows/install/)
-* Docker Installation for [Linux](https://docs.docker.com/desktop/setup/install/linux/)
-
+For Docker and Docker Compose installation refer [prerequisites](../README.md#prerequisites).
 Then check the Docker resource settings to ensure it has at least 3GB of memory per TRON node.
 
 **Notice:** The actual memory consumption for a FullNode depends heavily on your configurations and use case. Factors such as block generation frequency, transactions per second (TPS), and external API request QPS can significantly impact memory usage. To help you get started quickly, the memory consumption under the following guidance is within **3GB**. However, for a TRON Mainnet Super Representative (SR) FullNode capable of supporting **2000 TPS**, the memory resource per FullNode container should set above **16GB**.

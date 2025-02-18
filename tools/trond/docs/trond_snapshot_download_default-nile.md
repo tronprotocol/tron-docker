@@ -16,7 +16,7 @@ trond snapshot download default-nile [flags]
 
 ```
 # Download latest nile testnet lite fullnode snapshot from default source(database.nileex.io) to current directory
-$ ./trond snapshot download default-nile
+$ nohup ./trond snapshot download default-nile &
 
 ```
 

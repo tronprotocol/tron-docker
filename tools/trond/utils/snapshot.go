@@ -7,46 +7,34 @@ import (
 )
 
 func ShowSnapshotDataSourceList() {
-	fmt.Printf("\nMain network - Lite Fullnode Data Source: \n")
-	for _, items := range config.SnapshotDataSource[config.STLiteLevelSG] {
-		fmt.Printf("  Region: %s\n", items.Region)
-		fmt.Printf("    DBType: %s\n", items.DBType)
-		fmt.Printf("    Domain: %s\n", items.Domain)
-		fmt.Printf("    Description: %s\n\n", items.Description)
-	}
 
-	fmt.Printf("Main network - Fullnode Data Source: \n")
-	for _, items := range config.SnapshotDataSource[config.STFullLevelSG] {
-		fmt.Printf("  Region: %s\n", items.Region)
-		fmt.Printf("    DBType: %s\n", items.DBType)
-		fmt.Printf("    Domain: %s\n", items.Domain)
-		fmt.Printf("    Description: %s\n\n", items.Description)
+	var MainLiteList []config.SnapshotDataSourceItem
+	var MainFullList []config.SnapshotDataSourceItem
+	var NileList []config.SnapshotDataSourceItem
+	for _, list := range config.SnapshotDataSource {
+		for _, item := range list {
+			if item.NetworkType == config.Network_Mainnet && item.DataType == config.DataType_Lite {
+				MainLiteList = append(MainLiteList, item)
+			} else if item.NetworkType == config.Network_Mainnet && item.DataType == config.DataType_Full {
+				MainFullList = append(MainFullList, item)
+			} else if item.NetworkType == config.Network_Nile && item.DataType == config.DataType_All {
+				NileList = append(NileList, item)
+			}
+		}
 	}
-	for _, items := range config.SnapshotDataSource[config.STFullLevelNA] {
-		fmt.Printf("  Region: %s\n", items.Region)
-		fmt.Printf("    DBType: %s\n", items.DBType)
-		fmt.Printf("    Domain: %s\n", items.Domain)
-		fmt.Printf("    Description: %s\n\n", items.Description)
-	}
-	for _, items := range config.SnapshotDataSource[config.STFullLevelNAWithAccountHistory] {
-		fmt.Printf("  Region: %s\n", items.Region)
-		fmt.Printf("    DBType: %s\n", items.DBType)
-		fmt.Printf("    Domain: %s\n", items.Domain)
-		fmt.Printf("    Description: %s\n\n", items.Description)
-	}
-	for _, items := range config.SnapshotDataSource[config.STFullRocksSG] {
-		fmt.Printf("  Region: %s\n", items.Region)
-		fmt.Printf("    DBType: %s\n", items.DBType)
-		fmt.Printf("    Domain: %s\n", items.Domain)
-		fmt.Printf("    Description: %s\n\n", items.Description)
-	}
+	displayOrder := map[string][]config.SnapshotDataSourceItem{}
+	displayOrder["Nile network - Fullnode/Lite Fullnode Data Source:"] = NileList
+	displayOrder["Main network - Lite Fullnode Data Source:"] = MainLiteList
+	displayOrder["Main network - Fullnode Data Source:"] = MainFullList
 
-	fmt.Printf("Nile network - Fullnode/Lite Fullnode Data Source: \n")
-	for _, items := range config.SnapshotDataSource[config.STNileLevel] {
-		fmt.Printf("  Region: %s\n", items.Region)
-		fmt.Printf("    DBType: %s\n", items.DBType)
-		fmt.Printf("    Domain: %s\n", items.Domain)
-		fmt.Printf("    Description: %s\n\n", items.Description)
+	for title, list := range displayOrder {
+		fmt.Println(title)
+		for _, item := range list {
+			fmt.Printf("  Region: %s\n", item.Region)
+			fmt.Printf("    DBType: %s\n", item.DBType)
+			fmt.Printf("    Domain: %s\n", item.Domain)
+			fmt.Printf("    Description: %s\n\n", item.Description)
+		}
 	}
 }
 

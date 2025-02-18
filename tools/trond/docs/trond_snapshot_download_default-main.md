@@ -16,7 +16,7 @@ trond snapshot download default-main [flags]
 
 ```
 # Download latest mainnet lite fullnode snapshot from default source(34.143.247.77) to current directory
-$ ./trond snapshot download default-main
+$ nohup ./trond snapshot download default-main &
 
 ```
 
