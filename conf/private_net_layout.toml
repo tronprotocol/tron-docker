@@ -1,0 +1,34 @@
+# [database]
+# database_tar = "/path/to/database"
+
+# [[nodes]]
+# node_ip = "192.168.1.1" # Remote node's IP
+# node_direcotry = "/path/to/direcotry" # Remote node's working direcotry for node
+# config_file = "/path/to/config" # Config file for remote node
+# node_type = "fullnode/sr" # Fullnode or SR node
+# ssh_port = 22
+# ssh_user = "user1"
+# ssh_password = "password1" # Optional; uncomment if using password auth
+# # ssh_key = "/path/to/key1"  # Optional; uncomment if using key auth
+
+# [[nodes]]
+# node_ip = "192.168.1.2"  # Changed IP to demonstrate different nodes
+# node_direcotry = "/path/to/direcotry"
+# config_file = "/path/to/config"
+# node_type = "fullnode/sr"
+# ssh_port = 2222  # Custom SCP port for this node
+# ssh_user = "user2"
+# # No password or key; assumes SSH agent or pre-configured key
+
+[database]
+database_tar = "/Users/barbatos/Downloads/hello.tgz"
+
+[[nodes]]
+node_ip = "ec2-3-25-116-244.ap-southeast-2.compute.amazonaws.com"
+node_direcotry = "/home/ubuntu/mytest"
+config_file = "/Users/barbatos/Documents/code/md/mydev/tron-docker/conf/private_net_config_others.conf"
+node_type = "fullnode"
+ssh_port = 22
+ssh_user = "ubuntu"
+# ssh_password = "password1"
+ssh_key = "/Users/barbatos/Downloads/test-ci.pem"  # Optional; uncomment if using key auth

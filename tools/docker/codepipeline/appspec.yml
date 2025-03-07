@@ -1,0 +1,7 @@
+version: 0.0
+os: linux
+hooks:
+  AfterInstall:
+    - location: deploy.sh
+      timeout: 180
+      runas: ubuntu

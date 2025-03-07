@@ -1,0 +1,52 @@
+name: Zip, Sign, and Upload to S3
+
+on:
+  workflow_dispatch:
+    inputs:
+      bucket-name:
+        description: 'S3 bucket name to upload tron-docker.zip'
+        required: true  # Makes the input mandatory
+
+jobs:
+  build-and-sign:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Zip files from tools/docker/codepipeline into docker.zip (no directory structure)
+        run: |
+          # Ensure the directory exists
+          if [ -d "tools/docker/codepipeline" ]; then
+            cd tools/docker/codepipeline
+            zip -r docker.zip ./*
+          else
+            echo "Error: tools/docker/codepipeline directory not found!"
+            exit 1
+          fi
+
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Sign docker.zip with GPG
+        run: |
+          gpg --detach-sign --armor docker.zip
+          # This creates docker.zip.asc (ASCII-armored signature)
+
+      - name: Zip docker.zip and signature into tron-docker.zip
+        run: |
+          zip tron-docker.zip docker.zip docker.zip.asc
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1  # Adjust to your S3 bucket's region
+
+      - name: Upload tron-docker.zip to S3
+        run: |
+          aws s3 cp tron-docker.zip s3://${{ github.event.inputs.bucket-name }}/tron-docker.zip

@@ -15,7 +15,7 @@ var envCmd = &cobra.Command{
 	Long: heredoc.Doc(`
 			Default environment configuration for node operation:
 
-			Current directory: tron-docker/tools/trond
+			Current directory: tron-docker
 
 			The following files are required:
 
