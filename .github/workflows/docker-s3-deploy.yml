@@ -6,6 +6,9 @@ on:
       bucket-name:
         description: 'S3 bucket name to upload tron-docker.zip'
         required: true  # Makes the input mandatory
+      aws-region:
+        description: 'AWS region for the S3 bucket (e.g., us-east-1)'
+        required: true  # Makes the input mandatory
 
 jobs:
   build-and-sign:
@@ -36,17 +39,17 @@ jobs:
           gpg --detach-sign --armor docker.zip
           # This creates docker.zip.asc (ASCII-armored signature)
 
-      - name: Zip docker.zip and signature into tron-docker.zip
+      - name: Zip docker.zip and signature into tron-docker-test.zip
         run: |
-          zip tron-docker.zip docker.zip docker.zip.asc
+          zip tron-docker-test.zip docker.zip docker.zip.asc
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1  # Adjust to your S3 bucket's region
+          aws-region: ${{ github.event.inputs.aws-region }}  # Use input for region
 
-      - name: Upload tron-docker.zip to S3
+      - name: Upload tron-docker-test.zip to S3
         run: |
-          aws s3 cp tron-docker.zip s3://${{ github.event.inputs.bucket-name }}/tron-docker.zip
+          aws s3 cp tron-docker-test.zip s3://${{ github.event.inputs.bucket-name }}/tron-docker-test.zip
