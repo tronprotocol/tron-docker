@@ -39,15 +39,15 @@ jobs:
           gpg --detach-sign --armor docker.zip
           # This creates docker.zip.asc (ASCII-armored signature)
 
-      - name: Export GPG public key to tron-docker(099228E1).pub
+      - name: Export GPG public key to tron-docker-099228E1.pub
         run: |
-          gpg --armor --export > tron-docker(099228E1).pub
+          gpg --armor --export > tron-docker-099228E1.pub
           # Optional: Set restrictive permissions
-          chmod 600 tron-docker(099228E1).pub
+          chmod 600 tron-docker-099228E1.pub
 
       - name: Zip docker.zip and signature into tron-docker.zip
         run: |
-          zip tron-docker.zip docker.zip docker.zip.asc tron-docker(099228E1).pub
+          zip tron-docker.zip docker.zip docker.zip.asc tron-docker-099228E1.pub
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
