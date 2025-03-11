@@ -33,7 +33,7 @@ You can explore all the commands supported by trond using the following command:
 Now it supports the following commands:
 - `./trond snapshot`
   - These commands are used to manage and download database snapshots, allowing you to start a node without syncing from the genesis block
-- `/trond docker`
+- `./trond docker`
   - Build and test the java-tron Docker image locally. Note that this is optional for deploying a node, as you can use the official Docker image from Docker Hub.
 - `./trond node`
   - Deploy java-tron node for various networks.
@@ -45,7 +45,7 @@ It is recommended to run these commands in `tron-docker` root directory.
 
 #### 1. Download the Mainnet database snapshot
 
-First, download the latest mainnet lite fullnode snapshot from the default source (`34.143.247.77`) to the current directory:
+First, download the latest Mainnet database lite snapshot from the default source (`34.143.247.77`) to the current directory:
 
 ```
 ./trond snapshot download default-main
