@@ -7,7 +7,7 @@ on:
         description: 'S3 bucket name to upload tron-docker.zip'
         required: true  # Makes the input mandatory
       aws-region:
-        description: 'AWS region for the S3 bucket (e.g., us-east-1)'
+        description: 'AWS region for the S3 bucket (e.g., ap-southeast-1)'
         required: true  # Makes the input mandatory
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
           # Ensure the directory exists
           if [ -d "tools/docker/codepipeline" ]; then
             cd tools/docker/codepipeline
-            zip -r ../../../docker.zip ./*
+            zip -r ../../../docker.zip ./appspec.yml ./deploy.sh
           else
             echo "Error: tools/docker/codepipeline directory not found!"
             exit 1
@@ -39,9 +39,15 @@ jobs:
           gpg --detach-sign --armor docker.zip
           # This creates docker.zip.asc (ASCII-armored signature)
 
-      - name: Zip docker.zip and signature into tron-docker-test.zip
+      - name: Export GPG public key to tron-docker(099228E1).pub
         run: |
-          zip tron-docker-test.zip docker.zip docker.zip.asc
+          gpg --armor --export > tron-docker(099228E1).pub
+          # Optional: Set restrictive permissions
+          chmod 600 tron-docker(099228E1).pub
+
+      - name: Zip docker.zip and signature into tron-docker.zip
+        run: |
+          zip tron-docker.zip docker.zip docker.zip.asc tron-docker(099228E1).pub
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -50,6 +56,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ github.event.inputs.aws-region }}  # Use input for region
 
-      - name: Upload tron-docker-test.zip to S3
+      - name: Upload tron-docker.zip to S3
         run: |
-          aws s3 cp tron-docker-test.zip s3://${{ github.event.inputs.bucket-name }}/tron-docker-test.zip
+          aws s3 cp tron-docker.zip s3://${{ github.event.inputs.bucket-name }}/tron-docker.zip
