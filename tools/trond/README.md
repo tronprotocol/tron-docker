@@ -100,6 +100,6 @@ Here is an example of stopping the node using `trond`:
 For more detailed usage instructions, refer to the help command or the [command documentation](./docs/trond.md).
 
 ## TroubleShooting
-If you have any issues start a java-tron node, please refer to the corresponding [TroubleShooting](../../single_node/README.md#troubleshot) guide.
+If you have any issues starting a java-tron node, please refer to the corresponding [TroubleShooting](../../single_node/README.md#troubleshot) guide.
 
 This tool has been tested on **macOS** and **Linux** only. If you encounter any other issues, please report them on [GitHub](https://github.com/tronprotocol/tron-docker/issues).
