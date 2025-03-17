@@ -16,3 +16,4 @@ repos:
       - id: shellcheck
       - id: script-must-have-extension
       - id: git-dirty # test
+        args: [--untracked-files=no]   # Ignore untracked files
