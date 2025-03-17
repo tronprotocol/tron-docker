@@ -3,7 +3,6 @@ repos:
     rev: v5.0.0
     hooks:
       - id: trailing-whitespace
-        entry: trailing-whitespace-fixer
       - id: end-of-file-fixer
       - id: check-json
       - id: check-yaml
@@ -17,7 +16,6 @@ repos:
       - id: shellcheck
       - id: script-must-have-extension
       - id: git-dirty
-#      - id: git-check
 
 #  - repo: local # check java files format use a customized script
 #    hooks:
