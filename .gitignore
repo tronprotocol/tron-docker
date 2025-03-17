@@ -28,3 +28,9 @@ go1.*
 /single_node/output-directory/
 /metric_monitor/logs/
 /private_net/logs/
+/metric_monitor/push_mode/receive-data/
+/metric_monitor/push_mode/minio/
+/metric_monitor/push_mode/prometheus_data/
+/logs_monitor/minio/
+/logs_monitor/loki-data/
+/logs_monitor/promtail-data/

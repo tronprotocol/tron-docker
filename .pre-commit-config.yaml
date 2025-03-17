@@ -17,3 +17,4 @@ repos:
       - id: script-must-have-extension
       - id: git-dirty
       - id: git-check
+        files: "tools/gradlew.bat"
