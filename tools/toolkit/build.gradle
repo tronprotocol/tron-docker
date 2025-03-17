@@ -69,26 +69,3 @@ jar {
         )
     }
 }
-
-checkstyle {
-    toolVersion = '8.41'
-    configFile = file("../../conf/checkstyle/checkStyleAll.xml")
-}
-
-tasks.register('checkstyleToolkitMain', Checkstyle) {
-    source 'src/main/java'
-    include '**/*.java'
-    exclude '**/generated/**'
-    classpath = files()
-    ignoreFailures = false
-}
-
-tasks.register('checkstyleToolkitTest', Checkstyle) {
-    source 'src/test/java'
-    include '**/*.java'
-    exclude '**/generated/**'
-    classpath = files()
-    ignoreFailures = false
-}
-
-check.dependsOn checkstyleToolkitMain, checkstyleToolkitTest

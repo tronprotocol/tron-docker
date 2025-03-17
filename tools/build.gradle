@@ -1,11 +1,31 @@
 allprojects {
     group = 'io.github.tronprotocol'
-    version = '0.1'
+    version = '1.0'
 }
 
 subprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
+    apply plugin: 'checkstyle'
+
+    checkstyle {
+        toolVersion = '8.41'
+        configFile = file("../../conf/checkstyle/checkStyleAll.xml")
+    }
+    checkstyleMain {
+        source 'src/main/java'
+        include '**/*.java'
+        exclude '**/generated/**'
+        classpath = files()
+        ignoreFailures = false
+    }
+    checkstyleTest {
+        source 'src/test/java'
+        include '**/*.java'
+        exclude '**/generated/**'
+        classpath = files()
+        ignoreFailures = false
+    }
 }
 
 //tasks.register('copyToParent', Copy) {
