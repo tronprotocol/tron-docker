@@ -3,6 +3,7 @@ repos:
     rev: v5.0.0
     hooks:
       - id: trailing-whitespace
+        entry: trailing-whitespace-fixer
       - id: end-of-file-fixer
       - id: check-json
       - id: check-yaml
@@ -16,5 +17,12 @@ repos:
       - id: shellcheck
       - id: script-must-have-extension
       - id: git-dirty
-      - id: git-check
-        files: ^(.gitignore|README.md|CHANGELOG.md|CONTRIBUTING.md|LICENSE|LICENSE.md|LICENSE.txt|LICENSE.rst|LICENSE.html|LICENSE.htm|LICENSE.markdown|LICENSE.mdown|LICENSE.mkdn|LICENSE.mdwn|LICENSE.mdown|LICENSE.text|LICENSE.TXT|LICENSE.RST|LICENSE.HTML|LICENSE.HTM|LICENSE.MARKDOWN|LICENSE.MDOWN|LICENSE.MKDN|LICENSE.MDWN|LICENSE.MDOWN|LICENSE.TEXT|LICENSE)
+#      - id: git-check
+
+#  - repo: local # check java files format use a customized script
+#    hooks:
+#      - id: checkstyle
+#        name: Checkstyle
+#        entry: ./run-checkstyle.sh
+#        language: script
+#        files: \.java$
