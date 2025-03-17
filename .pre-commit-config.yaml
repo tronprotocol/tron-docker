@@ -15,4 +15,4 @@ repos:
     hooks:
       - id: shellcheck
       - id: script-must-have-extension
-      - id: git-dirty
+      - id: git-dirty # test
