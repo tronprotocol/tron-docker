@@ -32,9 +32,8 @@ Please ensure you have the latest versions of Docker and Docker Compose installe
 
 - **For Mac:**
   Download Docker from [Docker Desktop for Mac](https://docs.docker.com/docker-for-mac/install/).
-
-  *Note: Docker Compose is included in the Docker installation package for Mac.*
-
+  Docker Compose is included in the Docker installation package for Mac.
+  - After installation, open Docker application, navigate to Settings \-> Resources \-> Network, and check the option \`Use kernel networking for UDP\`. Then restart Docker to apply.
 
 - **For Linux:**
   Download and install both Docker and Docker Compose plugin from the official websites:
