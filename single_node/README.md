@@ -170,6 +170,15 @@ If the following error cases do not cover your issue, please refer to [Issue Wor
 If the logs show `Peer stats: all 0, active 0, passive 0`, it means tron node cannot use **P2P Node Discovering Protocol** to find neighbors.
 This protocol operates over UDP through port 18888. Therefore, the most likely cause of this issue is a network problem.
 Try debugging with the following steps:
-- Use the command `docker ps` to check if the ports mapping includes `-p 18888:18888`.
+- Use the command `docker ps` to check if the port mapping includes `-p 18888:18888`.
 - Verify your local network settings to ensure that port 18888 is not blocked.
-- Open the Docker application, navigate to Settings -> Resources -> Network, and check the option 'Use kernel networking for UDP'. Then restart Docker and your container.
+- If you are using a cloud server, check the security group settings to ensure that port 18888 is open.
+- If you are using macOS, open the Docker application, navigate to Settings \-> Resources \-> Network, and check the option \`Use kernel networking for UDP\`. Then restart Docker and your container.
+- If you are using Linux, you may need to enable IP forwarding:
+  - Add \`net.ipv4.ip_forward=1\` to file \`/etc/sysctl.conf\`
+  - Then restarted the network service and validated the setting:
+  ```
+  [root@demo]# systemctl restart network
+  [root@demo]# sysctl net.ipv4.ip_forward
+  net. ipv4. ip_forward = 1 // expected output
+  ```
