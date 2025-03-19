@@ -13,14 +13,6 @@ repos:
   - repo: 'https://github.com/jumanjihouse/pre-commit-hooks'
     rev: 3.0.0
     hooks:
-      - id: shellcheck
+      #- id: shellcheck
       - id: script-must-have-extension
       - id: git-dirty
-      - id: git-check
-  - repo: local # check java files format use a customized script
-    hooks:
-      - id: checkstyle
-        name: Checkstyle
-        entry: ./run-checkstyle.sh
-        language: script
-        files: \.java$

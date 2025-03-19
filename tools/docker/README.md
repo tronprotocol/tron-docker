@@ -8,9 +8,9 @@ If you encounter any problems during the build or testing process, please refer 
 - Docker
 - JDK 8 (required by Gradle)
 
-Follow the [getting-started](https://github.com/tronprotocol/tron-docker/blob/main/README.md#getting-started) guide to download Docker and the tron-docker repository. Then, navigate to the gradlew directory.
+Follow the [getting-started](https://github.com/tronprotocol/tron-docker/blob/main/README.md#getting-started) guide to download Docker and the tron-docker repository. Then, navigate to the tools directory.
 ```
-cd ./tools/gradlew
+cd tools
 ```
 Container testing uses the [Goss](https://github.com/goss-org/goss/blob/v0.4.9/README.md) tool, a YAML-based testing framework for validating service states. While no additional installation is required, it is beneficial to learn the basic usage of [Goss with container](https://goss.readthedocs.io/en/stable/container_image/) to help you better understand the following testing scripts.
 
@@ -18,7 +18,7 @@ Container testing uses the [Goss](https://github.com/goss-org/goss/blob/v0.4.9/R
 
 The command below will trigger the build process for java-tron image. Now we only support platform:`linux/amd64`.
 ```
-./gradlew --no-daemon sourceDocker
+./gradlew sourceDocker
 ```
 
 The compilation process may take above 30 minutes, depending on your network conditions. Once it successfully completes, you will be able to see the generated image.
@@ -34,13 +34,13 @@ It will trigger the execution of `task sourceDocker` in [build.gradle](build.gra
 
 For example:
 ```
-./gradlew --no-daemon sourceDocker -PdockerOrgName=yourOrgName -PdockerArtifactName=test -Prelease.releaseVersion=V1.1.0
+./gradlew sourceDocker -PdockerOrgName=yourOrgName -PdockerArtifactName=test -Prelease.releaseVersion=V1.1.0
 ```
 ## Test image
 
 Test the java-tron image use the command below.
 ```
-./gradlew --no-daemon testDocker
+./gradlew testDocker
 ```
 This will trigger the execution of `task testDocker` in [build.gradle](build.gradle). According to this logic, it will run the [test.sh](test.sh) script with the parameter of the Docker image name.
 
@@ -54,7 +54,7 @@ Currently, there are three test files:
 
 Successful execution will output the following content:
 ```
-$ ./gradlew --no-daemon testDocker
+$ ./gradlew testDocker
 
 To honour the JVM settings for this build a single-use Daemon process will be forked. See https://docs.gradle.org/7.6.4/userguide/gradle_daemon.html#sec:disabling_the_daemon.
 Daemon will be stopped at the end of the build

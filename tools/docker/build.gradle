@@ -4,15 +4,11 @@
  * This is a general purpose Gradle build.
  * Learn more about Gradle by exploring our samples at https://docs.gradle.org/7.6.4/samples
  */
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
 import java.text.SimpleDateFormat
-
-//allprojects {
-//    version = "1.0.0"
-//    apply plugin: "java-library"
-//}
-
-version = "1.0.0"
-apply plugin: "java-library"
 
 def getGitCommitDetails(length = 8) {
     try {
@@ -48,7 +44,7 @@ def getGitCommitDetails(length = 8) {
 
 // http://label-schema.org/rc1/
 // using the RFC3339 format "2016-04-12T23:20:50.52Z"
-def buildTime() {
+static def buildTime() {
     def df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'")
     df.setTimeZone(TimeZone.getTimeZone("UTC"))
     return df.format(new Date())
@@ -62,22 +58,22 @@ def dockerOrgName = project.hasProperty('dockerOrgName') ? project.getProperty("
 def dockerArtifactName = project.hasProperty("dockerArtifactName") ? project.getProperty("dockerArtifactName") : "java-tron"
 def dockerImageName = "${dockerOrgName}/${dockerArtifactName}"
 
-task sourceDocker {
+tasks.register('sourceDocker') {
     def dockerBuildDir = "${rootDir}/build/docker-tron/"
 
     doLast {
         copy {
-            from file("${rootDir}/../docker/Dockerfile")
+            from file("${rootDir}/docker/Dockerfile")
             into(dockerBuildDir)
         }
         copy {
-            from file("${rootDir}/../docker/docker-entrypoint.sh")
+            from file("${rootDir}/docker/docker-entrypoint.sh")
             into "${dockerBuildDir}"
         }
         exec {
             def image = "${dockerImageName}:${dockerBuildVersion}"
             def dockerPlatform = ""
-            if (project.hasProperty('docker-platform')){
+            if (project.hasProperty('docker-platform')) {
                 dockerPlatform = "--platform ${project.getProperty('docker-platform')}"
                 println "Building for platform ${project.getProperty('docker-platform')}"
             } else {
@@ -93,9 +89,9 @@ task sourceDocker {
 }
 
 
-task testDocker {
+tasks.register('testDocker') {
     dependsOn sourceDocker
-    def dockerReportsDir = "${rootDir}/../docker/reports/"
+    def dockerReportsDir = "${rootDir}/docker/reports/"
 
     doFirst {
         new File(dockerReportsDir).mkdir()
@@ -104,7 +100,7 @@ task testDocker {
     doLast {
         exec {
             def image = "${dockerImageName}:${dockerBuildVersion}"
-            workingDir "${rootDir}/../docker"
+            workingDir "${rootDir}/docker"
             executable shell
             args "-c", "./test.sh ${image}"
         }
@@ -112,7 +108,7 @@ task testDocker {
 }
 
 // Make sure to `docker login` first
-task dockerUpload {
+tasks.register('dockerUpload') {
     dependsOn sourceDocker
     def image = "${dockerImageName}:${dockerBuildVersion}"
 

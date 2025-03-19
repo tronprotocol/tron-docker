@@ -1,7 +1,33 @@
 package org.tron.plugins;
 
 import static org.tron.plugins.DbFork.getActiveWitness;
-import static org.tron.plugins.utils.Constant.*;
+import static org.tron.plugins.utils.Constant.ACCOUNTS_KEY;
+import static org.tron.plugins.utils.Constant.ACCOUNT_ADDRESS;
+import static org.tron.plugins.utils.Constant.ACCOUNT_ASSET;
+import static org.tron.plugins.utils.Constant.ACCOUNT_BALANCE;
+import static org.tron.plugins.utils.Constant.ACCOUNT_NAME;
+import static org.tron.plugins.utils.Constant.ACCOUNT_OWNER;
+import static org.tron.plugins.utils.Constant.ACCOUNT_STORE;
+import static org.tron.plugins.utils.Constant.ACCOUNT_TRC10_BALANCE;
+import static org.tron.plugins.utils.Constant.ACCOUNT_TRC10_ID;
+import static org.tron.plugins.utils.Constant.ACCOUNT_TYPE;
+import static org.tron.plugins.utils.Constant.ACTIVE_WITNESSES;
+import static org.tron.plugins.utils.Constant.ASSET_ISSUE_V2;
+import static org.tron.plugins.utils.Constant.CONTRACT_STORE;
+import static org.tron.plugins.utils.Constant.DYNAMIC_PROPERTY_STORE;
+import static org.tron.plugins.utils.Constant.LATEST_BLOCK_HEADER_TIMESTAMP;
+import static org.tron.plugins.utils.Constant.LATEST_BLOCK_TIMESTAMP;
+import static org.tron.plugins.utils.Constant.MAINTENANCE_INTERVAL;
+import static org.tron.plugins.utils.Constant.MAINTENANCE_TIME;
+import static org.tron.plugins.utils.Constant.MAINTENANCE_TIME_INTERVAL;
+import static org.tron.plugins.utils.Constant.NEXT_MAINTENANCE_TIME;
+import static org.tron.plugins.utils.Constant.STORAGE_ROW_STORE;
+import static org.tron.plugins.utils.Constant.WITNESS_ADDRESS;
+import static org.tron.plugins.utils.Constant.WITNESS_KEY;
+import static org.tron.plugins.utils.Constant.WITNESS_SCHEDULE_STORE;
+import static org.tron.plugins.utils.Constant.WITNESS_STORE;
+import static org.tron.plugins.utils.Constant.WITNESS_URL;
+import static org.tron.plugins.utils.Constant.WITNESS_VOTE;
 
 import com.google.common.primitives.Bytes;
 import com.google.protobuf.ByteString;
@@ -22,7 +48,6 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Commons;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.WitnessCapsule;
-import org.tron.plugins.utils.Constant;
 import org.tron.plugins.utils.FileUtils;
 import org.tron.plugins.utils.db.DBInterface;
 import org.tron.plugins.utils.db.DbTool;
@@ -36,8 +61,8 @@ public class DbForkTest {
   private DBInterface dynamicPropertiesStore;
   private DBInterface accountAssetStore;
   private DBInterface assetIssueV2Store;
-  private DBInterface contractStore;
-  private DBInterface storageRowStore;
+  //private DBInterface contractStore;
+  //private DBInterface storageRowStore;
 
   @Rule
   public final TemporaryFolder folder = new TemporaryFolder();
@@ -61,14 +86,14 @@ public class DbForkTest {
   public void init() throws IOException, RocksDBException {
 
     String srcDir = dbPath + File.separator + "database";
-    witnessStore = DbTool.getDB(srcDir, Constant.WITNESS_STORE);
-    witnessScheduleStore = DbTool.getDB(srcDir, Constant.WITNESS_SCHEDULE_STORE);
-    accountStore = DbTool.getDB(srcDir, Constant.ACCOUNT_STORE);
-    dynamicPropertiesStore = DbTool.getDB(srcDir, Constant.DYNAMIC_PROPERTY_STORE);
-    accountAssetStore = DbTool.getDB(srcDir, Constant.ACCOUNT_ASSET);
-    assetIssueV2Store = DbTool.getDB(srcDir, Constant.ASSET_ISSUE_V2);
-    contractStore = DbTool.getDB(srcDir, Constant.CONTRACT_STORE);
-    storageRowStore = DbTool.getDB(srcDir, Constant.STORAGE_ROW_STORE);
+    witnessStore = DbTool.getDB(srcDir, WITNESS_STORE);
+    witnessScheduleStore = DbTool.getDB(srcDir, WITNESS_SCHEDULE_STORE);
+    accountStore = DbTool.getDB(srcDir, ACCOUNT_STORE);
+    dynamicPropertiesStore = DbTool.getDB(srcDir, DYNAMIC_PROPERTY_STORE);
+    accountAssetStore = DbTool.getDB(srcDir, ACCOUNT_ASSET);
+    assetIssueV2Store = DbTool.getDB(srcDir, ASSET_ISSUE_V2);
+    //contractStore = DbTool.getDB(srcDir, CONTRACT_STORE);
+    //storageRowStore = DbTool.getDB(srcDir, STORAGE_ROW_STORE);
   }
 
   public void close() {
@@ -110,15 +135,14 @@ public class DbForkTest {
 
       List<ByteString> witnessAddresses = witnesses.stream().map(
           w -> {
-            ByteString address = ByteString.copyFrom(
+            return ByteString.copyFrom(
                 Commons.decodeFromBase58Check(w.getString(WITNESS_ADDRESS)));
-            return address;
           }
       ).collect(Collectors.toList());
       Assert.assertArrayEquals(getActiveWitness(witnessAddresses),
           witnessScheduleStore.get(ACTIVE_WITNESSES));
 
-      witnesses.stream().forEach(
+      witnesses.forEach(
           w -> {
             WitnessCapsule witnessCapsule = new WitnessCapsule(witnessStore.get(
                 Commons.decodeFromBase58Check(w.getString(WITNESS_ADDRESS))));
@@ -143,7 +167,7 @@ public class DbForkTest {
       if (accounts.isEmpty()) {
         System.out.println("no account listed in the config.");
       }
-      accounts.stream().forEach(
+      accounts.forEach(
           a -> {
             byte[] address = Commons.decodeFromBase58Check(a.getString(ACCOUNT_ADDRESS));
             AccountCapsule account = new AccountCapsule(accountStore.get(address));

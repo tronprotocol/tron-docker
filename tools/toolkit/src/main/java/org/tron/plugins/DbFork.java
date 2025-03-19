@@ -299,8 +299,8 @@ public class DbFork implements Callable<Integer> {
       }
 
       trc20Contracts = trc20Contracts.stream()
-          .filter(c -> c.hasPath(TRC20_CONTRACT_ADDRESS) && c.hasPath(TRC20_BALANCES_POSITION) &&
-              c.hasPath(TRC20_ACCOUNT) && c.hasPath(TRC20_BALANCE))
+          .filter(c -> c.hasPath(TRC20_CONTRACT_ADDRESS) && c.hasPath(TRC20_BALANCES_POSITION)
+              && c.hasPath(TRC20_ACCOUNT) && c.hasPath(TRC20_BALANCE))
           .collect(Collectors.toList());
 
       if (trc20Contracts.isEmpty()) {

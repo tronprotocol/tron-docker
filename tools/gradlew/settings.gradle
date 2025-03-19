@@ -1,5 +1,0 @@
-rootProject.name = 'tron-docker'
-include('docker')
-project(':docker').projectDir = new File(rootDir, '../docker')
-include('toolkit')
-project(':toolkit').projectDir = new File(rootDir, '../toolkit')

@@ -9,11 +9,11 @@ First, you can build the toolkit by executing the following command:
 # clone the tron-docker
 git clone https://github.com/tronprotocol/tron-docker.git
 # enter gradlew directory
-cd tron-docker/tools/gradlew
+cd tron-docker/tools
 # build the toolkit
-./gradlew :toolkit:build
+./gradlew clean build -x test
 # execute the command
-java -jar ../dbfork/build/libs/Toolkit.jar db -h
+java -jar toolkit/build/libs/Toolkit.jar db -h
 ```
 The most commonly used db commands are:
 - `help`: Displays help information about the specified command
