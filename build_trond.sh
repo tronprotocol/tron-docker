@@ -59,7 +59,8 @@ done
 # Check if Go is already installed on the system
 if command -v go &> /dev/null; then
     echo "Go is already installed on the system: $(go version)"
-    SYSTEM_GO=true
+    # SYSTEM_GO=true
+    SYSTEM_GO=false
 else
     SYSTEM_GO=false
 fi
@@ -120,6 +121,12 @@ if [[ "$SYSTEM_GO" == false ]]; then
     GO_BIN="$(pwd)/go/bin"
     echo "Go binary path set to: $GO_BIN"
     export PATH="$GO_BIN:$PATH"
+
+    # Set GOPATH to a separate workspace directory
+    GOPATH="$(pwd)/gopath"
+    echo "GOPATH set to: $GOPATH"
+    export GOPATH
+    mkdir -p "$GOPATH/src" "$GOPATH/pkg" "$GOPATH/bin"
 else
     # Use the system Go binary location
     GO_BIN=$(dirname "$(command -v go)")

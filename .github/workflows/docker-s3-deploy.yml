@@ -34,20 +34,16 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
-      - name: Sign docker.zip with GPG
+      - name: Sign tron-docker.zip with GPG
         run: |
-          gpg --detach-sign --armor docker.zip
-          # This creates docker.zip.asc (ASCII-armored signature)
+          gpg --detach-sign --armor tron-docker.zip
+          # This creates tron-docker.zip.asc (ASCII-armored signature)
 
       - name: Export GPG public key to tron-docker-099228E1.pub
         run: |
           gpg --armor --export > tron-docker-099228E1.pub
           # Optional: Set restrictive permissions
           chmod 600 tron-docker-099228E1.pub
-
-      - name: Zip docker.zip and signature into tron-docker.zip
-        run: |
-          zip tron-docker.zip docker.zip docker.zip.asc tron-docker-099228E1.pub
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -58,4 +54,6 @@ jobs:
 
       - name: Upload tron-docker.zip to S3
         run: |
+          aws s3 cp tron-docker-099228E1.pub s3://${{ github.event.inputs.bucket-name }}/public-keys/tron-docker-099228E1.pub
+          aws s3 cp tron-docker-099228E1.pub s3://${{ github.event.inputs.bucket-name }}/signatures/tron-docker.zip.asc
           aws s3 cp tron-docker.zip s3://${{ github.event.inputs.bucket-name }}/tron-docker.zip

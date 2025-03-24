@@ -43,4 +43,5 @@ $ ./trond docker test -o tronprotocol -a java-tron -v latest
 
 * [trond](trond.md)	 - Docker automation for TRON nodes
 * [trond docker build](trond_docker_build.md)	 - Build java-tron docker image.
+* [trond docker install-docker](trond_docker_install-docker.md)	 - Check and install docker and docker-compose (for Linux and Mac)
 * [trond docker test](trond_docker_test.md)	 - Test java-tron docker image.

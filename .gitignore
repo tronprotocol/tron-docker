@@ -22,6 +22,7 @@ trond
 !trond/
 .DS_Store
 go
+gopath
 go1.*
 *FullNode_output-directory*
 

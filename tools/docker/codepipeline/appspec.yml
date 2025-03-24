@@ -1,7 +1,15 @@
 version: 0.0
 os: linux
 hooks:
-  AfterInstall:
-    - location: deploy.sh
+  BeforeInstall:
+    - location: prepare_environment.sh
+      timeout: 300
+      runas: ubuntu
+  ApplicationStart:
+    - location: start_server.sh
       timeout: 180
+      runas: ubuntu
+  ValidateService:
+    - location: validate_service.sh
+      timeout: 300
       runas: ubuntu

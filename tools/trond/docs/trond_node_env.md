@@ -6,7 +6,7 @@ Check and configure node local environment
 
 Default environment configuration for node operation:
 
-Current directory: tron-docker/tools/trond
+Current directory: tron-docker
 
 The following files are required:
 

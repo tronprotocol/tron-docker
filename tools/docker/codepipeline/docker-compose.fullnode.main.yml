@@ -1,0 +1,20 @@
+services:
+  tron-node-mainnet:
+    container_name: tron-node
+    image: tronprotocol/java-tron:v4.7.7  # Add specific tag if needed
+    mem_limit: 16g
+    ports:
+      - "8090:8090"
+      - "8091:8091"
+      - "18888:18888"
+      - "18888:18888/udp"
+      - "50051:50051"
+    volumes:
+      - ./conf:/java-tron/conf
+      - ./logs/mainnet:/java-tron/logs
+      - ./output-directory/mainnet:/java-tron/output-directory
+    command:
+      - -jvm
+      - "{-Xmx14g -Xms12g -XX:+UseConcMarkSweepGC}"  # Using environment variable for JVM arguments
+      - -c
+      - /java-tron/conf/main_net_config.conf
