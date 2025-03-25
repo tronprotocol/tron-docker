@@ -42,4 +42,3 @@ $ ./trond node env-multi
 ### SEE ALSO
 
 * [trond node](trond_node.md)	 - Commands for operating java-tron docker node.
-

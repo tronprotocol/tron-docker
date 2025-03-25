@@ -1,4 +1,4 @@
-name: Zip, Sign, and Upload to S3
+name: Deploy new docker fullnode
 
 on:
   workflow_dispatch:
@@ -17,12 +17,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Zip files from tools/docker/codepipeline into docker.zip (no directory structure)
+      - name: Zip files from tools/docker/codepipeline into tron-docker.zip (no directory structure)
         run: |
           # Ensure the directory exists
           if [ -d "tools/docker/codepipeline" ]; then
             cd tools/docker/codepipeline
-            zip -r ../../../docker.zip ./appspec.yml ./deploy.sh
+            zip -r ../../../tron-docker.zip ./appspec.yml ./deploy.sh
           else
             echo "Error: tools/docker/codepipeline directory not found!"
             exit 1

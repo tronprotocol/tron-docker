@@ -43,4 +43,3 @@ $ ./trond node run-single stop -t witness-private
 ### SEE ALSO
 
 * [trond node run-multi](trond_node_run-multi.md)	 - Run multi remote java-tron nodes according to the layout configuration file.
-
