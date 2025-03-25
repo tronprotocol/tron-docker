@@ -55,6 +55,6 @@ jobs:
       - name: Upload tron-docker.zip to S3
         run: |
           aws s3 cp tron-docker-099228E1.pub s3://${{ github.event.inputs.bucket-name }}/public-keys/tron-docker-099228E1.pub
-          aws s3 cp tron-docker-099228E1.pub s3://${{ github.event.inputs.bucket-name }}/signatures/tron-docker.zip.asc
+          aws s3 cp tron-docker-099228E1.pub s3://${{ github.event.inputs.bucket-name }}/signatures/tron-docker-latest.asc
           aws s3 cp tron-docker.zip s3://${{ github.event.inputs.bucket-name }}/package/publish-latest.zip
           aws s3 cp tron-docker.zip s3://${{ github.event.inputs.bucket-name }}/package/publish-v0.0.1.zip
