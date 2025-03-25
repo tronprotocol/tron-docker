@@ -11,7 +11,7 @@ while [ $attempt -le $max_attempts ]; do
         -H 'User-Agent: RapidAPI/4.2.8 (Macintosh; OS X/15.3.1) GCDHTTPRequest' \
         -d '{"detail":false}')
 
-    if [ ! -z "$response" ]; then
+    if [ -n "$response" ]; then
         echo "Node API is responding successfully"
         exit 0
     fi
