@@ -23,8 +23,6 @@ jobs:
           if [ -d "tools/docker/codepipeline" ]; then
             cd tools/docker/codepipeline
             zip -r ../../../tron-docker.zip ./appspec.yml ./validate_service.sh ./start_server.sh ./prepare_environment.sh
-            cd ../../..
-            zip -r tron-docker.zip.zip tron-docker.zip
           else
             echo "Error: tools/docker/codepipeline directory not found!"
             exit 1
@@ -58,5 +56,6 @@ jobs:
         run: |
           aws s3 cp tron-docker-099228E1.pub s3://${{ github.event.inputs.bucket-name }}/public-keys/tron-docker-099228E1.pub
           aws s3 cp tron-docker-099228E1.pub s3://${{ github.event.inputs.bucket-name }}/signatures/tron-docker-latest.asc
-          aws s3 cp tron-docker.zip s3://${{ github.event.inputs.bucket-name }}/package/publish-latest.zip
-          aws s3 cp tron-docker.zip s3://${{ github.event.inputs.bucket-name }}/package/publish-v0.0.1.zip
+          zip -r tron-docker.zip.zip tron-docker.zip
+          aws s3 cp tron-docker.zip.zip s3://${{ github.event.inputs.bucket-name }}/package/publish-latest.zip.zip
+          aws s3 cp tron-docker.zip.zip s3://${{ github.event.inputs.bucket-name }}/package/publish-v0.0.1.zip.zip
