@@ -22,4 +22,11 @@ while [ $attempt -le $max_attempts ]; do
 done
 
 echo "Node API failed to respond after 5 minutes"
+
+TARGET_DIR="/home/ubuntu/yk/mydev/tron-docker/"
+DOCKER_COMPOSE_FILE="docker-compose.fullnode.nile.yml"
+
+cd ${TARGET_DIR} || exit
+./trond node run-single stop -t full-nile -f ${DOCKER_COMPOSE_FILE}
+
 exit 1
