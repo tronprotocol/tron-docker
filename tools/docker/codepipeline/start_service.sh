@@ -1,8 +1,9 @@
 #!/bin/bash
 
-TARGET_DIR="/home/ubuntu/tron-docker/"
+TARGET_DIR="/home/ubuntu/yk/mydev/tron-docker/"
 DOCKER_COMPOSE_FILE="docker-compose.fullnode.nile.yml"
 
+cp ${DOCKER_COMPOSE_FILE} ${TARGET_DIR}
 cd ${TARGET_DIR} || exit
 ./trond node run-single -t full-nile -f ${DOCKER_COMPOSE_FILE}
 
