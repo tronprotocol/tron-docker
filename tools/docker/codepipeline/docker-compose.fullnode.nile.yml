@@ -1,7 +1,7 @@
 services:
   tron-node-nile:
     container_name: tron-node
-    image: tronprotocol/java-tron:Nile_4.8.0  # Add specific tag if needed
+    image: java-tron:Nile_4.8.0  # Add specific tag if needed
     mem_limit: 12g
     ports:
       - "8090:8090"
