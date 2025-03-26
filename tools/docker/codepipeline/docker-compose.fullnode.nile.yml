@@ -2,7 +2,7 @@ services:
   tron-node-nile:
     container_name: tron-node
     image: java-tron:Nile_4.8.0  # Add specific tag if needed
-    mem_limit: 12g
+    mem_limit: 6g
     ports:
       - "8090:8090"
       - "8091:8091"
@@ -15,6 +15,6 @@ services:
       - ./output-directory/nile:/java-tron/output-directory
     command:
       - -jvm
-      - "{-Xmx14g -Xms12g -XX:+UseConcMarkSweepGC}"  # Using environment variable for JVM arguments
+      - "{-Xmx5g -Xms4g -XX:+UseConcMarkSweepGC}"  # Using environment variable for JVM arguments
       - -c
       - /java-tron/conf/nile_net_config.conf
