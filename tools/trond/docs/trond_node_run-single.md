@@ -34,17 +34,17 @@ trond node run-single [flags]
 ```
 # Run single java-tron fullnode for main network using the default docker compose file
 # The default docker compose file is ./single_node/docker-compose.fullnode.main.yml
-# The default configuration file is./conf/main_net_config.conf
+# The default configuration file is ./conf/main_net_config.conf
 $ ./trond node run-single -t full-main
 
 # Run single java-tron fullnode for nile network using the default docker compose file
-# The default docker compose file is./single_node/docker-compose.fullnode.nile.yml
-# The default configuration file is./conf/nile_net_config.conf
+# The default docker compose file is ./single_node/docker-compose.fullnode.nile.yml
+# The default configuration file is ./conf/nile_net_config.conf
 $ ./trond node run-single -t full-nile
 
 # Run single java-tron witness node for private network using the default docker compose file
-# The default docker compose file is./single_node/docker-compose.witness.private.yml
-# The default configuration file is./conf/private_net_config_*.conf
+# The default docker compose file is ./single_node/docker-compose.witness.private.yml
+# The default configuration file is ./conf/private_net_config_*.conf
 $ ./trond node run-single -t witness-private
 
 # Run single java-tron fullnode for main network using the specified docker compose file
