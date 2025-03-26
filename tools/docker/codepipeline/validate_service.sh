@@ -5,7 +5,7 @@ max_attempts=30  # 5 minutes total (30 * 10 seconds)
 attempt=1
 
 while [ $attempt -le $max_attempts ]; do
-    response=$(curl -s -X POST http://127.0.0.1:50090/wallet/getblock \
+    response=$(curl -s -X POST http://127.0.0.1:8090/wallet/getblock \
         -H 'Content-Type: application/json; charset=utf-8' \
         -H 'Host: api.trongrid.io' \
         -H 'User-Agent: RapidAPI/4.2.8 (Macintosh; OS X/15.3.1) GCDHTTPRequest' \
