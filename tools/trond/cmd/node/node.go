@@ -19,7 +19,7 @@ var NodeCmd = &cobra.Command{
 				** coming soon **
 				4. deploy multiple nodes in local single machine
 				5. stop multiple nodes in local single machine
-				6. deploy multiple nodes in different local machines with ssh(one node on one machine)
+				6. deploy multiple nodes in different local machines using ssh(one node on one machine)
 				7. deploy wallet-cli
 
 			Please refer to the available commands below.
@@ -31,14 +31,21 @@ var NodeCmd = &cobra.Command{
 			# Check and configure node local environment
 			$ ./trond node env
 
-			# Run single java-tron fullnode for main network
-			$ ./trond node run-single -t full-main
+			# Stop single java-tron fullnode for main network using the default docker compose file
+			# The default docker compose file is ./single_node/docker-compose.fullnode.main.yml
+			$ ./trond node run-single stop -t full-main
 
-			# Run single java-tron fullnode for nile network
-			$ ./trond node run-single -t full-nile
+			# Stop single java-tron fullnode for nile network using the default docker compose file
+			# The default docker compose file is ./single_node/docker-compose.fullnode.nile.yml
+			$ ./trond node run-single stop -t full-nile
 
-			# Run single java-tron witness node for private network
-			$ ./trond node run-single -t witness-private
+			# Stop single java-tron witness node for private network using the default docker compose file
+			# The default docker compose file is ./single_node/docker-compose.witness.private.yml
+			$ ./trond node run-single stop -t witness-private
+
+			# Stop single java-tron fullnode for main network using the specified docker compose file
+			# The docker compose file is ./docker-compose.fullnode.main.yml
+			$ ./trond node run-single stop -t full-main -f ./docker-compose.fullnode.main.yml
 		`),
 }
 

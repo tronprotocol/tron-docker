@@ -21,20 +21,20 @@ trond node run-single stop [flags]
 
 ```
 # Stop single java-tron fullnode for main network using the default docker compose file
-# The default docker compose file is./single_node/docker-compose.fullnode.main.yml
+# The default docker compose file is ./single_node/docker-compose.fullnode.main.yml
 $ ./trond node run-single stop -t full-main
 
 # Stop single java-tron fullnode for nile network using the default docker compose file
-# The default docker compose file is./single_node/docker-compose.fullnode.nile.yml
+# The default docker compose file is ./single_node/docker-compose.fullnode.nile.yml
 $ ./trond node run-single stop -t full-nile
 
 # Stop single java-tron witness node for private network using the default docker compose file
-# The default docker compose file is./single_node/docker-compose.witness.private.yml
+# The default docker compose file is ./single_node/docker-compose.witness.private.yml
 $ ./trond node run-single stop -t witness-private
 
 # Stop single java-tron fullnode for main network using the specified docker compose file
 # The docker compose file is ./docker-compose.fullnode.main.yml
-$ ./trond node run-single stop -t full-main -f./docker-compose.fullnode.main.yml
+$ ./trond node run-single stop -t full-main -f ./docker-compose.fullnode.main.yml
 
 ```
 
