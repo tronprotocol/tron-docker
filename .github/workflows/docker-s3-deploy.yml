@@ -22,7 +22,7 @@ jobs:
           # Ensure the directory exists
           if [ -d "tools/docker/codepipeline" ]; then
             cd tools/docker/codepipeline
-            zip -r ../../../tron-docker.zip ./appspec.yml ./validate_service.sh ./start_server.sh ./prepare_environment.sh
+            zip -r ../../../tron-docker.zip ./appspec.yml ./validate_service.sh ./start_service.sh ./prepare_environment.sh
           else
             echo "Error: tools/docker/codepipeline directory not found!"
             exit 1
