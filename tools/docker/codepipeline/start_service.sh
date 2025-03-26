@@ -1,17 +1,17 @@
 #!/bin/bash
 
 TARGET_DIR="/home/ubuntu/tron-docker/"
-DOCKER_COMPOSE_FILE="docker-compose.fullnode.main.yml"
+DOCKER_COMPOSE_FILE="docker-compose.fullnode.nile.yml"
 
 cd ${TARGET_DIR} || exit
-./trond node run-single -t full-main -f ${DOCKER_COMPOSE_FILE}
+./trond node run-single -t full-nile -f ${DOCKER_COMPOSE_FILE}
 
 # Check if container is running
 max_attempts=12  # 2 minutes total (12 * 10 seconds)
 attempt=1
 
 while [ $attempt -le $max_attempts ]; do
-    if docker-compose -f ${DOCKER_COMPOSE_FILE} ps --services --filter "status=running" | grep -q "tron-full-main"; then
+    if docker-compose -f ${DOCKER_COMPOSE_FILE} ps --services --filter "status=running" | grep -q "tron-node-nile"; then
         echo "Container is running, proceeding to API check"
         break
     fi
