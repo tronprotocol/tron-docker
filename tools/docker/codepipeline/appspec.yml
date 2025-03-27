@@ -1,8 +1,8 @@
 version: 0.0
 os: linux
 files:
-  - source: docker-compose.fullnode.nile.yml
-    destination: /home/ubuntu/yk/mydev/tron-docker/
+  - source: docker-compose.fullnode.main.yml
+    destination: /data/tron-node/tron-docker/
 hooks:
   BeforeInstall:
     - location: prepare_environment.sh
