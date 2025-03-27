@@ -117,6 +117,7 @@ var runSingleStopCmd = &cobra.Command{
 					main network: ./single_node/docker-compose.fullnode.main.yml
 					nile network: ./single_node/docker-compose.fullnode.nile.yml
 					private network: ./single_node/docker-compose.witness.private.yml
+
 				- If you used a different docker compose file, you need to specify it by using the -f flags.
 		`),
 	Example: heredoc.Doc(`

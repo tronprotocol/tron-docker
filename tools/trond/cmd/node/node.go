@@ -28,7 +28,7 @@ var NodeCmd = &cobra.Command{
 			# Help information for node command
 			$ ./trond node
 
-			# Check and configure node local environment
+			# Check and configure node local environment. Make sure run this first before starting the node.
 			$ ./trond node env
 
 			# Run single java-tron fullnode for main network using the default docker compose file

@@ -60,7 +60,7 @@ setup_container(){
     esac
 
     log_pid=$!
-    info "Container ID: ${id:0:8}"
+    info "Container ID: ${id}"
 }
 
 get_file_from_docker() {

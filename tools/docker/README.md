@@ -109,7 +109,7 @@ INFO: Creating docker container
 WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested
 INFO: Copy goss files into container
 INFO: Starting docker container
-INFO: Container ID: e7e419dc
+INFO: Container ID: 080c92c3e40b575999df863d05eb0ef85899477b1188951fd4506697372d70c1
 INFO: Found goss_wait.yaml, waiting for it to pass before running tests
 INFO: Sleeping for 1.0
 INFO: Running Tests
@@ -123,6 +123,7 @@ INFO: Running Tests
 BUILD SUCCESSFUL in 47s
 2 actionable tasks: 2 executed
 ```
+It will automatically remove the test container it starts. If, for any reason, this process is manually killed, you can find the container ID from the log message "Container ID: xxxxxx" and manually remove the test container using `docker rm -f xxxxxx`.
 
 ## Troubleshooting
 
