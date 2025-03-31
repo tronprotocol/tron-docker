@@ -24,8 +24,7 @@ func CheckPort(ip string, port int) bool {
 	return true
 }
 
-// CheckSSH tests the SSH connection using the provided authentication method
-func CheckSSH(ip string, port int, user, password, keyPath string) error {
+func SSHConnect(ip string, port int, user, password, keyPath string) (*ssh.Client, error) {
 	sshConfig := &ssh.ClientConfig{
 		User:            user,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // Replace with known hosts verification in production
@@ -39,11 +38,11 @@ func CheckSSH(ip string, port int, user, password, keyPath string) error {
 		// Key-based authentication
 		key, err := os.ReadFile(keyPath)
 		if err != nil {
-			return fmt.Errorf("failed to read key file: %v", err)
+			return nil, fmt.Errorf("failed to read key file: %v", err)
 		}
 		signer, err := ssh.ParsePrivateKey(key)
 		if err != nil {
-			return fmt.Errorf("failed to parse private key: %v", err)
+			return nil, fmt.Errorf("failed to parse private key: %v", err)
 		}
 		authMethods = append(authMethods, ssh.PublicKeys(signer))
 	}
@@ -64,13 +63,20 @@ func CheckSSH(ip string, port int, user, password, keyPath string) error {
 	}
 
 	if len(authMethods) == 0 {
-		return fmt.Errorf("no valid authentication method available")
+		return nil, fmt.Errorf("no valid authentication method available")
 	}
 
 	sshConfig.Auth = authMethods
 
 	// Connect to the remote server
 	client, err := ssh.Dial("tcp", net.JoinHostPort(ip, fmt.Sprintf("%d", port)), sshConfig)
+	return client, err
+}
+
+// CheckSSH tests the SSH connection using the provided authentication method
+func CheckSSH(ip string, port int, user, password, keyPath string) error {
+	// Connect to the remote server
+	client, err := SSHConnect(ip, port, user, password, keyPath)
 	if err != nil {
 		return fmt.Errorf("failed to connect to SSH server at %s:%d: %v", ip, port, err)
 	}
@@ -98,50 +104,8 @@ func CheckSSH(ip string, port int, user, password, keyPath string) error {
 
 // SCPFile transfers a local file to a remote destination via SCP with a progress bar
 func SCPFile(ip string, port int, user, password, keyPath, localPath, remotePath string) error {
-	sshConfig := &ssh.ClientConfig{
-		User:            user,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // Replace in production
-		Timeout:         10 * time.Second,
-	}
-
-	var authMethods []ssh.AuthMethod
-
-	// Key-based authentication
-	if keyPath != "" {
-		key, err := os.ReadFile(keyPath)
-		if err != nil {
-			return fmt.Errorf("failed to read key file: %v", err)
-		}
-		signer, err := ssh.ParsePrivateKey(key)
-		if err != nil {
-			return fmt.Errorf("failed to parse private key: %v", err)
-		}
-		authMethods = append(authMethods, ssh.PublicKeys(signer))
-	}
-
-	// Password authentication
-	if password != "" {
-		authMethods = append(authMethods, ssh.Password(password))
-	}
-
-	// Attempt SSH agent authentication
-	if len(authMethods) == 0 {
-		conn, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK"))
-		if err == nil {
-			defer conn.Close()
-			agentClient := agent.NewClient(conn)
-			authMethods = append(authMethods, ssh.PublicKeysCallback(agentClient.Signers))
-		}
-	}
-
-	if len(authMethods) == 0 {
-		return fmt.Errorf("no valid authentication method available")
-	}
-
-	sshConfig.Auth = authMethods
-
 	// Connect to the remote server
-	client, err := ssh.Dial("tcp", net.JoinHostPort(ip, fmt.Sprintf("%d", port)), sshConfig)
+	client, err := SSHConnect(ip, port, user, password, keyPath)
 	if err != nil {
 		return fmt.Errorf("failed to dial SSH: %v", err)
 	}
@@ -217,50 +181,8 @@ func SCPFile(ip string, port int, user, password, keyPath, localPath, remotePath
 
 // SSHMkdirIfNotExist checks if a directory exists on a remote machine via SSH and creates it if it doesn't exist.
 func SSHMkdirIfNotExist(ip string, port int, user, password, keyPath, remoteDir string) error {
-	sshConfig := &ssh.ClientConfig{
-		User:            user,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // Replace in production
-		Timeout:         10 * time.Second,
-	}
-
-	var authMethods []ssh.AuthMethod
-
-	// Key-based authentication
-	if keyPath != "" {
-		key, err := os.ReadFile(keyPath)
-		if err != nil {
-			return fmt.Errorf("failed to read key file: %v", err)
-		}
-		signer, err := ssh.ParsePrivateKey(key)
-		if err != nil {
-			return fmt.Errorf("failed to parse private key: %v", err)
-		}
-		authMethods = append(authMethods, ssh.PublicKeys(signer))
-	}
-
-	// Password authentication
-	if password != "" {
-		authMethods = append(authMethods, ssh.Password(password))
-	}
-
-	// Attempt SSH agent authentication
-	if len(authMethods) == 0 {
-		conn, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK"))
-		if err == nil {
-			defer conn.Close()
-			agentClient := agent.NewClient(conn)
-			authMethods = append(authMethods, ssh.PublicKeysCallback(agentClient.Signers))
-		}
-	}
-
-	if len(authMethods) == 0 {
-		return fmt.Errorf("no valid authentication method available")
-	}
-
-	sshConfig.Auth = authMethods
-
 	// Connect to the remote server
-	client, err := ssh.Dial("tcp", net.JoinHostPort(ip, fmt.Sprintf("%d", port)), sshConfig)
+	client, err := SSHConnect(ip, port, user, password, keyPath)
 	if err != nil {
 		return fmt.Errorf("failed to dial SSH: %v", err)
 	}
@@ -305,50 +227,8 @@ func SSHMkdirIfNotExist(ip string, port int, user, password, keyPath, remoteDir 
 
 // RunRemoteCompose runs `docker-compose up -d` on a remote machine via SSH
 func RunRemoteCompose(ip string, port int, user, password, keyPath, composePath string, down bool) error {
-	sshConfig := &ssh.ClientConfig{
-		User:            user,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // Replace with known hosts in production
-		Timeout:         15 * time.Second,
-	}
-
-	var authMethods []ssh.AuthMethod
-
-	// Key-based authentication
-	if keyPath != "" {
-		key, err := os.ReadFile(keyPath)
-		if err != nil {
-			return fmt.Errorf("failed to read key file: %v", err)
-		}
-		signer, err := ssh.ParsePrivateKey(key)
-		if err != nil {
-			return fmt.Errorf("failed to parse private key: %v", err)
-		}
-		authMethods = append(authMethods, ssh.PublicKeys(signer))
-	}
-
-	// Password authentication
-	if password != "" {
-		authMethods = append(authMethods, ssh.Password(password))
-	}
-
-	// Attempt SSH agent authentication
-	if len(authMethods) == 0 {
-		conn, err := net.Dial("unix", os.Getenv("SSH_AUTH_SOCK"))
-		if err == nil {
-			defer conn.Close()
-			agentClient := agent.NewClient(conn)
-			authMethods = append(authMethods, ssh.PublicKeysCallback(agentClient.Signers))
-		}
-	}
-
-	if len(authMethods) == 0 {
-		return fmt.Errorf("no valid authentication method available")
-	}
-
-	sshConfig.Auth = authMethods
-
 	// Connect to the remote server
-	client, err := ssh.Dial("tcp", net.JoinHostPort(ip, fmt.Sprintf("%d", port)), sshConfig)
+	client, err := SSHConnect(ip, port, user, password, keyPath)
 	if err != nil {
 		return fmt.Errorf("failed to dial SSH: %v", err)
 	}
