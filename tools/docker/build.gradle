@@ -61,15 +61,16 @@ def dockerBuildVersion = project.hasProperty('release.releaseVersion') ? project
 def dockerOrgName = project.hasProperty('dockerOrgName') ? project.getProperty("dockerOrgName") : "tronprotocol"
 def dockerArtifactName = project.hasProperty("dockerArtifactName") ? project.getProperty("dockerArtifactName") : "java-tron"
 def dockerImageName = "${dockerOrgName}/${dockerArtifactName}"
-def dockerNetwork = project.hasProperty("network") ? project.getProperty("network") : "mainnet"
+def dockerNetwork = project.hasProperty("network") ? project.getProperty("network") : "nile"
 
 task sourceDocker {
     def dockerBuildDir = "${rootDir}/build/docker-tron/"
     def dockerfileName = "Dockerfile"
 
+    def image = "${dockerImageName}:${dockerBuildVersion}"
     if (dockerNetwork != "mainnet" && dockerNetwork != "") {
         dockerfileName = "${dockerfileName}.${dockerNetwork}"
-        dockerImageName = "${dockerImageName}-${dockerNetwork}"
+        image = "${dockerImageName}-${dockerNetwork}:${dockerBuildVersion}"
     }
 
     doLast {
@@ -84,7 +85,6 @@ task sourceDocker {
             into "${dockerBuildDir}"
         }
         exec {
-            def image = "${dockerImageName}:${dockerBuildVersion}"
             def dockerPlatform = ""
             if (project.hasProperty('docker-platform')){
                 dockerPlatform = "--platform ${project.getProperty('docker-platform')}"
@@ -106,8 +106,9 @@ task testDocker {
     //dependsOn sourceDocker
     def dockerReportsDir = "${rootDir}/../docker/reports/"
 
+    def image = "${dockerImageName}:${dockerBuildVersion}"
     if (dockerNetwork != "mainnet" && dockerNetwork != "") {
-        dockerImageName = "${dockerImageName}-${dockerNetwork}"
+        image = "${dockerImageName}-${dockerNetwork}:${dockerBuildVersion}"
     }
 
     doFirst {
@@ -116,7 +117,6 @@ task testDocker {
 
     doLast {
         exec {
-            def image = "${dockerImageName}:${dockerBuildVersion}"
             workingDir "${rootDir}/../docker"
             executable shell
             args "-c", "./test.sh ${image}"
@@ -128,11 +128,10 @@ task testDocker {
 task dockerUpload {
     //dependsOn sourceDocker
 
-    if (dockerNetwork != "mainnet" && dockerNetwork != "") {
-        dockerImageName = "${dockerImageName}-${dockerNetwork}"
-    }
-
     def image = "${dockerImageName}:${dockerBuildVersion}"
+    if (dockerNetwork != "mainnet" && dockerNetwork != "") {
+        image = "${dockerImageName}-${dockerNetwork}:${dockerBuildVersion}"
+    }
 
     doLast {
         exec {
