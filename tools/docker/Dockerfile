@@ -33,9 +33,9 @@ RUN apt-get update $NO_PROXY_CACHE  && \
   && mv /usr/local/$JDK_DIR/jre /usr/local \
   && rm -rf /usr/local/$JDK_DIR \
   # Clean apt cache
-  apt-get clean  && \
-  rm -rf /var/cache/apt/archives/* /var/cache/apt/archives/partial/*  && \
-  rm -rf /var/lib/apt/lists/*
+  && apt-get clean \
+  && rm -rf /var/cache/apt/archives/* /var/cache/apt/archives/partial/* \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN wget -P $BASE_DIR/config https://raw.githubusercontent.com/tronprotocol/tron-deployment/master/main_net_config.conf
 

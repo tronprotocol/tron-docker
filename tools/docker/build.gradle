@@ -103,7 +103,7 @@ task sourceDocker {
 
 
 task testDocker {
-    dependsOn sourceDocker
+    //dependsOn sourceDocker
     def dockerReportsDir = "${rootDir}/../docker/reports/"
 
     if (dockerNetwork != "mainnet" && dockerNetwork != "") {
@@ -126,7 +126,7 @@ task testDocker {
 
 // Make sure to `docker login` first
 task dockerUpload {
-    dependsOn sourceDocker
+    //dependsOn sourceDocker
 
     if (dockerNetwork != "mainnet" && dockerNetwork != "") {
         dockerImageName = "${dockerImageName}-${dockerNetwork}"
