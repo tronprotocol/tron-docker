@@ -61,7 +61,7 @@ def dockerBuildVersion = project.hasProperty('release.releaseVersion') ? project
 def dockerOrgName = project.hasProperty('dockerOrgName') ? project.getProperty("dockerOrgName") : "tronprotocol"
 def dockerArtifactName = project.hasProperty("dockerArtifactName") ? project.getProperty("dockerArtifactName") : "java-tron"
 def dockerImageName = "${dockerOrgName}/${dockerArtifactName}"
-def dockerNetwork = project.hasProperty("network") ? project.getProperty("network") : "nile"
+def dockerNetwork = project.hasProperty("network") ? project.getProperty("network") : "mainnet"
 
 task sourceDocker {
     def dockerBuildDir = "${rootDir}/build/docker-tron/"
@@ -103,7 +103,7 @@ task sourceDocker {
 
 
 task testDocker {
-    //dependsOn sourceDocker
+    dependsOn sourceDocker
     def dockerReportsDir = "${rootDir}/../docker/reports/"
 
     def image = "${dockerImageName}:${dockerBuildVersion}"
@@ -126,7 +126,7 @@ task testDocker {
 
 // Make sure to `docker login` first
 task dockerUpload {
-    //dependsOn sourceDocker
+    dependsOn sourceDocker
 
     def image = "${dockerImageName}:${dockerBuildVersion}"
     if (dockerNetwork != "mainnet" && dockerNetwork != "") {
