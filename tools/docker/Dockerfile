@@ -32,12 +32,12 @@ RUN apt-get update $NO_PROXY_CACHE  && \
   && rm -rf ~/.gradle \
   && mv /usr/local/$JDK_DIR/jre /usr/local \
   && rm -rf /usr/local/$JDK_DIR \
+  && wget -P $BASE_DIR/config https://raw.githubusercontent.com/tronprotocol/tron-deployment/master/main_net_config.conf \
+  && mv $BASE_DIR/config/main_net_config.conf $BASE_DIR/config.conf \
   # Clean apt cache
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/cache/apt/archives/partial/* \
   && rm -rf /var/lib/apt/lists/*
-
-RUN wget -P $BASE_DIR/config https://raw.githubusercontent.com/tronprotocol/tron-deployment/master/main_net_config.conf
 
 ENV JAVA_HOME="/usr/local/jre"
 ENV PATH=$PATH:$JAVA_HOME/bin
