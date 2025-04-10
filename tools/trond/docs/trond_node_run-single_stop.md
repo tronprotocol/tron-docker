@@ -13,6 +13,7 @@ The following files are required before stopping the node (these files will be n
 
 	- If you used a different docker compose file, you need to specify it by using the -f flags.
 
+
 ```
 trond node run-single stop [flags]
 ```

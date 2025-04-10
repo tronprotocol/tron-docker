@@ -27,6 +27,7 @@ $ ./trond docker test
 
 # Build java-tron docker image with specified org, artifact and version
 $ ./trond docker test -o tronprotocol -a java-tron -v latest
+$ ./trond docker test -o tronnile -a java-tron -v latest -n nile
 
 ```
 
@@ -35,6 +36,7 @@ $ ./trond docker test -o tronprotocol -a java-tron -v latest
 ```
   -a, --artifact string   ArtifactName for the docker image (default "java-tron")
   -h, --help              help for test
+  -n, --network string    Which code will be used for the docker image, mainnet or nile (default "mainnet")
   -o, --org string        OrgName for the docker image (default "tronprotocol")
   -v, --version string    Release version for the docker image (default "latest")
 ```
