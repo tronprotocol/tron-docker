@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TARGET_DIR="/data/tron-node/tron-docker/"
+TARGET_DIR="/data/FullNode/tron-docker/"
 DOCKER_COMPOSE_FILE="docker-compose.fullnode.mail.yml"
 
 cd ${TARGET_DIR} || exit

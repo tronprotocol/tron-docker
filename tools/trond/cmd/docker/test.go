@@ -30,6 +30,7 @@ var testCmd = &cobra.Command{
 
 			# Build java-tron docker image with specified org, artifact and version
 			$ ./trond docker test -o tronprotocol -a java-tron -v latest
+			$ ./trond docker test -o tronnile -a java-tron -v latest -n nile
 		`),
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -42,13 +43,17 @@ var testCmd = &cobra.Command{
 		org, _ := cmd.Flags().GetString("org")
 		artifact, _ := cmd.Flags().GetString("artifact")
 		version, _ := cmd.Flags().GetString("version")
+		network, _ := cmd.Flags().GetString("network")
 
 		fmt.Println("If you don't specify the flags for building, the default values will be used.")
 		fmt.Println("The default result will be: tronprotocol/java-tron:latest")
 		fmt.Println("Start testing...")
-		cmds := []string{
-			fmt.Sprintf("./gradlew --no-daemon testDocker -PdockerOrgName=%s -PdockerArtifactName=%s -Prelease.releaseVersion=%s", org, artifact, version),
+
+		cmd1 := fmt.Sprintf("./gradlew --no-daemon testDocker -PdockerOrgName=%s -PdockerArtifactName=%s -Prelease.releaseVersion=%s", org, artifact, version)
+		if len(network) > 0 {
+			cmd1 = fmt.Sprintf("./gradlew --no-daemon testDocker -PdockerOrgName=%s -PdockerArtifactName=%s -Prelease.releaseVersion=%s  -Pnetwork=%s", org, artifact, version, network)
 		}
+		cmds := []string{cmd1}
 		if err := utils.RunMultipleCommands(strings.Join(cmds, " && "), "./tools/gradlew"); err != nil {
 			fmt.Println("Error: ", err)
 		}
@@ -60,6 +65,7 @@ func init() {
 	testCmd.Flags().StringP("org", "o", "tronprotocol", "OrgName for the docker image")
 	testCmd.Flags().StringP("artifact", "a", "java-tron", "ArtifactName for the docker image")
 	testCmd.Flags().StringP("version", "v", "latest", "Release version for the docker image")
+	testCmd.Flags().StringP("network", "n", "mainnet", "Which code will be used for the docker image, mainnet or nile")
 
 	DockerCmd.AddCommand(testCmd)
 }

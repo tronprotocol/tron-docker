@@ -12,6 +12,8 @@ check_docker() {
             sudo sh get-docker.sh
             sudo systemctl start docker
             sudo systemctl enable docker
+            sudo usermod -aG docker "$USER"
+            echo "Added current user to the docker group. You may need to log out and back in for this to take effect."
         else
             echo "Unsupported operating system"
             exit 1

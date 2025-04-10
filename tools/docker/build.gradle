@@ -70,7 +70,6 @@ task sourceDocker {
     def image = "${dockerImageName}:${dockerBuildVersion}"
     if (dockerNetwork != "mainnet" && dockerNetwork != "") {
         dockerfileName = "${dockerfileName}.${dockerNetwork}"
-        image = "${dockerImageName}-${dockerNetwork}:${dockerBuildVersion}"
     }
 
     doLast {
@@ -105,11 +104,7 @@ task sourceDocker {
 task testDocker {
     dependsOn sourceDocker
     def dockerReportsDir = "${rootDir}/../docker/reports/"
-
     def image = "${dockerImageName}:${dockerBuildVersion}"
-    if (dockerNetwork != "mainnet" && dockerNetwork != "") {
-        image = "${dockerImageName}-${dockerNetwork}:${dockerBuildVersion}"
-    }
 
     doFirst {
         new File(dockerReportsDir).mkdir()
@@ -126,12 +121,7 @@ task testDocker {
 
 // Make sure to `docker login` first
 task dockerUpload {
-    dependsOn sourceDocker
-
     def image = "${dockerImageName}:${dockerBuildVersion}"
-    if (dockerNetwork != "mainnet" && dockerNetwork != "") {
-        image = "${dockerImageName}-${dockerNetwork}:${dockerBuildVersion}"
-    }
 
     doLast {
         exec {
