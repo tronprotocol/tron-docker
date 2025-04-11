@@ -2,10 +2,10 @@ package node
 
 import (
 	"fmt"
-
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/spf13/cobra"
 	"github.com/tronprotocol/tron-docker/utils"
+	"path/filepath"
 )
 
 var runMultiCmd = &cobra.Command{
@@ -34,9 +34,9 @@ var runMultiCmd = &cobra.Command{
 		for i, node := range cfg.Nodes {
 			fmt.Printf("  Node %d:\n", i)
 			fmt.Printf("    IP: %s\n", node.NodeIP)
-			fmt.Printf("    Directory: %s\n", node.NodeDirecotry)
+			fmt.Printf("    Directory: %s\n", node.NodeDirectory)
 			fmt.Printf("    Config File: %s\n", node.ConfigFile)
-			fmt.Printf("    Type: %s\n", node.NodeType)
+			fmt.Printf("    Docker-Config File: %s\n", node.DockerComposeFile)
 			fmt.Printf("    SSH Port: %d\n", node.SSHPort)
 			fmt.Printf("    SSH User: %s\n", node.SSHUser)
 
@@ -55,13 +55,7 @@ var runMultiCmd = &cobra.Command{
 				fmt.Printf("    SCP IP(%s) Port (%d) Status: %s\n", node.NodeIP, node.SSHPort, "Open")
 			}
 
-			dockerComposeFile := "./single_node/docker-compose.fullnode.private.yml"
-			if node.NodeType == "full" {
-				dockerComposeFile = "./single_node/docker-compose.fullnode.private.yml"
-			} else if node.NodeType == "sr" {
-				dockerComposeFile = "./single_node/docker-compose.witness.private.yml"
-			}
-
+			dockerComposeFile := filepath.Join(node.NodeDirectory, filepath.Base(node.DockerComposeFile))
 			if err := utils.RunRemoteCompose(node.NodeIP, node.SSHPort, node.SSHUser, node.SSHPassword, node.SSHKey, dockerComposeFile, false); err != nil {
 				fmt.Printf("    SSH start remote node failed: %v\n", err)
 				return
@@ -74,28 +68,17 @@ var runMultiCmd = &cobra.Command{
 
 var runMultiStopCmd = &cobra.Command{
 	Use:   "stop",
-	Short: "Stop single java-tron node for different networks.",
+	Short: "Stop multi java-tron node for different networks.",
 	Long: heredoc.Doc(`
 			The following configuration files are required:
 
 				- Configuration file(by default, these exist in the current repository directory)
-					main network: ./conf/main_net_config.conf
-					nile network: ./conf/nile_net_config.conf
-					private network: ./conf/private_net_config_*.conf
-				- Docker compose file(by default, these exist in the current repository directory)
-					main network: ./single_node/docker-compose.fullnode.main.yml
-					nile network: ./single_node/docker-compose.fullnode.nile.yml
-					private network: ./single_node/docker-compose.witness.private.yml
+						./conf/private_net_layout.toml
+
 		`),
 	Example: heredoc.Doc(`
-			# Stop single java-tron fullnode for main network
-			$ ./trond node run-single stop -t full-main
-
-			# Stop single java-tron fullnode for nile network
-			$ ./trond node run-single stop -t full-nile
-
-			# Stop single java-tron witness node for private network
-			$ ./trond node run-single stop -t witness-private
+			# Stop multi java-tron node
+			$ ./trond node run-multi stop
 		`),
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -107,9 +90,8 @@ var runMultiStopCmd = &cobra.Command{
 		for i, node := range cfg.Nodes {
 			fmt.Printf("  Node %d:\n", i)
 			fmt.Printf("    IP: %s\n", node.NodeIP)
-			fmt.Printf("    Directory: %s\n", node.NodeDirecotry)
+			fmt.Printf("    Directory: %s\n", node.NodeDirectory)
 			fmt.Printf("    Config File: %s\n", node.ConfigFile)
-			fmt.Printf("    Type: %s\n", node.NodeType)
 			fmt.Printf("    SSH Port: %d\n", node.SSHPort)
 			fmt.Printf("    SSH User: %s\n", node.SSHUser)
 
@@ -128,13 +110,7 @@ var runMultiStopCmd = &cobra.Command{
 				fmt.Printf("    SCP IP(%s) Port (%d) Status: %s\n", node.NodeIP, node.SSHPort, "Open")
 			}
 
-			dockerComposeFile := "./single_node/docker-compose.fullnode.private.yml"
-			if node.NodeType == "full" {
-				dockerComposeFile = "./single_node/docker-compose.fullnode.private.yml"
-			} else if node.NodeType == "sr" {
-				dockerComposeFile = "./single_node/docker-compose.witness.private.yml"
-			}
-
+			dockerComposeFile := filepath.Join(node.NodeDirectory, filepath.Base(node.DockerComposeFile))
 			if err := utils.RunRemoteCompose(node.NodeIP, node.SSHPort, node.SSHUser, node.SSHPassword, node.SSHKey, dockerComposeFile, true); err != nil {
 				fmt.Printf("    SSH stop remote node failed: %v\n", err)
 				return
