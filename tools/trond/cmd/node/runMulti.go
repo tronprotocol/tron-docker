@@ -74,7 +74,7 @@ var runMultiStopCmd = &cobra.Command{
 
 				- Configuration file(by default, these exist in the current repository directory)
 						./conf/private_net_layout.toml
-					
+
 		`),
 	Example: heredoc.Doc(`
 			# Stop multi java-tron node

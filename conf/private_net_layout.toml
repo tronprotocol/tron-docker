@@ -23,9 +23,9 @@
 [[nodes]]
 node_ip = "ec2-3-25-116-244.ap-southeast-2.compute.amazonaws.com"
 node_directory = "/home/ubuntu/mytest"
-config_file = "/Users/barbatos/Documents/code/md/mydev/tron-docker/conf/private_net_config_others.conf"
-docker_compose_file = "/Users/barbatos/Documents/code/md/mydev/tron-docker/conf/docker-compose.yml"
+config_file = "/Users/ubuntu/conf/private_net_config_others.conf"
+docker_compose_file = "/Users/ubuntu/docker-compose.yml"
 ssh_port = 22
 ssh_user = "ubuntu"
 # ssh_password = "password1"
-ssh_key = "/Users/barbatos/Downloads/test-ci.pem"  # Optional; uncomment if using key auth
+ssh_key = "/Users/ubuntu/Downloads/test-ci.pem"  # Optional; uncomment if using key auth
