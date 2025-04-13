@@ -38,3 +38,5 @@ go1.*
 /metric_monitor/helm-charts/thanos-receive/charts/
 /metric_monitor/helm-charts/thanos-receive/Chart.lock
 /metric_monitor/store-data/
+
+*.pub

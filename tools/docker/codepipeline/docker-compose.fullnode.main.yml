@@ -1,8 +1,8 @@
 services:
   tron-node-mainnet:
     container_name: tron-node
-    image: tronprotocol/java-tron:v4.7.7  # Add specific tag if needed
-    mem_limit: 16g
+    image: tronprotocol/java-tron:GreatVoyage-v4.7.7  # Add specific tag if needed
+    mem_limit: 32g
     ports:
       - "8090:8090"
       - "8091:8091"
@@ -15,6 +15,6 @@ services:
       - ../output-directory:/java-tron/output-directory
     command:
       - -jvm
-      - "{-Xmx14g -Xms12g -XX:+UseConcMarkSweepGC}"  # Using environment variable for JVM arguments
+      - "{-Xmx30g -Xms28g -XX:+UseConcMarkSweepGC}"  # Using environment variable for JVM arguments
       - -c
       - /java-tron/conf/main_net_config.conf
