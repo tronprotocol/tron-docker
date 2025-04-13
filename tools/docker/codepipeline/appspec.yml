@@ -3,6 +3,7 @@ os: linux
 files:
   - source: docker-compose.fullnode.main.yml
     destination: /data/FullNode/tron-docker/
+    overwrite: yes
 hooks:
   BeforeInstall:
     - location: prepare_environment.sh
