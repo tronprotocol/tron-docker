@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TARGET_DIR="/data/FullNode/tron-docker/"
-DOCKER_COMPOSE_FILE="docker-compose.fullnode.mail.yml"
+DOCKER_COMPOSE_FILE="docker-compose.fullnode.main.yml"
 
 cd ${TARGET_DIR} || exit
 ./trond node run-single -t full-main -f ${DOCKER_COMPOSE_FILE}

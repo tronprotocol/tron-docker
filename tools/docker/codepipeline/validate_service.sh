@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TARGET_DIR="/data/FullNode/tron-docker/"
-DOCKER_COMPOSE_FILE="docker-compose.fullnode.mail.yml"
+DOCKER_COMPOSE_FILE="docker-compose.fullnode.main.yml"
 
 # API health check
 max_attempts=30  # 5 minutes total (30 * 10 seconds)
