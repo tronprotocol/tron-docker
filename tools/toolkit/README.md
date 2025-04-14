@@ -173,15 +173,53 @@ NOTE: large db may GC overhead limit exceeded.
 
 
 ## DB Fork
-Database fork tool can help launch a private java-tron FullNode or network based on the state of public chain database to support shadow fork testing.
+DB fork tool can help launch a private java-tron FullNode or network based on the state of public chain database to support shadow fork testing.
 
 ### Available parameters:
 - `-c, --config=<config>`: config the new witnesses, balances, etc for shadow
 fork. Default: fork.conf
-- `-d, --database-directory=<database>`:
-java-tron database directory path. Default:
+- `-d, --database-directory=<database>`: java-tron database directory path. Default:
 output-directory
 - `-r, --retain-witnesses`: retain the previous witnesses and active witnesses.
 - `-h, --help`: provide the help info
 
 Please refer [DbFork](DbFork.md) guidance for more details.
+
+## DB Query
+The [ListWitnesses](https://developers.tron.network/reference/listwitnesses) and [getReward](https://developers.tron.network/reference/wallet-getreward)
+APIs provide vote and reward data only until the end of the last maintenance period.
+To obtain the latest information, please query the database directly using the DB query tool.
+
+### Available parameters:
+- `-c, --config=<config>`: config the vote and reward options. Default: query.conf
+- `-d, --database-directory=<database>`: java-tron database directory path. Default: output-directory
+- `-h, --help`: provide the help info
+
+### Examples:
+The example of `query.conf`:
+```conf
+vote = {
+  allWitnesses = true
+  witnessList = [
+    "TPDa1KRmFpLA42WffiXBwEykef9exHNPKV",
+    "TXnqPcy9zWHYyCiQ7Kmvt3aCx5jm9Qnq3e",
+  ]
+}
+
+reward = [
+  "TLyqzVGLV1srkB7dToTAEqgDSfPtXRJZYH",
+  "TJvaAeFb8Lykt9RQcVyyTFN2iDvGMuyD4M"
+]
+```
+- `vote.allWitnesses`: configure whether to query the vote information of all witnesses.
+- `vote.witnessList`: configure to query the vote information from specified witness list.
+                      The option is valid only when `vote.allWitnesses = false`.
+- `reward`: configure the address list you need to query the reward.
+
+Execute query command.
+```shell script
+# full command
+  java -jar Toolkit.jar db query [-h] [-c=<config>] [-d=<database>]
+# examples
+  java -jar Toolkit.jar db query -c query.conf -d output-directory
+```

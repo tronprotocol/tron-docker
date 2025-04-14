@@ -14,7 +14,7 @@ var envMultiCmd = &cobra.Command{
 	Use:   "env-multi",
 	Short: "Check and configure node environment across multiple nodes.",
 	Long: heredoc.Doc(`
-			Warning: this command only support configuration for remote nodes, not inlude the local node on the same server. For local node setup, please refer to "./trond node run-single"
+			Warning: this command only support configuration for remote nodes, not include the local node on the same server. For local node setup, please refer to "./trond node run-single"
 
 			Default environment configuration for node operation:
 
@@ -24,15 +24,13 @@ var envMultiCmd = &cobra.Command{
 
 				- Configuration file for private network layout (Please refer to the example configuration file and rewrite it according to your needs)
 					./conf/private_net_layout.toml
-
-				- Docker compose file(by default, these exist in the current repository directory)
-					single node
-						private network witness: ./single_node/docker-compose.witness.private.yml
-						private network fullnode: ./single_node/docker-compose.fullnode.private.yml
 		`),
 	Example: heredoc.Doc(`
 			# Check and configure node local environment
 			$ ./trond node env-multi
+
+			# Use the scp command to copy files and synchronize databases between multiple nodes:
+			$ scp -P 2222 local_file.txt remote_user@192.168.1.100:/home/user/
 		`),
 	Run: func(cmd *cobra.Command, args []string) {
 		if checkFalse, cfg := checkEnvForMulti(); checkFalse {
@@ -52,18 +50,15 @@ var envMultiCmd = &cobra.Command{
 
 // Config struct to match TOML
 type Config struct {
-	Database struct {
-		DatabaseTar string `mapstructure:"database_tar"`
-	}
 	Nodes []struct {
-		NodeIP        string `mapstructure:"node_ip"`
-		NodeDirecotry string `mapstructure:"node_direcotry"`
-		ConfigFile    string `mapstructure:"config_file"`
-		NodeType      string `mapstructure:"node_type"`
-		SSHPort       int    `mapstructure:"ssh_port"`
-		SSHUser       string `mapstructure:"ssh_user"`
-		SSHPassword   string `mapstructure:"ssh_password"`
-		SSHKey        string `mapstructure:"ssh_key"` // Optional private key path
+		NodeIP            string `mapstructure:"node_ip"`
+		NodeDirectory     string `mapstructure:"node_directory"`
+		ConfigFile        string `mapstructure:"config_file"`
+		DockerComposeFile string `mapstructure:"docker_compose_file"`
+		SSHPort           int    `mapstructure:"ssh_port"`
+		SSHUser           string `mapstructure:"ssh_user"`
+		SSHPassword       string `mapstructure:"ssh_password"`
+		SSHKey            string `mapstructure:"ssh_key"` // Optional private key path
 	}
 }
 
@@ -93,24 +88,13 @@ func checkEnvForMulti() (bool, Config) {
 	}
 
 	// Access config
-	fmt.Println("Database Config:")
-	fmt.Printf("  Path: %s\n", cfg.Database.DatabaseTar)
-	if len(cfg.Database.DatabaseTar) == 0 {
-		fmt.Println("Database: not provide database, the chain will start from block 0")
-	} else {
-		if yes, isDir := utils.PathExists(cfg.Database.DatabaseTar); !yes || isDir {
-			fmt.Println("Error: file not exists or not a file:", cfg.Database.DatabaseTar)
-			checkFalse = true
-		}
-	}
-
 	fmt.Println("\nNodes:")
 	for i, node := range cfg.Nodes {
 		fmt.Printf("  Node %d:\n", i)
 		fmt.Printf("    IP: %s\n", node.NodeIP)
-		fmt.Printf("    Directory: %s\n", node.NodeDirecotry)
+		fmt.Printf("    Directory: %s\n", node.NodeDirectory)
 		fmt.Printf("    Config File: %s\n", node.ConfigFile)
-		fmt.Printf("    Type: %s\n", node.NodeType)
+		fmt.Printf("    Docker Compose File: %s\n", node.DockerComposeFile)
 		fmt.Printf("    SSH Port: %d\n", node.SSHPort)
 		fmt.Printf("    SSH User: %s\n", node.SSHUser)
 
@@ -130,7 +114,11 @@ func checkEnvForMulti() (bool, Config) {
 		}
 
 		if yes, isDir := utils.PathExists(node.ConfigFile); !yes || isDir {
-			fmt.Println("Error: file not exists or not a file:", node.ConfigFile)
+			fmt.Println("Error: config file not exists or not a file:", node.ConfigFile)
+			checkFalse = true
+		}
+		if yes, isDir := utils.PathExists(node.DockerComposeFile); !yes || isDir {
+			fmt.Println("Error: docker-compose file not exists or not a file:", node.ConfigFile)
 			checkFalse = true
 		}
 	}
@@ -143,8 +131,8 @@ func attemptSCPTransfer(cfg Config) error {
 
 	for i, node := range cfg.Nodes {
 		fmt.Printf("  Node %d (%s):\n", i, node.NodeIP)
-		fmt.Printf("    Attempting to SCP transfer of %s to %s:%s as %s...\n", node.ConfigFile, node.NodeIP, node.NodeDirecotry, node.SSHUser)
-		remotePath := filepath.Join(node.NodeDirecotry, "conf", filepath.Base(node.ConfigFile))
+		fmt.Printf("    Attempting to SCP transfer of %s to %s:%s as %s...\n", node.ConfigFile, node.NodeIP, node.NodeDirectory, node.SSHUser)
+		remotePath := filepath.Join(node.NodeDirectory, "conf", filepath.Base(node.ConfigFile))
 		err := utils.SCPFile(node.NodeIP, node.SSHPort, node.SSHUser, node.SSHPassword, node.SSHKey, node.ConfigFile, remotePath)
 		if err != nil {
 			fmt.Printf("    SCP transfer failed: %v\n", err)
@@ -153,16 +141,9 @@ func attemptSCPTransfer(cfg Config) error {
 			fmt.Printf("    SCP transfer succeeded to %s\n", node.NodeIP)
 		}
 
-		dockerComposeFile := "./single_node/docker-compose.fullnode.private.yml"
-		if node.NodeType == "full" {
-			dockerComposeFile = "./single_node/docker-compose.fullnode.private.yml"
-		} else if node.NodeType == "sr" {
-			dockerComposeFile = "./single_node/docker-compose.witness.private.yml"
-		}
-
-		fmt.Printf("    Attempting to SCP transfer of %s to %s:%s as %s...\n", dockerComposeFile, node.NodeIP, node.NodeDirecotry, node.SSHUser)
-		remotePath = filepath.Join(node.NodeDirecotry, "single_node", filepath.Base(dockerComposeFile))
-		err = utils.SCPFile(node.NodeIP, node.SSHPort, node.SSHUser, node.SSHPassword, node.SSHKey, node.ConfigFile, remotePath)
+		fmt.Printf("    Attempting to SCP transfer of %s to %s:%s as %s...\n", node.DockerComposeFile, node.NodeIP, node.NodeDirectory, node.SSHUser)
+		remotePath = filepath.Join(node.NodeDirectory, filepath.Base(node.DockerComposeFile))
+		err = utils.SCPFile(node.NodeIP, node.SSHPort, node.SSHUser, node.SSHPassword, node.SSHKey, node.DockerComposeFile, remotePath)
 		if err != nil {
 			fmt.Printf("    SCP transfer failed: %v\n", err)
 			return err
@@ -171,33 +152,19 @@ func attemptSCPTransfer(cfg Config) error {
 		}
 	}
 
-	if len(cfg.Database.DatabaseTar) != 0 {
-		for i, node := range cfg.Nodes {
-			fmt.Printf("  Node %d (%s):\n", i, node.NodeIP)
-			fmt.Printf("    Attempting to SCP transfer of %s to %s:%s as %s...\n", cfg.Database.DatabaseTar, node.NodeIP, node.NodeDirecotry, node.SSHUser)
-
-			remotePath := filepath.Join(node.NodeDirecotry, filepath.Base(cfg.Database.DatabaseTar))
-			err := utils.SCPFile(node.NodeIP, node.SSHPort, node.SSHUser, node.SSHPassword, node.SSHKey, cfg.Database.DatabaseTar, remotePath)
-			if err != nil {
-				fmt.Printf("    SCP transfer failed: %v\n", err)
-			} else {
-				fmt.Printf("    SCP transfer succeeded to %s\n", node.NodeIP)
-			}
-		}
-	}
 	return nil
 }
 
 func mkdirRemoteDirectory(cfg Config) error {
 	fmt.Println("\nPerforming SSH Mkdir:")
 
-	remoteDirs := []string{"logs", "conf", "output-directory", "single_node"}
+	remoteDirs := []string{"logs", "conf", "output-directory"}
 
 	for i, node := range cfg.Nodes {
 		fmt.Printf("  Node %d (%s):\n", i, node.NodeIP)
 		for _, item := range remoteDirs {
-			fmt.Printf("    Attempting to create directory %s to %s:%s as %s...\n", item, node.NodeIP, node.NodeDirecotry, node.SSHUser)
-			remotePath := filepath.Join(node.NodeDirecotry, item)
+			fmt.Printf("    Attempting to create directory %s to %s:%s as %s...\n", item, node.NodeIP, node.NodeDirectory, node.SSHUser)
+			remotePath := filepath.Join(node.NodeDirectory, item)
 			err := utils.SSHMkdirIfNotExist(node.NodeIP, node.SSHPort, node.SSHUser, node.SSHPassword, node.SSHKey, remotePath)
 			if err != nil {
 				fmt.Printf("    Create directory failed: %v\n", err)

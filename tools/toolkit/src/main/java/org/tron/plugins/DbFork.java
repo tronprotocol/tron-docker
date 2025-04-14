@@ -148,7 +148,7 @@ public class DbFork implements Callable<Integer> {
     Config forkConfig = ConfigFactory.load();
     File file = Paths.get(config).toFile();
     if (file.exists() && file.isFile()) {
-      forkConfig = ConfigFactory.parseFile(Paths.get(config).toFile());
+      forkConfig = ConfigFactory.parseFile(file);
     } else {
       logger.error("Fork config file [" + config + "] not exists!");
       spec.commandLine().getErr().format("Fork config file: %s not exists!", config).println();
