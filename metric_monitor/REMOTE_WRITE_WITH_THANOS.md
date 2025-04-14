@@ -150,7 +150,7 @@ docker-compose -f ./docker-compose/thanos-receive.yml up -d
 As Promethus has already been configured to send metric metadata to Thanos Receive, check the logs to ensure the Thanos Receive is running properly.
 
 ```sh
-docker logs -f thanos-receive-0
+docker logs -f thanos-receive
 
 ...
 ts=2025-04-03T03:13:49.395927626Z caller=intrumentation.go:56 level=info component=receive msg="changing probe status" status=ready
@@ -180,7 +180,7 @@ Core configuration for Thanos Receive in [thanos-receive.yml](./docker-compose/t
       - "--remote-write.address=0.0.0.0:10908"
       - "--label=receive_replica=\"0\""
       - "--label=receive_cluster=\"java-tron-mainnet\""
-      - "--objstore.config-file=/receive/bucket_storage_bucket.yml"
+      - "--objstore.config-file=/receive/bucket_storage.yml"
 ```
 #### Key configuration elements:
 ##### 1. Storage configuration
@@ -189,7 +189,7 @@ Core configuration for Thanos Receive in [thanos-receive.yml](./docker-compose/t
   - Retention Policy: The `--tsdb.retention=30d` flag automatically purges data older than 30 days. Based on testing with a java-tron(v4.7.6+) FullNode using a 3-second metric scrape interval, storage consumption averages approximately **3GB of disk space per month**.
 
 - External Storage:
-  `../conf:/receive` mounts configuration files. The `--objstore.config-file` flag enables long-term storage in MinIO/S3-compatible buckets. In this case, it is [bucket_storage_bucket.yml](conf/bucket_storage_bucket.yml).
+  `../conf:/receive` mounts configuration files. The `--objstore.config-file` flag enables long-term storage in MinIO/S3-compatible buckets. In this case, it is [bucket_storage.yml](conf/bucket_storage.yml).
   - Thanos Receive uploads TSDB blocks to an object storage bucket every 2 hours by default.
   - Fallback Behavior: Omitting this flag keeps data local-only.
 
@@ -233,12 +233,12 @@ Core configuration in [thanos-store.yml](./docker-compose/thanos-store.yml):
   thanos_store:
     command:
       - "store"
-      - "--objstore.config-file=/etc/thanos/bucket_storage_bucket.yml"
+      - "--objstore.config-file=/etc/thanos/bucket_storage.yml"
       - "--grpc-address=0.0.0.0:10912"
 ```
 The Store gateway:
 
-- Connects to our Minio bucket via `bucket_storage_bucket.yml`, the same configuration file as Thanos Receive.
+- Connects to our Minio bucket via `bucket_storage.yml`, the same configuration file as Thanos Receive.
 - Exposes gRPC endpoint for Thanos Query to access historical data
 - Indexes object storage blocks for fast lookups
 
@@ -263,7 +263,7 @@ ts=2025-04-03T05:37:53.676072548Z caller=intrumentation.go:56 level=info msg="ch
 ts=2025-04-03T05:37:53.676288048Z caller=tls_config.go:274 level=info service=http/server component=query msg="Listening on" address=[::]:9091
 ts=2025-04-03T05:37:53.676313173Z caller=tls_config.go:277 level=info service=http/server component=query msg="TLS is disabled." http2=false address=[::]:9091
 ts=2025-04-03T05:37:53.676380298Z caller=grpc.go:131 level=info service=gRPC/server component=query msg="listening for serving gRPC" address=0.0.0.0:10901
-ts=2025-04-03T05:37:58.685901342Z caller=endpointset.go:425 level=info component=endpointset msg="adding new receive with [storeEndpoints exemplarsAPI]" address=thanos-receive-0:10907 extLset="{receive_cluster=\"java-tron-mainnet\", receive_replica=\"0\", tenant_id=\"default-tenant\"}"
+ts=2025-04-03T05:37:58.685901342Z caller=endpointset.go:425 level=info component=endpointset msg="adding new receive with [storeEndpoints exemplarsAPI]" address=thanos-receive:10907 extLset="{receive_cluster=\"java-tron-mainnet\", receive_replica=\"0\", tenant_id=\"default-tenant\"}"
 ts=2025-04-03T05:37:58.685969217Z caller=endpointset.go:425 level=info component=endpointset msg="adding new store with [storeEndpoints]" address=thanos-store:10912 extLset="{receive_cluster=\"java-tron-mainnet\", receive_replica=\"0\", tenant_id=\"default-tenant\"}"
 ...
 ```
@@ -279,7 +279,7 @@ Below are the core configurations for the Thanos Query service:
       - --endpoint.info-timeout=30s
       - --http-address=0.0.0.0:9091
       - --query.replica-label=receive_replica # Deduplication turned on for metric with the same replica_label
-      - --endpoint=thanos-receive-0:10907 # The grpc-address of the Thanos Receive service，if Receive run remotely replace container name "thanos-receive" with the real ip, could add multiple receive services
+      - --endpoint=thanos-receive:10907 # The grpc-address of the Thanos Receive service，if Receive run remotely replace container name "thanos-receive" with the real ip, could add multiple receive services
       - --store=thanos-store:10907 # for historical data query
 ```
 It will set up the Thanos Query service

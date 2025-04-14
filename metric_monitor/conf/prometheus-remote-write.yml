@@ -29,7 +29,7 @@ scrape_configs:
 # The remote_write configuration tells Prometheus to continuously write metrics to the Thanos Receive service.
 # Refer https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_write
 remote_write:
-  - url: http://thanos-receive-0:10908/api/v1/receive # if Thanos Receive service run on the same host with Prometheus
+  - url: http://thanos-receive:10908/api/v1/receive # if Thanos Receive service run on the same host with Prometheus
     headers:
       X-Service-Group: "tron-fullnode-group1"
     remote_timeout: 15s
