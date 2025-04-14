@@ -30,17 +30,29 @@ tronprotocol/java-tron   1.0.0      76702facd55e   23 seconds ago   549MB
 
 ### What ./gradlew sourceDocker do?
 
-It will trigger the execution of `task sourceDocker` in [build.gradle](build.gradle). Reviewing the logic, `task sourceDocker` essentially copies the Dockerfile and shell script to a build directory, then runs the docker build. From the logic, you can run `./gradlew sourceDocker` with customised `dockerOrgName`, `dockerArtifactName`, and `release.releaseVersion`.
+It will trigger the execution of `task sourceDocker` in [build.gradle](build.gradle). Reviewing the logic, `task sourceDocker` essentially copies the Dockerfile and shell script to a build directory, then runs the docker build. From the logic, you can run `./gradlew sourceDocker` with customised `dockerOrgName`, `dockerArtifactName`, `release.releaseVersion` and `network`.
 
 For example:
+```sh
+# build java-tron image with customised dockerOrgName, dockerArtifactName and release.releaseVersion
+./gradlew --no-daemon sourceDocker -PdockerOrgName=YourOrgName -PdockerArtifactName=ArtifactName -Prelease.releaseVersion=V1.1.0
+
+# build java-tron docker image for nile testnet with specified org, artifact and version.
+# Using code from https://github.com/tron-nile-testnet/nile-testnet.git
+./gradlew --no-daemon sourceDocker -PdockerOrgName=YourOrgName -PdockerArtifactName=ArtifactName -Prelease.releaseVersion=V1.1.0 -Pnetwork=nile
 ```
-./gradlew --no-daemon sourceDocker -PdockerOrgName=yourOrgName -PdockerArtifactName=test -Prelease.releaseVersion=V1.1.0
-```
+
 ## Test image
 
 Test the java-tron image use the command below.
-```
+``` ssh
 ./gradlew --no-daemon testDocker
+
+# test image with customised dockerOrgName, dockerArtifactName and release.releaseVersion
+./gradlew --no-daemon testDocker -PdockerOrgName=YourOrgName -PdockerArtifactName=ArtifactName -Prelease.releaseVersion=V1.1.0
+
+# test image for nile testnet with specified org, artifact and version.
+./gradlew --no-daemon testDocker -PdockerOrgName=YourOrgName -PdockerArtifactName=ArtifactName -Prelease.releaseVersion=V1.1.0 -Pnetwork=nile
 ```
 This will trigger the execution of `task testDocker` in [build.gradle](build.gradle). According to this logic, it will run the [test.sh](test.sh) script with the parameter of the Docker image name.
 

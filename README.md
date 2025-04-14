@@ -42,6 +42,12 @@ Please ensure you have the latest versions of Docker and Docker Compose installe
   - Docker: [Install Docker on Linux](https://docs.docker.com/desktop/setup/install/linux/)
   - Docker Compose standalone: [Install Docker Compose on Linux](https://docs.docker.com/compose/install/standalone/)
 
+## Official Docker image
+There are two official Docker images for java-tron:
+
+- `tronprotocol/java-tron`: This image is based on the official [java-tron](https://github.com/tronprotocol/java-tron) repository, used for the Mainnet, and mostly can be used for the Nile testnet too. (**All the demo in this repository are based on this image**)
+- `tronnile/java-tron`: This image is based on the [nile-testnet](https://github.com/tron-nile-testnet/nile-testnet) repository which is forked from [java-tron](https://github.com/tronprotocol/java-tron). You need to use this image for the Nile testnet when there is new test release from java-tron and before it was released, especially for the hard fork test on Nile. Information about code release of the Nile testnet, please refer to this [website](https://nileex.io/).
+
 ## Quick Start
 To quickly start a java-tron node that connects to the Mainnet, simply use the following Docker command:
 
