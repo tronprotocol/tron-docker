@@ -14,7 +14,6 @@ var DockerCmd = &cobra.Command{
 
 				1. build java-tron docker image locally
 				2. test the built image
-				3. pull the latest image from officical docker hub
 
 			Please refer to the available commands below.
 		`),
