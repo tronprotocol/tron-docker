@@ -50,11 +50,11 @@ check_docker_running() {
             sudo systemctl start docker
             sleep 5
             sudo usermod -aG docker "$USER"
-            newgrp docker
-            if ! docker info &> /dev/null; then
+            if ! sudo docker info &> /dev/null; then
                 echo "Failed to start Docker daemon"
                 exit 1
             fi
+            echo "Logout and log back in for the docker group change to take effect"
         fi
     fi
     echo "Docker daemon is running"

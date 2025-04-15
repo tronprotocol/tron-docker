@@ -127,7 +127,7 @@ cd tron-docker
 ```
 
 ### Start feature by trond tool
-We offer a `trond` script that allows developers to easily initiate features with a single command, enabling the community to quickly engage in TRON network development and interaction.
+We offer a `trond` command-line tool that allows developers to easily initiate features with a single command, enabling the community to quickly engage in TRON network development and interaction.
 
 To build the `trond` command-line tool, simply run `build_trond.sh`.
 ```sh
