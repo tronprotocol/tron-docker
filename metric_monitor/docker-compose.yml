@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  tron-node1:
+    image: tronprotocol/java-tron:latest
+    container_name: tron-node1
+    networks:
+      - tron_network
+    deploy:
+      resources:
+        limits:
+          memory: 16g
+    ports:
+      - "8090:8090" # for external http API request
+      - "9527:9527" # used for metric API
+    volumes:
+      - ../conf:/java-tron/conf
+      - ./datadir:/java-tron/data # mount a local directory to make the blocks data persistent.
+    command: >
+      -jvm "{-Xmx16g -Xms12g -XX:+UseConcMarkSweepGC -XX:+PrintGC}" -c ./conf/main_net_config.conf -d /java-tron/data
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    networks:
+      - tron_network
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    ports:
+      - "9090:9090" # used for external collect metrics
+    volumes:
+      - ./metric_conf/prometheus.yml:/etc/prometheus/prometheus.yml
+  grafana:
+    image: grafana/grafana-oss
+    container_name: grafana
+    networks:
+      - tron_network
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    ports:
+      - "3000:3000"
+networks:
+  tron_network:
+    driver: bridge

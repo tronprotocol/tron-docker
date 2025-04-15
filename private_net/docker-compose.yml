@@ -8,7 +8,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 16g
+          memory: 12g
     ports:
       - "8090:8090" # for external http API request
       - "50051:50051" # for external rpc API request
@@ -27,7 +27,7 @@ services:
     #    deploy:
     #      resources:
     #        limits:
-    #          memory: 16g
+    #          memory: 12g
     #    volumes:
     #      - ../conf:/java-tron/conf
     #      - ./logs/tron-witness2:/java-tron/logs
@@ -43,7 +43,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 16g
+          memory: 12g
     volumes:
       - ../conf:/java-tron/conf
       - ./logs/tron-node1:/java-tron/logs
@@ -58,7 +58,7 @@ services:
 #    deploy:
 #      resources:
 #        limits:
-#          memory: 16g
+#          memory: 12g
 #    volumes:
 #      - ../conf:/java-tron/conf
 #      - ./logs/tron-node2:/java-tron/logs
