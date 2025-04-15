@@ -9,8 +9,8 @@ global:
 scrape_configs:
   - job_name: java-tron
     honor_timestamps: true
-    scrape_interval: 1s
-    scrape_timeout: 1s
+    scrape_interval: 3s
+    scrape_timeout: 3s
     metrics_path: /metrics
     scheme: http
     follow_redirects: true
@@ -29,20 +29,19 @@ scrape_configs:
 # The remote_write configuration tells Prometheus to continuously write metrics to the Thanos Receive service.
 # Refer https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_write
 remote_write:
-  - url: http://thanos-receive-0:10908/api/v1/receive # if Thanos Receive service run on the same host with Prometheus
+  - url: http://thanos-receive:10908/api/v1/receive # if Thanos Receive service run on the same host with Prometheus
     headers:
-      X-Auth-Token: "token"
       X-Service-Group: "tron-fullnode-group1"
-    remote_timeout: 10s
+    remote_timeout: 15s
     queue_config:
-      capacity: 2500
+      capacity: 50000
       max_shards: 200 # the maximum number of shards, or parallelism, Prometheus will use for each remote-write queue
       min_shards: 1
-      max_samples_per_send: 500
-      batch_send_deadline: 5s
-      min_backoff: 30ms
+      max_samples_per_send: 10000
+      batch_send_deadline: 3s
+      min_backoff: 200ms
       max_backoff: 5s
     metadata_config:
       send: true
-      send_interval: 1s # How frequently metric metadata is sent to remote storage.
-      max_samples_per_send: 500
+      send_interval: 3s # How frequently metric metadata is sent to remote storage.
+      max_samples_per_send: 50000

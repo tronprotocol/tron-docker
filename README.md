@@ -26,6 +26,7 @@ We also provide tools to facilitate the CI and testing process:
   - `root`: compute merkle root for tiny db. NOTE: large db may GC overhead
   limit exceeded.
   - `fork`: Modify the database of java-tron for shadow fork testing.
+  - `query`: Query the latest vote and reward information from the database.
 - **Stress Test**: Execute the stress test and evaluate the performance of the `java-tron` fullnode.
 
 

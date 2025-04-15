@@ -11,7 +11,7 @@ services:
       - --endpoint.info-timeout=10s
       - --http-address=0.0.0.0:9091
       - --query.replica-label=receive_replica # Deduplication turned on for identical series except the replica label.
-      - --endpoint=thanos-receive-0:10907
+      - --endpoint=thanos-receive:10907
       #- --endpoint=thanos-receive-1:10907 # could add multiple receive services
       - --store=thanos-store:10912 # for historical data query
     restart: unless-stopped

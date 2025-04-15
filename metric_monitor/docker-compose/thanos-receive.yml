@@ -3,7 +3,7 @@ services:
   thanos-receive:
     image: quay.io/thanos/thanos:v0.33.0
     user: root
-    container_name: thanos-receive-0
+    container_name: thanos-receive
     volumes:
       - ../receive-data-0:/receive/data
       - ../conf:/receive
@@ -20,5 +20,5 @@ services:
       - "--remote-write.address=0.0.0.0:10908"
       - "--label=receive_replica=\"0\""
       - "--label=receive_cluster=\"java-tron-mainnet\""
-      - "--objstore.config-file=/receive/bucket_storage_bucket.yml"
+      - "--objstore.config-file=/receive/bucket_storage.yml"
     restart: unless-stopped
