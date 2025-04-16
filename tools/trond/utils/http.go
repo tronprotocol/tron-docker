@@ -500,6 +500,18 @@ func ExtractTgzWithStatus(tgzFile, destDir string) error {
 			// Increment the file count
 			totalFilesExtracted++
 		case tar.TypeSymlink:
+			// Sanitize symlink target to prevent directory traversal
+			sanitizedLinkname := filepath.Clean(header.Linkname)
+			if strings.HasPrefix(sanitizedLinkname, "/") || strings.Contains(sanitizedLinkname, "..") {
+				return fmt.Errorf("invalid symlink target in archive: %s -> %s", header.Name, header.Linkname)
+			}
+
+			// Ensure the resolved symlink target stays within the destination directory
+			fullTarget := filepath.Join(filepath.Dir(target), sanitizedLinkname)
+			if !strings.HasPrefix(filepath.Clean(fullTarget), filepath.Clean(destDir)+string(os.PathSeparator)) {
+				return fmt.Errorf("attempted directory traversal in symlink: %s -> %s", header.Name, header.Linkname)
+			}
+
 			// Create symlink
 			if err := os.Symlink(header.Linkname, target); err != nil {
 				return fmt.Errorf("failed to create symlink: %v", err)
