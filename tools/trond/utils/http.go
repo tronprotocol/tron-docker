@@ -445,8 +445,17 @@ func ExtractTgzWithStatus(tgzFile, destDir string) error {
 			return fmt.Errorf("error reading tar: %v", err)
 		}
 
+		sanitizedName := filepath.Clean(header.Name)
+		if strings.Contains(sanitizedName, "..") || strings.HasPrefix(sanitizedName, "/") || strings.HasPrefix(sanitizedName, "../") {
+			return fmt.Errorf("invalid file path in archive: %s", header.Name)
+		}
+
 		// Target file path
-		target := filepath.Join(destDir, header.Name)
+		target := filepath.Join(destDir, sanitizedName)
+		// Ensure the target path is still within the destination directory
+		if !strings.HasPrefix(target, filepath.Clean(destDir)+string(os.PathSeparator)) {
+			return fmt.Errorf("attempted directory traversal: %s", header.Name)
+		}
 
 		switch header.Typeflag {
 		case tar.TypeDir:
@@ -498,6 +507,12 @@ func ExtractTgzWithStatus(tgzFile, destDir string) error {
 		case tar.TypeLink:
 			// Create hard link
 			linkTarget := filepath.Join(destDir, header.Linkname)
+			// Sanitize the link target to prevent directory traversal
+			sanitizedLinkTarget := filepath.Clean(linkTarget)
+			if !strings.HasPrefix(sanitizedLinkTarget, filepath.Clean(destDir)+string(os.PathSeparator)) {
+				return fmt.Errorf("attempted directory traversal in hard link: %s -> %s", header.Name, header.Linkname)
+			}
+
 			if err := os.Link(linkTarget, target); err != nil {
 				return fmt.Errorf("failed to create hard link: %v", err)
 			}

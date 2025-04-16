@@ -10,6 +10,11 @@ on:
         description: 'AWS region for the S3 bucket (e.g., ap-southeast-1)'
         required: true  # Makes the input mandatory
 
+# Add explicit permissions - restrict to only what's needed
+permissions:
+  contents: read
+  id-token: write  # Needed for AWS credential provider
+
 jobs:
   build-and-sign:
     runs-on: ubuntu-latest

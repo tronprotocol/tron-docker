@@ -682,8 +682,8 @@ public class DbQuery implements Callable<Integer> {
         continue;
       }
       long userVote = vote.getValue();
-      double voteRate = (double) userVote / totalVote;
-      reward += voteRate * totalReward;
+      // Replace floating-point division with integer-based calculation
+      reward += (userVote * totalReward) / totalVote;
     }
     return reward;
   }
