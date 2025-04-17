@@ -445,8 +445,9 @@ func ExtractTgzWithStatus(tgzFile, destDir string) error {
 			return fmt.Errorf("error reading tar: %v", err)
 		}
 
+		// Sanitize and validate the archive entry path
 		sanitizedName := filepath.Clean(header.Name)
-		if strings.Contains(sanitizedName, "..") || strings.HasPrefix(sanitizedName, "/") || strings.HasPrefix(sanitizedName, "../") {
+		if filepath.IsAbs(sanitizedName) || strings.HasPrefix(sanitizedName, ".."+string(os.PathSeparator)) || strings.Contains(sanitizedName, ".."+string(os.PathSeparator)) {
 			return fmt.Errorf("invalid file path in archive: %s", header.Name)
 		}
 
