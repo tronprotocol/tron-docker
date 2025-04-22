@@ -1,3 +1,5 @@
+[![Release](https://img.shields.io/github/v/release/tronprotocol/tron-docker.svg)](https://github.com/tronprotocol/tron-docker/releases)
+
 # TRON Docker
 
 This repository provides tools and guidance to help the community quickly get started with the TRON network and development.
