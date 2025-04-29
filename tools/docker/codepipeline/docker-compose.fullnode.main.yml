@@ -1,7 +1,7 @@
 services:
   tron-node-mainnet:
     container_name: tron-node
-    image: tronprotocol/java-tron:GreatVoyage-v4.7.7  # Add specific tag if needed
+    image: tronprotocol/java-tron:GreatVoyage-v4.8.0  # Add specific tag if needed
     mem_limit: 34g
     environment:
       - TZ=Asia/Shanghai # The metric and log date will be changed accordingly
