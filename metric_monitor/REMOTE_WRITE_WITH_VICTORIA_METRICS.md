@@ -1,53 +1,52 @@
 # Monitor Java-tron nodes using VictoriaMetrics
-This document aims to facilitate the monitoring of metrics for Java tron nodes through VictoriaMetrics.
+This document aims to facilitate the monitoring of metrics for java-tron nodes through VictoriaMetrics.
 
 ## Background
-At present, Tron's full node and system monitoring are based on a monitoring platform built on Grafana+Prometheus. 
-Each full node exposes specified metrics ports, and Prometheus actively pulls and stores data from these ports. 
-Then, Prometheus is included in the data source by configuring the IP and port of Prometheus metrics through the Grafana page UI. 
-For security reasons, it is not recommended for these full node nodes to expose specific ports to Prometheus for pulling data. 
-Therefore, through research, it was found that VictoriaMetrics can store metrics data and provide queries through push mode.
+Currently, Tron's full node and system monitoring infrastructure leverages a Grafana+Prometheus monitoring stack. In this setup, each full node exposes dedicated metrics ports that Prometheus uses to actively pull and store monitoring data. The metrics are then made available in Grafana by configuring Prometheus as a data source through the Grafana UI, using the appropriate IP address and port.
+
+However, exposing specific ports on full nodes for Prometheus data collection poses potential security risks. To address this concern, our research led us to VictoriaMetrics - a solution that enables secure metrics collection through a push-based model, allowing for both efficient data storage and querying capabilities.
 
 ## Evolution of Pull Change Push Architecture:
 <img src="../images/metric_pull_to_push.png" alt="Alt Text" width="720" >
 
 ## VictoriaMetrics
-VictoriaMetrics is a fast, cost-effective, and scalable monitoring solution and time series database.
-VictoriaMetrics has the following significant features:
-- Can be used as long-term storage for Prometheus.
-- It can be integrated into Grafana as a direct alternative to Prometheus, as it is compatible with the Prometheus query API.
-- Easy operation and maintenance:
-    - Single lightweight executable file with no external dependencies
-    - Configure by specifying command-line parameters (including reasonable default values)
-    - All data is stored in the directory specified by the - storage Data Path parameter
-    - Support vmbackup/vmrestore tools to achieve instant snapshot backup and recovery
-- Innovative Query Language Metrics QL: Enhancing Functionality on PromQL
-- Global query view: supports unified writing of multiple Prometheus instances or other data sources, and queries through a single interface
-- High performance: Data ingestion and querying have excellent vertical/horizontal scalability, with performance up to 20 times that of InfluxDB and TimescaleDB
-- Memory efficiency: When processing million level time series (high cardinality), the memory consumption is only 1/10 of InfluxDB and 1/7 of Prometheus/Thanos/Cortex
-- High churn rate time series optimization
-- Ultimate compression: With the same storage space, the data point capacity is 70 times that of TimescaleDB (benchmark test), and the storage space requirement is reduced by 7 times compared to Prometheus/Thanos/Cortex (benchmark test)
-- High latency and low IOPS storage optimization: compatible with HDD and cloud platform network storage (AWS/Google Cloud/Azure, etc., see disk IO testing)
-- Single node can replace medium-sized Thanos/M3DB/Cortex/InfluxDB/TimescaleDB clusters (see vertical scaling testing, Thanos comparison testing, and PromCon 2019 presentation)
-- Abnormal shutdown protection: prevent data damage caused by OOM/power outage/kill -9 through storage architecture design
-- Multi protocol support:
-    - Prometheus exporter metric capture
-    - Prometheus remote write API
-    - Prometheus exposure format
-    - InfluxDB line protocol for HTTP/TCP/UDP
-    - Label based Graphite plain text protocol
-    - OpenTSDB put messages and HTTP/API/put requests
-    - JSON line format
-    - Any CSV data
-    - Native binary format
-    - DataDog agent/DogStatsD
-    - NewRelic Infrastructure Proxy
-    - OpenTelemetry metric format
-- Provide open-source cluster versions
+VictoriaMetrics is a high-performance, cost-efficient time series database and monitoring solution that excels in scalability and resource optimization.
 
+Key features include:
 
-The data ingestion and query rate performance between VictoriaMetrics and Prometheus is based on benchmark `node_exporter` testing using metrics. 
-The data on memory and disk space usage is applicable to a single Prometheus or VictoriaMetrics server.
+- **Prometheus Integration**
+  - Serves as a long-term storage solution for Prometheus
+  - Seamlessly integrates with Grafana as a Prometheus alternative through API compatibility
+
+- **Streamlined Operations**
+  - Standalone executable with zero external dependencies
+  - Simple configuration via command-line parameters with sensible defaults
+  - Centralized data storage in a user-specified directory
+  - Built-in backup/restore functionality via vmbackup/vmrestore tools
+
+- **Advanced Querying and Performance**
+  - Enhanced PromQL compatibility through MetricsQL
+  - Unified querying across multiple data sources via a single interface
+  - Superior scalability with up to 20x better performance than InfluxDB/TimescaleDB
+  - Exceptional memory efficiency: uses 90% less memory than InfluxDB and 85% less than Prometheus/Thanos/Cortex
+
+- **Storage Optimization**
+  - Optimized for high churn rate time series
+  - Industry-leading compression: 70x more data points per storage unit vs TimescaleDB
+  - 7x reduced storage footprint compared to Prometheus/Thanos/Cortex
+  - Optimized for high-latency and low IOPS storage: fully compatible with HDDs and cloud storage solutions (AWS, Google Cloud, Azure, etc.) as validated through comprehensive disk I/O testing
+
+- **Enterprise-Grade Features**
+  - Single node deployment can effectively replace medium-sized clusters built with Thanos, M3DB, Cortex, InfluxDB, or TimescaleDB (validated through vertical scaling tests, Thanos comparative analysis, and documented in PromCon 2019)
+  - Built-in protection against data corruption from system failures
+  - Comprehensive protocol support:
+    - Prometheus (exporter metrics, remote write API, exposure format)
+    - InfluxDB (HTTP/TCP/UDP)
+    - Graphite, OpenTSDB, JSON, CSV, Native Binary
+    - DataDog, NewRelic, OpenTelemetry
+  - Available in both single-node and cluster editions
+
+The following performance comparison between VictoriaMetrics and Prometheus is based on benchmark testing using `node_exporter` metrics. All measurements reflect single-server deployments for both solutions.
 
 |         Feature          |            Prometheus             |               VictoriaMetrics               |
 |:------------------------:|:---------------------------------:|:-------------------------------------------:|
@@ -61,145 +60,100 @@ The data on memory and disk space usage is applicable to a single Prometheus or 
 |    **Query Language**    |              PromQL               | MetricsQL (backward-compatible with PromQL) |
 
 ## Deploy VictoriaMetrics
-Here, use Docker and deploy VictoriaMetrics in cluster mode.
-Deploying a cluster using `docker-compose`
-Create `docker-compose.yml` file:
-This configuration file contains two vmstorages (vmstorage1 and vmstorage2) configured.
+Follow these steps to deploy a highly available VictoriaMetrics cluster using Docker Compose:
 
+1. **Launch the VictoriaMetrics Cluster**
+   - Download the [docker-compose.yml](./victoria-metrics/docker-compose/docker-compose.yml) configuration file. This setup provides high availability with two storage nodes (vmstorage1 and vmstorage2)
+   - Start the VictoriaMetrics cluster using the following command:
+      ```shell
+      # Enter into the directory of docker-compose.yml
+      docker-compose up -d
+      ```
+
+2. **Configure Metric Collection**
+   - Deploy the java-tron service with metrics enabled. For detailed instructions on enabling java-tron metrics collection, please refer to the [Quick Start Guide](README.md#quick-start).
+   - Download the [clusterPush.sh](./victoria-metrics/shell/clusterPush.sh) script and deploy it on the same server as your java-tron service. This script collects java-tron metrics locally and pushes them to remote VictoriaMetrics clusters. Execute it using the following command:
+      ```shell
+      # Enter into the directory of clusterPush.sh
+      # Make the script executable
+      chmod +x ./clusterPush.sh
+      # Run the script
+      ./clusterPush.sh
+      ```
+
+3. **Verify Deployment**
+   Test the setup by querying metrics through the vmselect API:
+   ```shell
+   curl 'http://localhost:8481/select/0/prometheus/api/v1/query?query={metrics}'
+   ```
+   Note: The '0' in the URL represents the tenant ID
+
+### Key Storage Node Configurations
+
+The following docker-compose configuration shows the essential settings for VictoriaMetrics storage nodes:
 ```yaml
 services:
   vmstorage1:
     image: victoriametrics/vmstorage:latest
     command:
-      - -retentionPeriod=1y
-      - -httpListenAddr=:8482
-      - -vminsertAddr=:8400
-      - -vmselectAddr=:8401
+      ...
     ports:
       - "8482:8482"
       - "8400:8400"
       - "8401:8401"
     volumes:
-      - ./storage1-data:/vmstorage-data
-    networks:
-      - vm-cluster-net
+      - ./storage1-data:/vmstorage-data # Data directory: Specify the storage path through
+    ...
 
   vmstorage2:
     image: victoriametrics/vmstorage:latest
     command:
-      - -retentionPeriod=1y
-      - -httpListenAddr=:8482
-      - -vminsertAddr=:8400
-      - -vmselectAddr=:8401
+      ...
     ports:
       - "8483:8482"
       - "8402:8400"
       - "8403:8401"
     volumes:
-      - ./storage2-data:/vmstorage-data
-    networks:
-      - vm-cluster-net
-
-  vminsert:
-    image: victoriametrics/vminsert:latest
-    command:
-      - -httpListenAddr=:8480
-      - -storageNode=vmstorage1:8400,vmstorage2:8400
-    ports:
-      - "8480:8480"
-    networks:
-      - vm-cluster-net
-
-  vmselect:
-    image: victoriametrics/vmselect:latest
-    command:
-      - -search.latencyOffset=1s
-      - -httpListenAddr=:8481
-      - -storageNode=vmstorage1:8401,vmstorage2:8401
-    ports:
-      - "8481:8481"
-    networks:
-      - vm-cluster-net
-
-networks:
-  vm-cluster-net:
-    driver: bridge
+      - ./storage2-data:/vmstorage-data # Data directory: Specify the storage path through
+    ...
 ```
-Start cluster:
-```shell
-docker compose up -d 
-```
-Deploying scripts on Java-tron nodes to push metrics data to VictoriaMetrics
+- **Volume Configuration**:
+  - Storage Path: Configure the data directory using `-storageDataPath`
+  - Best Practice: Use persistent volumes for reliable data storage
 
-```shell
-#!/bin/bash
-
-# Capture source and destination addresses for indicators
-METRICS_PORT=""
-METRICS_URL="http://localhost:${METRICS_PORT}/metrics"
-
-# Config VictoriaMetrics
-VICTORIA_METRICS_IP=""
-VICTORIA_METRICS_PORT=""
-VICTORIA_METRICS_URL="http://${VICTORIA_METRICS_IP}:${VICTORIA_METRICS_PORT}/insert/0/prometheus/api/v1/import/prometheus"
-
-# Configurable label variables
-GROUP=""
-INSTANCE=""
-JOB=""
-SLEEP_SECONDS=1
-
-# Build additional tag parameters
-EXTRA_LABELS="extra_label=group=${GROUP}&extra_label=instance=${INSTANCE}&extra_label=job=${JOB}"
-
-while true; do
-  curl -s "$METRICS_URL" | \
-  curl -X POST \
-      --data-binary @- \
-      -H "Content-Type: text/plain" \
-      "${VICTORIA_METRICS_URL}?${EXTRA_LABELS}"
-  sleep "$SLEEP_SECONDS"
-done
-```
-
-Example of querying data through the vmselect API interface (where 0 is the tenant ID)
-```shell
-curl 'http://localhost:8481/select/0/prometheus/api/v1/query?query={metrics}'
-```
-Key Configuration Description:
-- Data directory: Specify the storage path through - storageDataSath, and it is recommended to use persistent volumes
-- Port Description:
-  - 8480: Cluster version write port (receiving Prometheus data)
-  - 8481: Cluster version query port
+- **Port Configuration**:
+  - 8480: Write port for cluster version (accepts Prometheus data)
+  - 8481: Query port for cluster version
 
 ## Integrate with Grafana
-Ensure that the machine where Grafana is located can access the service instance of VictoriaMetrics, and add the data source in the UI of Grafana page.
+After successfully pushing java-tron metrics to the VictoriaMetrics cluster, follow these steps to configure Grafana for accessing the metrics data:
+
+1. **Verify Network Connectivity**
+   - Ensure your Grafana instance can reach the VictoriaMetrics service
+   - Test connectivity by accessing the VictoriaMetrics query API endpoint
+
+2. **Add VictoriaMetrics Data Source**
+   - Navigate to Configuration > Data Sources in Grafana
+   - Click "Add data source"
 
 <img src="../images/grafana_add_datasource.png" alt="Alt Text" width="720" >
 
-Still choose Prometheus type data source:
+3. **Select Data Source Type**
+   - Choose "Prometheus" as the data source type (VictoriaMetrics is Prometheus-compatible)
 
 <img src="../images/grafana_select_datasource.png" alt="Alt Text" width="720" >
 
-Configure the VictoriaMetrics URL, the default port for querying the cluster version URL is 8481.
+4. **Configure Data Source Settings**
+   - Enter the VictoriaMetrics URL (default query port: 8481)
+   - Example URL format: `http://<victoriametrics-host>:8481`
+   - Click "Save & Test" to verify the connection
 
 <img src="../images/grafana_cluster.png" alt="Alt Text" width="720" >
 
-Push data local verification
-Open Grafana Panel, click Edit ->Query ->Data Source, switch to VictoriaMetrics, and observe if there is any data in the panel.
+5. **Verify Data Flow**
+   - Open any Grafana dashboard panel
+   - Click Edit > Query
+   - Select the VictoriaMetrics data source
+   - Check if metrics data appears in the graph
 
 <img src="../images/grafana_verify_local.png" alt="Alt Text" width="720" >
-
-
-
-
-
-
-
-
-
-
-
-
-
-
