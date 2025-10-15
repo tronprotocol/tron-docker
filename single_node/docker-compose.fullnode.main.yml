@@ -15,6 +15,6 @@ services:
       - ../output-directory/mainnet:/java-tron/output-directory
     command:
       - -jvm
-      - "{-Xmx14g -Xmn2g -XX:MaxDirectMemorySize=1G -XX:+UseConcMarkSweepGC -XX:+PrintGC -Xloggc:./logs/gc.log }"  # Using environment variable for JVM arguments
+      - "{-Xms12g -Xmx12g --Xmn2g -XX:MaxDirectMemorySize=1G -XX:+UseConcMarkSweepGC -XX:NewRatio=3 -XX:+PrintGC -Xloggc:./logs/gc.log }"  # Using environment variable for JVM arguments
       - -c
       - /java-tron/conf/main_net_config.conf
