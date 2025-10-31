@@ -14,6 +14,9 @@ import static org.tron.plugins.utils.Constant.LATEST_BLOCK_HEADER_NUMBER;
 import static org.tron.plugins.utils.Constant.MAINTENANCE_TIME_INTERVAL;
 import static org.tron.plugins.utils.Constant.NEW_REWARD_ALGORITHM_EFFECTIVE_CYCLE;
 import static org.tron.plugins.utils.Constant.REWARDS_KEY;
+import static org.tron.plugins.utils.Constant.VOTERS_ALL_WITNESSES;
+import static org.tron.plugins.utils.Constant.VOTERS_WITNESS_LIST;
+import static org.tron.plugins.utils.Constant.VOTERS_WITNESS_THRESHOLD;
 import static org.tron.plugins.utils.Constant.VOTES_ALL_WITNESSES;
 import static org.tron.plugins.utils.Constant.VOTES_STORE;
 import static org.tron.plugins.utils.Constant.VOTES_WITNESS_LIST;
@@ -43,6 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.rocksdb.RocksDBException;
+import org.tron.common.utils.Base58;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Commons;
 import org.tron.common.utils.Pair;
@@ -106,6 +110,9 @@ public class DbQuery implements Callable<Integer> {
   List<String> rewardAddressList = new ArrayList<>();
   Map<String, BigInteger> latestWitnessVi = new HashMap<>();
 
+  boolean allWitnessVoters = false;
+  List<String> votersWitnessList = new ArrayList<>();
+  long threshold;
   private void initStore() throws IOException, RocksDBException {
     String srcDir = database + File.separator + "database";
     witnessStore = DbTool.getDB(srcDir, WITNESS_STORE);
@@ -149,6 +156,7 @@ public class DbQuery implements Callable<Integer> {
     initStore();
     processVotes(queryConfig);
     processRewards(queryConfig);
+    processVoters(queryConfig);
 
     DbTool.close();
     return 0;
@@ -412,6 +420,131 @@ public class DbQuery implements Callable<Integer> {
     });
     return exist.get();
   }
+
+  private void processVoters(Config config) {
+    if (config.hasPath(VOTERS_ALL_WITNESSES)) {
+      allWitnessVoters = config.getBoolean(VOTERS_ALL_WITNESSES);
+    }
+    if (config.hasPath(VOTERS_WITNESS_LIST)) {
+      votersWitnessList = config.getStringList(VOTERS_WITNESS_LIST);
+    }
+
+    if (!allWitnessVoters && votersWitnessList.isEmpty()) {
+      spec.commandLine().getOut()
+          .println("skip the voters query.");
+      logger.info("skip the voters query.");
+      return;
+    }
+
+    if (config.hasPath(VOTERS_WITNESS_THRESHOLD)) {
+      threshold = config.getLong(VOTERS_WITNESS_THRESHOLD);
+    }
+    spec.commandLine().getOut()
+        .println("start voters query.");
+    logger.info("start the voters query.");
+    long start = System.currentTimeMillis();
+    Map<ByteString, Map<ByteString, Long>> votersMap = new HashMap<>();
+    DBIterator iterator = accountStore.iterator();
+    spec.commandLine().getOut().format("start to query account store: ").println();
+    logger.info("begin to query account store: ");
+    AccountCapsule accountCapsule;
+    long accountCnt = 0;
+    for (iterator.seekToFirst(); iterator.valid(); iterator.next()) {
+      accountCapsule = new AccountCapsule(iterator.getValue());
+      ByteString owner = accountCapsule.getAddress();
+      accountCapsule.getVotesList().forEach(vote -> {
+        spec.commandLine().getOut().format("voterAddress: %s",
+                StringUtil.encode58Check(vote.getVoteAddress().toByteArray()))
+            .println();
+        if (votersMap.get(vote.getVoteAddress()) == null) {
+          votersMap.put(vote.getVoteAddress(), new HashMap<>());
+        }
+        votersMap.get(vote.getVoteAddress()).put(owner, vote.getVoteCount());
+      });
+
+      accountCnt++;
+      if (accountCnt % 10000000 == 0) {
+        spec.commandLine().getOut().format("processed %d accounts", accountCnt)
+            .println();
+        logger.info("processed {} accounts", accountCnt);
+      }
+    }
+
+//    DBIterator dbIterator = votesStore.iterator();
+//    VotesCapsule votesCapsule;
+//    long totalVotesCnt = votesStore.size();
+//    spec.commandLine().getOut().format("total votes: %d", totalVotesCnt).println();
+//    logger.info("total votes: {}", totalVotesCnt);
+//    long votesCnt = 0;
+//    for (dbIterator.seekToFirst(); dbIterator.valid(); dbIterator.next()) {
+//      votesCapsule = new VotesCapsule(dbIterator.getValue());
+//      ByteString owner = votesCapsule.getAddress();
+//      votesCapsule.getOldVotes().forEach(vote -> {
+//        ByteString voteAddress = vote.getVoteAddress();
+//        long voteCount = vote.getVoteCount();
+//        long previousCnt = votersMap.get(voteAddress).get(owner);
+//        if (voteCount > previousCnt) {
+//          throw new IllegalArgumentException(" old vote count is greater than previous vote count");
+//        }
+//        votersMap.get(voteAddress).put(owner, previousCnt - voteCount);
+//      });
+//      votesCapsule.getNewVotes().forEach(vote -> {
+//        ByteString voteAddress = vote.getVoteAddress();
+//        long voteCount = vote.getVoteCount();
+//        long previousCnt = votersMap.get(voteAddress).getOrDefault(owner, 0L);
+//        votersMap.get(voteAddress).put(owner, previousCnt + voteCount);
+//      });
+//
+//      votesCnt++;
+//      if (votesCnt % 100 == 0) {
+//        spec.commandLine().getOut().format("processed %d/%d votes", votesCnt, totalVotesCnt)
+//            .println();
+//        logger.info("processed {}/{} votes", votesCnt, totalVotesCnt);
+//      }
+//    }
+
+    long end = System.currentTimeMillis();
+    spec.commandLine().getOut()
+        .format("account db query finished, total time: %d ms.", end - start).println();
+    logger.info("account db query finished, total time: {} ms.", end - start);
+
+    if (allWitnessVoters) {
+      votersMap.entrySet().stream()
+          .forEach(entry -> {
+            String witness = StringUtil.encode58Check(entry.getKey().toByteArray());
+            spec.commandLine().getOut()
+                .format("List the voters of witness: %s with votes great than %d: %s.", witness,
+                    threshold).println();
+            printVoters(entry.getValue(), threshold);
+          });
+    }
+
+    votersWitnessList.forEach(witness -> {
+      spec.commandLine().getOut()
+          .format("List the voters of witness: %s with votes great than %d.", witness,
+              threshold).println();
+      logger.info("List the voters of witness: {} with votes great than {}.", witness, threshold);
+      Map<ByteString, Long> votesMap  = votersMap.get(ByteString.copyFrom(Commons.decode58Check(witness)));
+      printVoters(votesMap, threshold);
+    });
+
+    spec.commandLine().getOut().println("\nEnd of voters query.");
+    logger.info("End of voters query.");
+  }
+
+  private void printVoters(Map<ByteString, Long> votersMap, long threshold) {
+    votersMap.entrySet().stream()
+        .filter(entry -> entry.getValue() > threshold)
+        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+        .forEach(entry -> {
+          String witness = StringUtil.encode58Check(entry.getKey().toByteArray());
+          long voteCount = entry.getValue();
+          spec.commandLine().getOut()
+              .format("voterAddress: %s, vote count: %d", witness, voteCount).println();
+          logger.info("voterAddress: {}, vote count: {}", witness, voteCount);
+        });
+  }
+
 
   private void processRewards(Config config) {
     if (config.hasPath(REWARDS_KEY)) {

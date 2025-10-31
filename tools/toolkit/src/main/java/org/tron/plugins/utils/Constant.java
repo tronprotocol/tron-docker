@@ -53,6 +53,11 @@ public class Constant {
   public static final String VOTES_WITNESS_LIST = "vote.witnessList";
   public static final int BLOCK_PRODUCED_INTERVAL = 3000;
 
+  public static final String VOTERS_ALL_WITNESSES = "voters.allWitnesses";
+  public static final String VOTERS_WITNESS_LIST = "voters.witnessList";
+  public static final String VOTERS_WITNESS_THRESHOLD = "voters.threshold";
+
+
   public static final String REWARDS_KEY = "reward";
   public static final byte[] CHANGE_DELEGATION = "CHANGE_DELEGATION".getBytes();
   public static final byte[] CURRENT_CYCLE_NUMBER = "CURRENT_CYCLE_NUMBER".getBytes();
