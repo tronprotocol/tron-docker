@@ -453,9 +453,6 @@ public class DbQuery implements Callable<Integer> {
       accountCapsule = new AccountCapsule(iterator.getValue());
       ByteString owner = accountCapsule.getAddress();
       accountCapsule.getVotesList().forEach(vote -> {
-        spec.commandLine().getOut().format("voterAddress: %s",
-                StringUtil.encode58Check(vote.getVoteAddress().toByteArray()))
-            .println();
         if (votersMap.get(vote.getVoteAddress()) == null) {
           votersMap.put(vote.getVoteAddress(), new HashMap<>());
         }
