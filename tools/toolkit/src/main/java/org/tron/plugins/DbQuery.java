@@ -14,12 +14,14 @@ import static org.tron.plugins.utils.Constant.LATEST_BLOCK_HEADER_NUMBER;
 import static org.tron.plugins.utils.Constant.MAINTENANCE_TIME_INTERVAL;
 import static org.tron.plugins.utils.Constant.NEW_REWARD_ALGORITHM_EFFECTIVE_CYCLE;
 import static org.tron.plugins.utils.Constant.REWARDS_KEY;
+import static org.tron.plugins.utils.Constant.VOTERS_ALL_ACTIVE_WITNESSES;
 import static org.tron.plugins.utils.Constant.VOTERS_ALL_WITNESSES;
 import static org.tron.plugins.utils.Constant.VOTERS_WITNESS_LIST;
 import static org.tron.plugins.utils.Constant.VOTERS_WITNESS_THRESHOLD;
 import static org.tron.plugins.utils.Constant.VOTES_ALL_WITNESSES;
 import static org.tron.plugins.utils.Constant.VOTES_STORE;
 import static org.tron.plugins.utils.Constant.VOTES_WITNESS_LIST;
+import static org.tron.plugins.utils.Constant.WITNESS_SCHEDULE_STORE;
 import static org.tron.plugins.utils.Constant.WITNESS_STORE;
 
 import com.google.common.collect.Maps;
@@ -32,6 +34,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -46,7 +49,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bouncycastle.util.encoders.Hex;
 import org.rocksdb.RocksDBException;
-import org.tron.common.utils.Base58;
 import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Commons;
 import org.tron.common.utils.Pair;
@@ -58,6 +60,7 @@ import org.tron.core.capsule.VotesCapsule;
 import org.tron.core.capsule.WitnessCapsule;
 import org.tron.core.exception.BadItemException;
 import org.tron.core.store.DelegationStore;
+import org.tron.plugins.utils.Constant;
 import org.tron.plugins.utils.FileUtils;
 import org.tron.plugins.utils.JsonFormat;
 import org.tron.plugins.utils.db.DBInterface;
@@ -78,7 +81,7 @@ import picocli.CommandLine.Command;
 public class DbQuery implements Callable<Integer> {
 
   @CommandLine.Spec
-  CommandLine.Model.CommandSpec spec;
+  static CommandLine.Model.CommandSpec spec;
 
   @CommandLine.Option(names = {"-d", "--database-directory"},
       defaultValue = "output-directory",
@@ -101,6 +104,7 @@ public class DbQuery implements Callable<Integer> {
   private DBInterface blockStore;
   private DBInterface accountStore;
   private DBInterface delegationStore;
+  private DBInterface witnessScheduleStore;
 
   boolean allWitness = false;
   List<String> witnessList = new ArrayList<>();
@@ -111,8 +115,10 @@ public class DbQuery implements Callable<Integer> {
   Map<String, BigInteger> latestWitnessVi = new HashMap<>();
 
   boolean allWitnessVoters = false;
+  boolean allActiveWitnesses = false;
   List<String> votersWitnessList = new ArrayList<>();
-  long threshold;
+  long threshold = 0;
+
   private void initStore() throws IOException, RocksDBException {
     String srcDir = database + File.separator + "database";
     witnessStore = DbTool.getDB(srcDir, WITNESS_STORE);
@@ -122,6 +128,7 @@ public class DbQuery implements Callable<Integer> {
     blockStore = DbTool.getDB(srcDir, BLOCK_STORE);
     accountStore = DbTool.getDB(srcDir, ACCOUNT_STORE);
     delegationStore = DbTool.getDB(srcDir, DELEGATION_STORE);
+    witnessScheduleStore = DbTool.getDB(srcDir, WITNESS_SCHEDULE_STORE);
   }
 
 
@@ -425,11 +432,14 @@ public class DbQuery implements Callable<Integer> {
     if (config.hasPath(VOTERS_ALL_WITNESSES)) {
       allWitnessVoters = config.getBoolean(VOTERS_ALL_WITNESSES);
     }
+    if (config.hasPath(VOTERS_ALL_ACTIVE_WITNESSES)) {
+      allActiveWitnesses = config.getBoolean(VOTERS_ALL_ACTIVE_WITNESSES);
+    }
     if (config.hasPath(VOTERS_WITNESS_LIST)) {
       votersWitnessList = config.getStringList(VOTERS_WITNESS_LIST);
     }
 
-    if (!allWitnessVoters && votersWitnessList.isEmpty()) {
+    if (!allWitnessVoters && !allActiveWitnesses && votersWitnessList.isEmpty()) {
       spec.commandLine().getOut()
           .println("skip the voters query.");
       logger.info("skip the voters query.");
@@ -453,9 +463,7 @@ public class DbQuery implements Callable<Integer> {
       accountCapsule = new AccountCapsule(iterator.getValue());
       ByteString owner = accountCapsule.getAddress();
       accountCapsule.getVotesList().forEach(vote -> {
-        if (votersMap.get(vote.getVoteAddress()) == null) {
-          votersMap.put(vote.getVoteAddress(), new HashMap<>());
-        }
+        votersMap.computeIfAbsent(vote.getVoteAddress(), k -> new HashMap<>());
         votersMap.get(vote.getVoteAddress()).put(owner, vote.getVoteCount());
       });
 
@@ -466,39 +474,6 @@ public class DbQuery implements Callable<Integer> {
         logger.info("processed {} accounts", accountCnt);
       }
     }
-
-//    DBIterator dbIterator = votesStore.iterator();
-//    VotesCapsule votesCapsule;
-//    long totalVotesCnt = votesStore.size();
-//    spec.commandLine().getOut().format("total votes: %d", totalVotesCnt).println();
-//    logger.info("total votes: {}", totalVotesCnt);
-//    long votesCnt = 0;
-//    for (dbIterator.seekToFirst(); dbIterator.valid(); dbIterator.next()) {
-//      votesCapsule = new VotesCapsule(dbIterator.getValue());
-//      ByteString owner = votesCapsule.getAddress();
-//      votesCapsule.getOldVotes().forEach(vote -> {
-//        ByteString voteAddress = vote.getVoteAddress();
-//        long voteCount = vote.getVoteCount();
-//        long previousCnt = votersMap.get(voteAddress).get(owner);
-//        if (voteCount > previousCnt) {
-//          throw new IllegalArgumentException(" old vote count is greater than previous vote count");
-//        }
-//        votersMap.get(voteAddress).put(owner, previousCnt - voteCount);
-//      });
-//      votesCapsule.getNewVotes().forEach(vote -> {
-//        ByteString voteAddress = vote.getVoteAddress();
-//        long voteCount = vote.getVoteCount();
-//        long previousCnt = votersMap.get(voteAddress).getOrDefault(owner, 0L);
-//        votersMap.get(voteAddress).put(owner, previousCnt + voteCount);
-//      });
-//
-//      votesCnt++;
-//      if (votesCnt % 100 == 0) {
-//        spec.commandLine().getOut().format("processed %d/%d votes", votesCnt, totalVotesCnt)
-//            .println();
-//        logger.info("processed {}/{} votes", votesCnt, totalVotesCnt);
-//      }
-//    }
 
     long end = System.currentTimeMillis();
     spec.commandLine().getOut()
@@ -514,22 +489,42 @@ public class DbQuery implements Callable<Integer> {
                     threshold).println();
             printVoters(entry.getValue(), threshold);
           });
-    }
+    } else if (allActiveWitnesses) {
+      byte[] witnesses = witnessScheduleStore.get(Constant.ACTIVE_WITNESSES);
+      List<ByteString> activeWitnesses = decodeActiveWitness(witnesses);
+      spec.commandLine().getOut().format("There are %d active witnesses in db",
+          activeWitnesses.size()).println();
+      logger.info("There are {} active witnesses in db", activeWitnesses.size());
+      activeWitnesses.forEach(witness -> {
+        String witnessBase58 = StringUtil.encode58Check(witness.toByteArray());
+        spec.commandLine().getOut()
+            .format("List the voters of active witness: %s with votes great than %d.",
+                witnessBase58, threshold).println();
+        logger.info("List the voters of active witness: {} with votes great than {}.",
+            witnessBase58, threshold);
+        printVoters(votersMap.get(witness), threshold);
+      });
 
-    votersWitnessList.forEach(witness -> {
-      spec.commandLine().getOut()
-          .format("List the voters of witness: %s with votes great than %d.", witness,
-              threshold).println();
-      logger.info("List the voters of witness: {} with votes great than {}.", witness, threshold);
-      Map<ByteString, Long> votesMap  = votersMap.get(ByteString.copyFrom(Commons.decode58Check(witness)));
-      printVoters(votesMap, threshold);
-    });
+    } else {
+      votersWitnessList.forEach(witness -> {
+        spec.commandLine().getOut()
+            .format("List the voters of witness: %s with votes great than %d.", witness,
+                threshold).println();
+        logger.info("List the voters of witness: {} with votes great than {}.", witness, threshold);
+        Map<ByteString, Long> votesMap = votersMap.get(
+            ByteString.copyFrom(Commons.decode58Check(witness)));
+        printVoters(votesMap, threshold);
+      });
+    }
 
     spec.commandLine().getOut().println("\nEnd of voters query.");
     logger.info("End of voters query.");
   }
 
   private void printVoters(Map<ByteString, Long> votersMap, long threshold) {
+    if (votersMap == null || votersMap.isEmpty()) {
+      return;
+    }
     votersMap.entrySet().stream()
         .filter(entry -> entry.getValue() > threshold)
         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
@@ -827,6 +822,20 @@ public class DbQuery implements Callable<Integer> {
       reward += computeReward(cycle, votes);
     }
     return reward;
+  }
+
+  public static List<ByteString> decodeActiveWitness(byte[] witnesses) {
+    if (ByteArray.isEmpty(witnesses)
+        || witnesses.length % Constant.ADDRESS_BYTE_ARRAY_LENGTH != 0) {
+      throw new IllegalArgumentException("witnesses is invalid");
+    }
+
+    List<ByteString> witnessList = new ArrayList<>();
+    for (int i = 0; i < witnesses.length; i += Constant.ADDRESS_BYTE_ARRAY_LENGTH) {
+      witnessList.add(ByteString.copyFrom(
+          Arrays.copyOfRange(witnesses, i, i + Constant.ADDRESS_BYTE_ARRAY_LENGTH)));
+    }
+    return witnessList;
   }
 
 }

@@ -54,6 +54,8 @@ public class Constant {
   public static final int BLOCK_PRODUCED_INTERVAL = 3000;
 
   public static final String VOTERS_ALL_WITNESSES = "voters.allWitnesses";
+  public static final String VOTERS_ALL_ACTIVE_WITNESSES = "voters.allActiveWitnesses";
+
   public static final String VOTERS_WITNESS_LIST = "voters.witnessList";
   public static final String VOTERS_WITNESS_THRESHOLD = "voters.threshold";
 
