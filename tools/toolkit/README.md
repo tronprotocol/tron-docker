@@ -213,6 +213,7 @@ reward = [
 
 voters = {
   allWitnesses = false
+  allActiveWitnesses = true
   witnessList = [
     "TQopP5GM68QoqLzpz8YReDfSoCMkvwcZYd",
     "TDpt9adA6QidL1B1sy3D8NC717C6L5JxFo",
@@ -225,8 +226,10 @@ voters = {
                       The option is valid only when `vote.allWitnesses = false`.
 - `reward`: configure the address list you need to query the reward.
 - `voters.allWitnesses`: configure whether to query the voter information of all witnesses.
+- `voters.allActiveWitnesses`: configure whether to query the voter information of all active
+  witnesses.
 - `voters.witnessList`: configure to query the voter information from specified witness list.
-- `voters.threshold`: configure the threshold for voter information display.
+- `voters.threshold`: configure the votes count threshold to filter the voters.
 
 Execute query command.
 ```shell script

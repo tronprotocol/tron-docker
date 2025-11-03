@@ -504,7 +504,6 @@ public class DbQuery implements Callable<Integer> {
             witnessBase58, threshold);
         printVoters(votersMap.get(witness), threshold);
       });
-
     } else {
       votersWitnessList.forEach(witness -> {
         spec.commandLine().getOut()
@@ -517,8 +516,13 @@ public class DbQuery implements Callable<Integer> {
       });
     }
 
-    spec.commandLine().getOut().println("\nEnd of voters query.");
+    spec.commandLine().getOut().println("End of voters query.");
     logger.info("End of voters query.");
+    try {
+      iterator.close();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private void printVoters(Map<ByteString, Long> votersMap, long threshold) {
@@ -526,7 +530,7 @@ public class DbQuery implements Callable<Integer> {
       return;
     }
     votersMap.entrySet().stream()
-        .filter(entry -> entry.getValue() > threshold)
+        .filter(entry -> entry.getValue() >= threshold)
         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
         .forEach(entry -> {
           String witness = StringUtil.encode58Check(entry.getKey().toByteArray());
