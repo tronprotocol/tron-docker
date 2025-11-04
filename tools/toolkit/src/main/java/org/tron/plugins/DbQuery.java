@@ -298,6 +298,12 @@ public class DbQuery implements Callable<Integer> {
           spec.commandLine().getOut().println(cnt.get() + " " + output);
           logger.info(cnt.get() + " " + output);
         });
+
+    try {
+      iterator.close();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   private String formatWitness(WitnessCapsule witnessCapsule, long previousCnt) {
@@ -480,9 +486,38 @@ public class DbQuery implements Callable<Integer> {
         .format("account db query finished, total time: %d ms.", end - start).println();
     logger.info("account db query finished, total time: {} ms.", end - start);
 
+    Map<ByteString, WitnessCapsule> witnessesMap = new HashMap<>();
+    Map<ByteString, Long> oldWitnessCnt = new HashMap<>();
+    DBIterator witnessIterator = witnessStore.iterator();
+    WitnessCapsule witnessCapsule;
+    for (witnessIterator.seekToFirst(); witnessIterator.valid(); witnessIterator.next()) {
+      witnessCapsule = new WitnessCapsule(witnessIterator.getValue());
+      witnessesMap.put(ByteString.copyFrom(witnessIterator.getKey()), witnessCapsule);
+      oldWitnessCnt.put(witnessCapsule.getAddress(), witnessCapsule.getVoteCount());
+    }
+    Map<ByteString, Long> countWitness = countVote();
+    countWitness.forEach((address, voteCount) -> {
+      WitnessCapsule witness = witnessesMap.get(address);
+      if (witness == null) {
+        throw new IllegalStateException("witness not exist");
+      }
+      witness.setVoteCount(witness.getVoteCount() + voteCount);
+      witnessesMap.put(address, witness);
+    });
+
+    AtomicInteger cnt = new AtomicInteger();
+    cnt.set(-1);
     if (allWitnessVoters) {
       votersMap.entrySet().stream()
           .forEach(entry -> {
+            WitnessCapsule witnessTmp = witnessesMap.get(entry.getKey());
+            if (witnessTmp == null) {
+              throw new IllegalStateException("witness not exist");
+            }
+            cnt.getAndIncrement();
+            String output = formatWitness(witnessTmp, oldWitnessCnt.get(entry.getKey()));
+            spec.commandLine().getOut().println(cnt.get() + " " + output);
+
             String witness = StringUtil.encode58Check(entry.getKey().toByteArray());
             spec.commandLine().getOut()
                 .format("List the voters of witness: %s with votes great than %d: %s.", witness,
@@ -496,6 +531,14 @@ public class DbQuery implements Callable<Integer> {
           activeWitnesses.size()).println();
       logger.info("There are {} active witnesses in db", activeWitnesses.size());
       activeWitnesses.forEach(witness -> {
+        WitnessCapsule witnessTmp = witnessesMap.get(witness);
+        if (witnessTmp == null) {
+          throw new IllegalStateException("witness not exist");
+        }
+        cnt.getAndIncrement();
+        String output = formatWitness(witnessTmp, oldWitnessCnt.get(witness));
+        spec.commandLine().getOut().println(cnt.get() + " " + output);
+
         String witnessBase58 = StringUtil.encode58Check(witness.toByteArray());
         spec.commandLine().getOut()
             .format("List the voters of active witness: %s with votes great than %d.",
@@ -506,12 +549,22 @@ public class DbQuery implements Callable<Integer> {
       });
     } else {
       votersWitnessList.forEach(witness -> {
+        ByteString address = ByteString.copyFrom(Commons.decode58Check(witness));
+        if (!witnessesMap.containsKey(address)) {
+          spec.commandLine().getErr().format("address: %s is not a witness", witness).println();
+          logger.error("address: {} is not a witness", witness);
+          return;
+        }
+
+        cnt.getAndIncrement();
+        String output = formatWitness(witnessesMap.get(address), oldWitnessCnt.get(address));
+        spec.commandLine().getOut().println(cnt.get() + " " + output);
+
         spec.commandLine().getOut()
             .format("List the voters of witness: %s with votes great than %d.", witness,
                 threshold).println();
         logger.info("List the voters of witness: {} with votes great than {}.", witness, threshold);
-        Map<ByteString, Long> votesMap = votersMap.get(
-            ByteString.copyFrom(Commons.decode58Check(witness)));
+        Map<ByteString, Long> votesMap = votersMap.get(address);
         printVoters(votesMap, threshold);
       });
     }
@@ -520,6 +573,7 @@ public class DbQuery implements Callable<Integer> {
     logger.info("End of voters query.");
     try {
       iterator.close();
+      witnessIterator.close();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
