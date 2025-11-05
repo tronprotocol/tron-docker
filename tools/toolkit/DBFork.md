@@ -107,9 +107,15 @@ trc20Contracts = [
   }
 ]
 
-latestBlockHeaderTimestamp = 1735628883000
-maintenanceTimeInterval = 21600000
-nextMaintenanceTime = 1735628894000
+chainParameters = {
+  latestBlockHeaderTimestamp = 1747986162000 
+  maintenanceTimeInterval = 21600000
+  nextMaintenanceTime = 1747996162000 
+  //  accountUpgradeCost = 9999000000
+  //  createAccountFee = 100000
+  //  transactionFee = 1000
+  //  ......
+}
 ```
 
 For the `witnesses`, we can configure the following properties:
@@ -134,15 +140,20 @@ For the `trc20Contracts`, we can configure the following properties:
 - `address`: set the account address
 - `balance`: set the TRC20 balance
 
+
   *Note*: the `balancesSlotPosition` sets slot position for
   `mapping(address account => uint256) private _balances` variable in the TRC20 contract.
   For most standard TRC20 contracts, the `balancesSlotPosition` is 0. For some special cases,
   you may need to change the `balancesSlotPosition` value. For more details about the variable slot position
   in the contract, please refer [layout_in_storage](https://docs.soliditylang.org/en/latest/internals/layout_in_storage.html).
 
-Set `latestBlockHeaderTimestamp` as the current time in milliseconds. This timestamp is used before processing new blocks - setting it to the current time reduces debug log output and accelerates the production of the first new block. This setting does not impact the underlying block production logic.
+For the `chainParameters`, we can configure the following parameters:
 
-Set `maintenanceTimeInterval` and `nextMaintenanceTime` optionally to facilitate testing.
+- `latestBlockHeaderTimestamp`: set the current time in milliseconds. This timestamp is used before processing new blocks - setting it to the current time reduces debug log output and accelerates the production of the first new block. This setting does not impact the underlying block production logic.
+
+- `maintenanceTimeInterval` and `nextMaintenanceTime`: set optionally to facilitate testing.
+
+- For more proposal parameters modification, please refer [fork.conf](./src/main/resources/fork.conf).
 
 Execute the fork command:
 ```shell script
