@@ -108,9 +108,9 @@ trc20Contracts = [
 ]
 
 chainParameters = {
-  latestBlockHeaderTimestamp = 1747986162000 
+  latestBlockHeaderTimestamp = 1747986162000
   maintenanceTimeInterval = 21600000
-  nextMaintenanceTime = 1747996162000 
+  nextMaintenanceTime = 1747996162000
   //  accountUpgradeCost = 9999000000
   //  createAccountFee = 100000
   //  transactionFee = 1000
