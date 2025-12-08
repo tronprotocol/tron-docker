@@ -22,10 +22,10 @@ trond docker test [flags]
 ### Examples
 
 ```
-# Build java-tron docker image, defualt: tronprotocol/java-tron:latest
+# Test java-tron docker image, defualt: tronprotocol/java-tron:latest
 $ ./trond docker test
 
-# Build java-tron docker image with specified org, artifact and version
+# Test java-tron docker image for amd64 or arm64 with specified org, artifact and version
 $ ./trond docker test -o tronprotocol -a java-tron -v latest
 $ ./trond docker test -o tronnile -a java-tron -v latest -n nile
 

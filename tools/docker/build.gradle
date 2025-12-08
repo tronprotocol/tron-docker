@@ -11,8 +11,12 @@ import java.text.SimpleDateFormat
 //    apply plugin: "java-library"
 //}
 
+plugins {
+    id "java-library"
+    id "de.undercouch.download" version "5.6.0"
+}
+
 version = "1.0.0"
-apply plugin: "java-library"
 
 def getGitCommitDetails(length = 8) {
     try {
@@ -62,6 +66,8 @@ def dockerOrgName = project.hasProperty('dockerOrgName') ? project.getProperty("
 def dockerArtifactName = project.hasProperty("dockerArtifactName") ? project.getProperty("dockerArtifactName") : "java-tron"
 def dockerImageName = "${dockerOrgName}/${dockerArtifactName}"
 def dockerNetwork = project.hasProperty("network") ? project.getProperty("network") : "mainnet"
+def targetingPlatform = project.hasProperty("platform") ? project.getProperty("platform").toLowerCase() : "linux/amd64"
+def imageArch = "amd64"
 
 task sourceDocker {
     def dockerBuildDir = "${rootDir}/build/docker-tron/"
@@ -70,6 +76,10 @@ task sourceDocker {
     def image = "${dockerImageName}:${dockerBuildVersion}"
     if (dockerNetwork != "mainnet" && dockerNetwork != "") {
         dockerfileName = "${dockerfileName}.${dockerNetwork}"
+    }
+
+    if (targetingPlatform.contains("aarch64") || targetingPlatform.contains("arm64")) {
+        dockerfileName = "${dockerfileName}.arm64"
     }
 
     doLast {
@@ -84,26 +94,78 @@ task sourceDocker {
             into "${dockerBuildDir}"
         }
         exec {
-            def dockerPlatform = ""
-            if (project.hasProperty('docker-platform')){
-                dockerPlatform = "--platform ${project.getProperty('docker-platform')}"
-                println "Building for platform ${project.getProperty('docker-platform')}"
-            } else {
-                dockerPlatform = "--platform linux/amd64"
-                println "Building for default linux/amd64 platform"
-            }
+            def dockerPlatform = "--platform ${targetingPlatform}"
+            println "Building for platform ${targetingPlatform}"
+
             def gitDetails = getGitCommitDetails(7)
             executable shell
             workingDir dockerBuildDir
-            args "-c", "docker build ${dockerPlatform} --build-arg BUILD_DATE=${buildTime()} --build-arg VERSION=${dockerBuildVersion} --build-arg VCS_REF=${gitDetails.hash} -t ${image} ."
+            args "-c", "docker build --no-cache ${dockerPlatform} --build-arg BUILD_DATE=${buildTime()} --build-arg VERSION=${dockerBuildVersion} --build-arg VCS_REF=${gitDetails.hash} -t ${image} ."
         }
     }
+}
+
+tasks.register("downloadGossBinaries") {
+  def gossVersion = 'v0.4.9'
+  def baseUrl = "https://github.com/goss-org/goss/releases/download/${gossVersion}"
+  def testDir = "${projectDir}/tests"
+  println "testDir:${testDir}"
+
+  // current image architecture
+  def currentArch = imageArch
+  println "currentArch:${currentArch}"
+
+  doLast {
+    // Download goss binary for current architecture
+    def binaryFile = new File(testDir, "goss-linux-${currentArch}")
+
+    // Download binary if it doesn't exist
+    if (!binaryFile.exists()) {
+      println "Downloading goss-linux-${currentArch}..."
+      download.run {
+        src "${baseUrl}/goss-linux-${currentArch}"
+        dest binaryFile
+        overwrite false
+        onlyIfModified true
+      }
+
+      binaryFile.setExecutable(true)
+      println "Successfully downloaded goss-linux-${currentArch}"
+    } else {
+      println "goss-linux-${currentArch} already exists"
+    }
+
+    // Download dgoss if it doesn't exist
+    def dgossFile = new File(testDir, 'dgoss')
+    if (!dgossFile.exists()) {
+      println "Downloading dgoss..."
+      download.run {
+        src "${baseUrl}/dgoss"
+        dest dgossFile
+        overwrite false
+        onlyIfModified true
+      }
+
+      dgossFile.setExecutable(true)
+      println "Successfully downloaded dgoss"
+    } else {
+      println "dgoss already exists"
+    }
+  }
 }
 
 
 task testDocker {
     def dockerReportsDir = "${rootDir}/../docker/reports/"
     def image = "${dockerImageName}:${dockerBuildVersion}"
+    imageArch = ["sh", "-c", "docker inspect ${image} --format='{{.Architecture}}'"]
+        .execute()
+        .text
+        .trim()
+
+    println "Image architecture: ${imageArch}"
+
+    dependsOn downloadGossBinaries
 
     doFirst {
         new File(dockerReportsDir).mkdir()
@@ -113,7 +175,7 @@ task testDocker {
         exec {
             workingDir "${rootDir}/../docker"
             executable shell
-            args "-c", "./test.sh ${image}"
+            args "-c", "architecture=${imageArch} ./test.sh ${image}"
         }
     }
 }

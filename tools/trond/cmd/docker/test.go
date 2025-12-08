@@ -25,10 +25,10 @@ var testCmd = &cobra.Command{
 			It is used to test TRON Mainnet block synchronization within the docker container. It has a timeout limit of 1000 seconds and may encounter the error “ERROR: goss_wait.yaml never passed” due to network issues or timeouts. If this happens, please check your network status and try again.
 		`),
 	Example: heredoc.Doc(`
-			# Build java-tron docker image, defualt: tronprotocol/java-tron:latest
+			# Test java-tron docker image, defualt: tronprotocol/java-tron:latest
 			$ ./trond docker test
 
-			# Build java-tron docker image with specified org, artifact and version
+			# Test java-tron docker image for amd64 or arm64 with specified org, artifact and version
 			$ ./trond docker test -o tronprotocol -a java-tron -v latest
 			$ ./trond docker test -o tronnile -a java-tron -v latest -n nile
 		`),

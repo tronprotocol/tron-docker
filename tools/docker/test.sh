@@ -14,14 +14,36 @@
 ## SPDX-License-Identifier: Apache-2.0
 ##
 
+set -e  # Exit immediately if any command fails
+
+# Detect architecture if not already set
+if [ -z "$architecture" ]; then
+  case $(uname -m) in
+    x86_64)
+      architecture="amd64"
+      ;;
+    aarch64|arm64)
+      architecture="arm64"
+      ;;
+    arm*)
+      architecture="arm64"
+      ;;
+    *)
+      echo "Unsupported architecture: $(uname -m)"
+      exit 1
+      ;;
+  esac
+fi
+
 export TEST_PATH=./tests
-#export GOSS_PATH=$TEST_PATH/goss-linux-${architecture} # TODO. fixed by https://github.com/goss-org/goss/tree/master/extras/dgoss#mac-osx
-export GOSS_PATH=$TEST_PATH/goss-linux-amd64
+export GOSS_PATH=$TEST_PATH/goss-linux-${architecture}
+echo "GOSS_PATH is: ${GOSS_PATH}"
+#export GOSS_PATH=$TEST_PATH/goss-linux-amd64
 export GOSS_OPTS="$GOSS_OPTS --format junit"
 export GOSS_FILES_STRATEGY=cp
 DOCKER_IMAGE=$1
 # shellcheck disable=SC2034
-DOCKER_FILE="${2:-$PWD/Dockerfile}"
+#DOCKER_FILE="${2:-$PWD/Dockerfile}"
 
 i=0 # This initializes a counter variable i that will be used to track the number of failed tests.
 

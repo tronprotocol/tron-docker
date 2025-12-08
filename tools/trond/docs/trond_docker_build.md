@@ -19,14 +19,23 @@ trond docker build [flags]
 # Using code from https://github.com/tronprotocol/java-tron.git
 $ ./trond docker build
 
-# Build java-tron docker image with specified org, artifact and version
+# Build java-tron docker image with specified org, artifact and version, targeting the amd64 platform
 # Using code from https://github.com/tronprotocol/java-tron.git
 $ ./trond docker build -o tronprotocol -a java-tron -v latest
 $ ./trond docker build -o tronprotocol -a java-tron -v latest -n mainnet
 
-# Build java-tron docker image for nile testnet with specified org, artifact and version
+# Build java-tron docker image for nile testnet with specified org, artifact and version, targeting the amd64 platform
 # Using code from https://github.com/tron-nile-testnet/nile-testnet.git
 $ ./trond docker build -o tronnile -a java-tron -v latest -n nile
+
+# Build java-tron docker image with specified org, artifact and version, targeting the arm64 platform
+# Using code from https://github.com/tronprotocol/java-tron.git
+$ ./trond docker build -o tronprotocol -a java-tron -v latest
+$ ./trond docker build -o tronprotocol -a java-tron -v latest -n mainnet -p linux/arm64
+
+# Build java-tron docker image for nile testnet with specified org, artifact and version, targeting the arm64 platform
+# Using code from https://github.com/tron-nile-testnet/nile-testnet.git
+$ ./trond docker build -o tronnile -a java-tron -v latest -n nile -p linux/arm64
 
 ```
 
@@ -37,6 +46,7 @@ $ ./trond docker build -o tronnile -a java-tron -v latest -n nile
   -h, --help              help for build
   -n, --network string    Which code will be used for the docker image, mainnet or nile (default "mainnet")
   -o, --org string        OrgName for the docker image (default "tronprotocol")
+  -p, --platform string   Platform for the docker image, linux/amd64 or linux/arm64 (default "linux/amd64")
   -v, --version string    Release version for the docker image (default "latest")
 ```
 
