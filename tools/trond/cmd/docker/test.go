@@ -28,22 +28,27 @@ var testCmd = &cobra.Command{
 			# Test java-tron docker image, defualt: tronprotocol/java-tron:latest
 			$ ./trond docker test
 
-			# Test java-tron docker image for amd64 or arm64 with specified org, artifact and version
+			# Test java-tron docker image for amd64 with specified org, artifact and version
 			$ ./trond docker test -o tronprotocol -a java-tron -v latest
 			$ ./trond docker test -o tronnile -a java-tron -v latest -n nile
+
+			# Test java-tron docker image for arm64 with specified org, artifact and version
+			$ ./trond docker test -o tronprotocol -a java-tron -v latest -p linux/arm64
+			$ ./trond docker test -o tronnile -a java-tron -v latest -n nile -p linux/arm64
 		`),
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if yes, err := utils.IsJDK1_8(); err != nil || !yes {
+		/* if yes, err := utils.IsJDK1_8(); err != nil || !yes {
 			fmt.Println("Error: JDK version should be 1.8")
 			return
-		}
+		} */
 
 		// Get the flag value
 		org, _ := cmd.Flags().GetString("org")
 		artifact, _ := cmd.Flags().GetString("artifact")
 		version, _ := cmd.Flags().GetString("version")
 		network, _ := cmd.Flags().GetString("network")
+		platform, _ := cmd.Flags().GetString("platform")
 
 		fmt.Println("If you don't specify the flags for building, the default values will be used.")
 		fmt.Println("The default result will be: tronprotocol/java-tron:latest")
@@ -52,6 +57,9 @@ var testCmd = &cobra.Command{
 		cmd1 := fmt.Sprintf("./gradlew --no-daemon testDocker -PdockerOrgName=%s -PdockerArtifactName=%s -Prelease.releaseVersion=%s", org, artifact, version)
 		if len(network) > 0 {
 			cmd1 = fmt.Sprintf("./gradlew --no-daemon testDocker -PdockerOrgName=%s -PdockerArtifactName=%s -Prelease.releaseVersion=%s  -Pnetwork=%s", org, artifact, version, network)
+		}
+		if len(platform) > 0 {
+			cmd1 = fmt.Sprintf("%s -Pplatform=%s", cmd1, platform)
 		}
 		cmds := []string{cmd1}
 		if err := utils.RunMultipleCommands(strings.Join(cmds, " && "), "./tools/gradlew"); err != nil {
@@ -66,6 +74,7 @@ func init() {
 	testCmd.Flags().StringP("artifact", "a", "java-tron", "ArtifactName for the docker image")
 	testCmd.Flags().StringP("version", "v", "latest", "Release version for the docker image")
 	testCmd.Flags().StringP("network", "n", "mainnet", "Which code will be used for the docker image, mainnet or nile")
+	testCmd.Flags().StringP("platform", "p", "linux/amd64", "Platform for the docker image, linux/amd64 or linux/arm64")
 
 	DockerCmd.AddCommand(testCmd)
 }
