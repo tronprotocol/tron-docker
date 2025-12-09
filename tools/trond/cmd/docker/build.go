@@ -42,10 +42,10 @@ var buildCmd = &cobra.Command{
 		`),
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if yes, err := utils.IsJDK1_8(); err != nil || !yes {
+		/* if yes, err := utils.IsJDK1_8(); err != nil || !yes {
 			fmt.Println("Error: JDK version should be 1.8")
 			return
-		}
+		} */
 
 		// Get the flag value
 		org, _ := cmd.Flags().GetString("org")

@@ -25,9 +25,13 @@ trond docker test [flags]
 # Test java-tron docker image, defualt: tronprotocol/java-tron:latest
 $ ./trond docker test
 
-# Test java-tron docker image for amd64 or arm64 with specified org, artifact and version
+# Test java-tron docker image for amd64 with specified org, artifact and version
 $ ./trond docker test -o tronprotocol -a java-tron -v latest
 $ ./trond docker test -o tronnile -a java-tron -v latest -n nile
+
+# Test java-tron docker image for arm64 with specified org, artifact and version
+$ ./trond docker test -o tronprotocol -a java-tron -v latest -p linux/arm64
+$ ./trond docker test -o tronnile -a java-tron -v latest -n nile -p linux/arm64
 
 ```
 
@@ -38,6 +42,7 @@ $ ./trond docker test -o tronnile -a java-tron -v latest -n nile
   -h, --help              help for test
   -n, --network string    Which code will be used for the docker image, mainnet or nile (default "mainnet")
   -o, --org string        OrgName for the docker image (default "tronprotocol")
+  -p, --platform string   Platform for the docker image, linux/amd64 or linux/arm64 (default "linux/amd64")
   -v, --version string    Release version for the docker image (default "latest")
 ```
 

@@ -80,6 +80,9 @@ task sourceDocker {
 
     if (targetingPlatform.contains("aarch64") || targetingPlatform.contains("arm64")) {
         dockerfileName = "${dockerfileName}.arm64"
+        image = "${image}-arm64"
+    } else {
+        image = "${image}-amd64"
     }
 
     doLast {
@@ -100,7 +103,11 @@ task sourceDocker {
             def gitDetails = getGitCommitDetails(7)
             executable shell
             workingDir dockerBuildDir
-            args "-c", "docker build --no-cache ${dockerPlatform} --build-arg BUILD_DATE=${buildTime()} --build-arg VERSION=${dockerBuildVersion} --build-arg VCS_REF=${gitDetails.hash} -t ${image} ."
+            /* if (targetingPlatform.contains("aarch64") || targetingPlatform.contains("arm64")) {
+                environment 'DOCKER_BUILDKIT', '0'
+            } */
+            // Add `--provenance=false --sbom=false` to fix unknown dirty manifests: https://github.com/orgs/community/discussions/45969
+            args "-c", "docker build --provenance=false --sbom=false --no-cache ${dockerPlatform} --build-arg BUILD_DATE=${buildTime()} --build-arg VERSION=${dockerBuildVersion} --build-arg VCS_REF=${gitDetails.hash} -t ${image} ."
         }
     }
 }
@@ -158,6 +165,11 @@ tasks.register("downloadGossBinaries") {
 task testDocker {
     def dockerReportsDir = "${rootDir}/../docker/reports/"
     def image = "${dockerImageName}:${dockerBuildVersion}"
+    if (targetingPlatform.contains("aarch64") || targetingPlatform.contains("arm64")) {
+        image = "${image}-arm64"
+    } else {
+        image = "${image}-amd64"
+    }
     imageArch = ["sh", "-c", "docker inspect ${image} --format='{{.Architecture}}'"]
         .execute()
         .text
@@ -183,15 +195,75 @@ task testDocker {
 // Make sure to `docker login` first
 task dockerUpload {
     def image = "${dockerImageName}:${dockerBuildVersion}"
+    def archs = [
+    "arm64",
+    "amd64"]
 
     doLast {
-        exec {
-            def cmd = "docker push '${image}'"
-            println "Executing '${cmd}'"
-            executable shell
-            args "-c", cmd
+        archs.forEach { arch ->
+            println "Uploading for ${image}-${arch}..."
+            exec {
+                def cmd = "docker push '${image}-${arch}'"
+                println "Executing '${cmd}'"
+                executable shell
+                args "-c", cmd
+            }
         }
+
     }
+}
+
+task manifestDocker {
+  def image = "${dockerImageName}:${dockerBuildVersion}"
+  def archs = [
+    "arm64",
+    "amd64"] //TODO: this assumes dockerUpload task has already been run on 2 different archs!
+  doLast {
+    exec {
+      def targets = ""
+      archs.forEach { arch -> targets += "'${image}-${arch}' " }
+      def cmd = "docker manifest create '${image}' ${targets}"
+      println "Executing '${cmd}'"
+      executable shell
+      args "-c", cmd
+    }
+    exec {
+      def cmd = "docker manifest push '${image}'"
+      println "Executing '${cmd}'"
+      executable shell
+      args "-c", cmd
+    }
+  }
+}
+
+task manifestDockerAsLatest {
+  def image = "${dockerImageName}:${dockerBuildVersion}"
+  def targetImage = "${dockerImageName}:latest"
+  def archs = [
+    "arm64",
+    "amd64"] //TODO: this assumes dockerUpload task has already been run on 2 different archs!
+  doLast {
+    exec {
+      def cmd = "docker manifest rm '${targetImage}' "
+      println "Executing '${cmd}'"
+      executable shell
+      args "-c", cmd
+    }
+    exec {
+      def targets = ""
+      archs.forEach { arch -> targets += "'${image}-${arch}' " }
+      def cmd = "docker manifest create '${targetImage}' ${targets}"
+      println "Executing '${cmd}'"
+      executable shell
+      args "-c", cmd
+    }
+    exec {
+      def cmd = "docker manifest push '${targetImage}'"
+      println "Executing '${cmd}'"
+      executable shell
+      args "-c", cmd
+    }
+  }
 }
 
 tasks.named('jar') {
