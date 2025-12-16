@@ -1,4 +1,4 @@
-metrics_addr: "0.0.0.0:9090"   # 可选
+metrics_addr: "0.0.0.0:9098"   # 可选
 interval: "10s"                # 可选
 nodes:
   - label: "tron-node1"

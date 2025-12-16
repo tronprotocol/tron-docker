@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  sr-node-monitor:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: sr-node-monitor:latest
+    container_name: sr-node-monitor
+    restart: unless-stopped
+    # If you want this to share network with other stacks,
+    # you can change this to an external network.
+    networks:
+      - tron_monitor_network
+    ports:
+      - "9098:9098"  # expose Prometheus metrics endpoint
+    volumes:
+      # Mount config file so you can change nodes without rebuilding image
+      - ../node_monitor.yml:/app/node_monitor.yml:ro
+    # Logs will go to container stdout/stderr; manage via docker logs or logging driver
+
+networks:
+  tron_monitor_network:
+    driver: bridge

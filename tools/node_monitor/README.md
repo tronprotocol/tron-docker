@@ -27,7 +27,7 @@ go build -o node_monitor main.go
 Example `node_monitor.yml`:
 
 ```yaml
-metrics_addr: "0.0.0.0:9090"   # listen address for the metrics server
+metrics_addr: "0.0.0.0:9098"   # listen address for the metrics server
 interval: "10s"               # monitoring check interval
 nodes:
   - label: "tron-node1"
@@ -53,7 +53,7 @@ nodes:
 This will:
 - Start monitors for all nodes defined under `nodes:` in the config file
 - Use the `label` as the `node` label in Prometheus metrics
-- Expose all metrics at `http://<host>:9090/metrics` (or the `metrics_addr` you configure)
+- Expose all metrics at `http://<host>:9098/metrics` (or the `metrics_addr` you configure)
 
 ## Command Line Arguments
 
@@ -80,7 +80,7 @@ Example Prometheus scrape configuration for one monitor service:
 scrape_configs:
   - job_name: 'tron-node-monitor'
     static_configs:
-      - targets: ['monitor-node:9090']
+      - targets: ['monitor-node:9098']
 ```
 
 Metrics for different Tron nodes are separated by the `node` label, so dashboards and alerts can filter or group by it.

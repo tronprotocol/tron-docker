@@ -48,7 +48,7 @@ func main() {
 	// Derive metrics address / interval from config (with sane defaults)
 	metricsAddr := cfgMetricsAddr
 	if metricsAddr == "" {
-		metricsAddr = "0.0.0.0:9090"
+		metricsAddr = "0.0.0.0:9098"
 	}
 	interval := cfgInterval
 	if interval <= 0 {
