@@ -1,0 +1,9 @@
+metrics_addr: "0.0.0.0:9090"   # 可选
+interval: "10s"                # 可选
+nodes:
+  - label: "tron-node1"
+    url: "http://localhost:8090"
+  # - label: "tron-node2"
+  #   url: "http://tron-node2:8090"
+  # - label: "tron-node3"
+  #   url: "http://tron-node3:8090"
