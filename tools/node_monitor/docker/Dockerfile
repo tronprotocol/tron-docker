@@ -1,7 +1,4 @@
-# Multi-stage build for tron node monitor
-
-# Builder stage
-FROM golang:1.23-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
@@ -12,8 +9,8 @@ RUN go mod download
 # Copy the rest of the source code
 COPY . .
 
-# Build static binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o node_monitor main.go
+# Build static binary (build the whole main package so config.go etc. are included)
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o node_monitor .
 
 # Runtime stage
 FROM gcr.io/distroless/base-debian12
