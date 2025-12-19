@@ -58,26 +58,35 @@ func (m *SRSetMonitor) checkSRSet(ctx context.Context) {
 		return
 	}
 
-	// Sort witnesses by address for consistent comparison
-	sort.Slice(witnesses, func(i, j int) bool {
-		return witnesses[i].Address < witnesses[j].Address
+	// Only consider the first 27 witnesses as active SRs
+	const activeSRCount = 27
+	var activeWitnesses []Witness
+	if len(witnesses) > activeSRCount {
+		activeWitnesses = witnesses[:activeSRCount]
+	} else {
+		activeWitnesses = witnesses
+	}
+
+	// Sort active witnesses by address for consistent comparison
+	sort.Slice(activeWitnesses, func(i, j int) bool {
+		return activeWitnesses[i].Address < activeWitnesses[j].Address
 	})
 
-	// Create sorted list of addresses
-	currentAddresses := make([]string, len(witnesses))
-	for i, w := range witnesses {
+	// Create sorted list of addresses for active SRs only
+	currentAddresses := make([]string, len(activeWitnesses))
+	for i, w := range activeWitnesses {
 		currentAddresses[i] = w.Address
 	}
 
-	// Compute hash of current SR set
-	currentHash := m.computeSRSetHash(witnesses)
+	// Compute hash of current active SR set
+	currentHash := m.computeSRSetHash(activeWitnesses)
 
-	// Update metrics
-	SRSetMetrics.SRCount.WithLabelValues(m.nodeLabel).Set(float64(len(witnesses)))
+	// Update metrics with active SR count only
+	SRSetMetrics.SRCount.WithLabelValues(m.nodeLabel).Set(float64(len(activeWitnesses)))
 	SRSetMetrics.SRSetHash.WithLabelValues(m.nodeLabel).Set(float64(m.hashToFloat(currentHash)))
 
-	// Update SR metrics
-	for _, witness := range witnesses {
+	// Update SR metrics for active SRs only
+	for _, witness := range activeWitnesses {
 		SRSetMetrics.SREnabled.WithLabelValues(m.nodeLabel, witness.Address, witness.URL).Set(1)
 		SRSetMetrics.SRTotalProduced.WithLabelValues(m.nodeLabel, witness.Address).Set(float64(witness.TotalProduced))
 		SRSetMetrics.SRTotalMissed.WithLabelValues(m.nodeLabel, witness.Address).Set(float64(witness.TotalMissed))
@@ -85,7 +94,7 @@ func (m *SRSetMonitor) checkSRSet(ctx context.Context) {
 
 	// Check for changes if we have a previous state
 	if m.lastSRSetHash != "" && currentHash != m.lastSRSetHash {
-		m.detectChanges(witnesses, currentAddresses)
+		m.detectChanges(activeWitnesses, currentAddresses)
 	}
 
 	m.lastSRSetHash = currentHash

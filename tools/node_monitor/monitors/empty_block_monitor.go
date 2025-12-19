@@ -45,57 +45,81 @@ func (m *EmptyBlockMonitor) Start(ctx context.Context) {
 	}
 }
 
-// checkBlock checks the latest block for emptiness
+// checkBlock checks blocks for emptiness
+// It checks all blocks from lastBlockNum+1 to the latest block to avoid missing blocks
 func (m *EmptyBlockMonitor) checkBlock(ctx context.Context) {
-	block, err := m.client.GetNowBlock()
+	// Get the latest block to know the current block number
+	latestBlock, err := m.client.GetNowBlock()
 	if err != nil {
 		log.Printf("Failed to get latest block: %v", err)
 		NodeMetrics.APICallErrors.WithLabelValues(m.nodeLabel, "getnowblock", "request_failed").Inc()
 		return
 	}
 
-	blockNum := block.BlockHeader.RawData.Number
-	witnessAddress := block.BlockHeader.RawData.WitnessAddress
+	latestBlockNum := latestBlock.BlockHeader.RawData.Number
 
-	// Update last block metrics
-	EmptyBlockMetrics.LastBlockNumber.WithLabelValues(m.nodeLabel).Set(float64(blockNum))
-	EmptyBlockMetrics.LastBlockTimestamp.WithLabelValues(m.nodeLabel).Set(float64(block.BlockHeader.RawData.Timestamp))
+	// Update last block metrics with the latest block info
+	EmptyBlockMetrics.LastBlockNumber.WithLabelValues(m.nodeLabel).Set(float64(latestBlockNum))
+	EmptyBlockMetrics.LastBlockTimestamp.WithLabelValues(m.nodeLabel).Set(float64(latestBlock.BlockHeader.RawData.Timestamp))
 
-	// Check if this is a new block
-	if blockNum <= m.lastBlockNum {
+	// If no new blocks since last check, skip
+	if latestBlockNum <= m.lastBlockNum {
 		return
 	}
 
-	// Check if block is empty (no transactions or only witness transactions)
-	isEmpty := m.isBlockEmpty(block)
+	// Check all blocks from lastBlockNum+1 to latestBlockNum to avoid missing any
+	// This handles the case where multiple blocks are produced between checks
+	for blockNum := m.lastBlockNum + 1; blockNum <= latestBlockNum; blockNum++ {
+		var block *Block
+		var err error
 
-	if isEmpty {
-		log.Printf("Empty block detected: block_num=%d, witness=%s", blockNum, witnessAddress)
-		EmptyBlockMetrics.EmptyBlockCount.WithLabelValues(m.nodeLabel, witnessAddress).Inc()
-		EmptyBlockMetrics.EmptyBlockDetected.WithLabelValues(
-			m.nodeLabel,
-			fmt.Sprintf("%d", blockNum),
-			witnessAddress,
-		).Set(1)
+		// Use the latest block we already fetched if it's the one we're checking
+		if blockNum == latestBlockNum {
+			block = latestBlock
+		} else {
+			// Fetch the specific block by number
+			block, err = m.client.GetBlockByNum(blockNum)
+			if err != nil {
+				log.Printf("Failed to get block %d: %v", blockNum, err)
+				NodeMetrics.APICallErrors.WithLabelValues(m.nodeLabel, "getblockbynum", "request_failed").Inc()
+				continue // Skip this block but continue checking others
+			}
+		}
 
-		// expose block hash for empty blocks
-		blockHash := computeBlockHash(block)
-		EmptyBlockMetrics.EmptyBlockInfo.WithLabelValues(
-			m.nodeLabel,
-			fmt.Sprintf("%d", blockNum),
-			witnessAddress,
-			blockHash,
-		).Set(1)
-	} else {
-		// Reset the detection flag for this block
-		EmptyBlockMetrics.EmptyBlockDetected.WithLabelValues(
-			m.nodeLabel,
-			fmt.Sprintf("%d", blockNum),
-			witnessAddress,
-		).Set(0)
+		witnessAddress := block.BlockHeader.RawData.WitnessAddress
+
+		// Check if block is empty
+		isEmpty := m.isBlockEmpty(block)
+
+		if isEmpty {
+			log.Printf("Empty block detected: block_num=%d, witness=%s", blockNum, witnessAddress)
+			EmptyBlockMetrics.EmptyBlockCount.WithLabelValues(m.nodeLabel, witnessAddress).Inc()
+			EmptyBlockMetrics.EmptyBlockDetected.WithLabelValues(
+				m.nodeLabel,
+				fmt.Sprintf("%d", blockNum),
+				witnessAddress,
+			).Set(1)
+
+			// expose block hash for empty blocks
+			blockHash := computeBlockHash(block)
+			EmptyBlockMetrics.EmptyBlockInfo.WithLabelValues(
+				m.nodeLabel,
+				fmt.Sprintf("%d", blockNum),
+				witnessAddress,
+				blockHash,
+			).Set(1)
+		} else {
+			// Reset the detection flag for non-empty blocks
+			EmptyBlockMetrics.EmptyBlockDetected.WithLabelValues(
+				m.nodeLabel,
+				fmt.Sprintf("%d", blockNum),
+				witnessAddress,
+			).Set(0)
+		}
 	}
 
-	m.lastBlockNum = blockNum
+	// Update lastBlockNum to the latest block we've checked
+	m.lastBlockNum = latestBlockNum
 	NodeMetrics.LastCheckTime.WithLabelValues(m.nodeLabel, "empty_block").Set(float64(time.Now().Unix()))
 }
 
