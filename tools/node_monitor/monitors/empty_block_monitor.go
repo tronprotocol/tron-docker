@@ -135,6 +135,7 @@ func (m *EmptyBlockMonitor) checkSingleBlock(block *Block, blockNum int64) {
 			fmt.Sprintf("%d", blockNum),
 			witnessAddress,
 		).Set(0)
+		log.Printf("Block checked (non-empty): block_num=%d, witness=%s, tx_count=%d", blockNum, witnessAddress, len(block.Transactions))
 	}
 }
 
