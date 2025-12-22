@@ -1,5 +1,5 @@
-metrics_addr: "0.0.0.0:9098"   # 可选
-interval: "10s"                # 可选
+metrics_addr: "0.0.0.0:9098"   # optional
+interval: "10s"                # optional
 nodes:
   - label: "tron-node1"
     url: "http://localhost:8090"
