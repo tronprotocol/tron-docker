@@ -19,9 +19,10 @@ import (
 //   - label: "tron-node2"
 //     url: "http://tron-node2:8090"
 type fileConfig struct {
-	MetricsAddr string        `yaml:"metrics_addr"`
-	Interval    string        `yaml:"interval"`
-	Nodes       []fileCfgNode `yaml:"nodes"`
+	MetricsAddr           string        `yaml:"metrics_addr"`
+	Interval              string        `yaml:"interval"`
+	SRBorderlineThreshold int64         `yaml:"sr_borderline_threshold"`
+	Nodes                 []fileCfgNode `yaml:"nodes"`
 }
 
 type fileCfgNode struct {
@@ -30,8 +31,8 @@ type fileCfgNode struct {
 }
 
 // loadConfig reads and parses the YAML config file, returning node configurations,
-// optional metrics address override and optional interval override.
-func loadConfig(path string) ([]nodeCfg, string, time.Duration) {
+// optional metrics address override, optional interval override, and optional SR borderline threshold override.
+func loadConfig(path string) ([]nodeCfg, string, time.Duration, int64) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		panic(fmt.Errorf("failed to read config file %q: %w", path, err))
@@ -62,5 +63,5 @@ func loadConfig(path string) ([]nodeCfg, string, time.Duration) {
 		interval = d
 	}
 
-	return nodes, cfg.MetricsAddr, interval
+	return nodes, cfg.MetricsAddr, interval, cfg.SRBorderlineThreshold
 }

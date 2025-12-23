@@ -1,5 +1,6 @@
 metrics_addr: "0.0.0.0:9098"   # optional
 interval: "10s"                # optional
+sr_borderline_threshold: 100000000  # optional, default 100,000,000 (voteCount)
 nodes:
   - label: "tron-node1"
     url: "http://localhost:8090"

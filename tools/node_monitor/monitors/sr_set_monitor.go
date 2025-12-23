@@ -71,6 +71,7 @@ func (m *SRSetMonitor) checkSRSet(ctx context.Context) {
 	for i, w := range activeWitnesses {
 		currentAddresses[i] = w.Address
 	}
+	log.Printf("currentAddresses: %v", currentAddresses)
 
 	// Compute hash of current active SR set
 	currentHash := m.computeSRSetHash(activeWitnesses)

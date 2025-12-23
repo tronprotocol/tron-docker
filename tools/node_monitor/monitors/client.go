@@ -137,15 +137,14 @@ func (c *TronClient) GetBlockByNum(num int64) (*Block, error) {
 	return &block, nil
 }
 
-// ListWitnesses gets the list of witnesses (Super Representatives)
-// Use /wallet/getpaginatednowwitnesslist to fetch the top 27 witnesses by voteCount.
-func (c *TronClient) ListWitnesses() ([]Witness, error) {
+// GetPaginatedNowWitnessList fetches a paginated list of witnesses ordered by voteCount.
+// It wraps /wallet/getpaginatednowwitnesslist with the provided offset and limit.
+func (c *TronClient) GetPaginatedNowWitnessList(offset, limit int) ([]Witness, error) {
 	url := fmt.Sprintf("%s/wallet/getpaginatednowwitnesslist", c.baseURL)
 
-	// Always fetch the first 27 witnesses (active SRs) ordered by voteCount.
 	reqBody := map[string]interface{}{
-		"offset": 0,
-		"limit":  27,
+		"offset": offset,
+		"limit":  limit,
 	}
 
 	jsonData, err := json.Marshal(reqBody)
@@ -176,4 +175,10 @@ func (c *TronClient) ListWitnesses() ([]Witness, error) {
 	}
 
 	return response.Witnesses, nil
+}
+
+// ListWitnesses gets the list of witnesses (Super Representatives)
+// It fetches the first 27 witnesses (active SRs) ordered by voteCount.
+func (c *TronClient) ListWitnesses() ([]Witness, error) {
+	return c.GetPaginatedNowWitnessList(0, 27)
 }

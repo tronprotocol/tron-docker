@@ -40,7 +40,7 @@ func main() {
 		log.Fatal("config file is required; please provide -config path/to/node_monitor.yml")
 	}
 
-	cfgNodes, cfgMetricsAddr, cfgInterval := loadConfig(*configPath)
+	cfgNodes, cfgMetricsAddr, cfgInterval, cfgSRBorderlineThreshold := loadConfig(*configPath)
 	if len(cfgNodes) == 0 {
 		log.Fatalf("no nodes defined in config file %q", *configPath)
 	}
@@ -100,6 +100,10 @@ func main() {
 		// SR set monitor
 		srSetMonitor := monitors.NewSRSetMonitor(client, interval, n.Label)
 		go srSetMonitor.Start(ctx)
+
+		// SR borderline (27th/28th voteCount threshold) monitor
+		srBorderlineMonitor := monitors.NewSRBorderlineMonitor(client, interval, n.Label, cfgSRBorderlineThreshold)
+		go srBorderlineMonitor.Start(ctx)
 	}
 
 	// Wait for interrupt signal
