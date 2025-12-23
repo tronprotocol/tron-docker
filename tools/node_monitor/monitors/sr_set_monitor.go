@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
-	"sort"
 	"time"
 )
 
@@ -67,12 +66,7 @@ func (m *SRSetMonitor) checkSRSet(ctx context.Context) {
 		activeWitnesses = witnesses
 	}
 
-	// Sort active witnesses by address for consistent comparison
-	sort.Slice(activeWitnesses, func(i, j int) bool {
-		return activeWitnesses[i].Address < activeWitnesses[j].Address
-	})
-
-	// Create sorted list of addresses for active SRs only
+	// Create list of addresses for active SRs only (preserve API order, which reflects ranking by voteCount)
 	currentAddresses := make([]string, len(activeWitnesses))
 	for i, w := range activeWitnesses {
 		currentAddresses[i] = w.Address
@@ -129,43 +123,10 @@ func (m *SRSetMonitor) detectChanges(currentWitnesses []Witness, currentAddresse
 		}
 	}
 
-	// Detect reordering (if addresses are the same but order changed)
-	// We compare the sorted lists, so if addresses match but hash differs,
-	// it might be due to other changes (like vote count changes)
-	// For simplicity, we'll track reordering separately if needed
-	if len(currentAddresses) == len(m.lastSRAddresses) {
-		addressesMatch := true
-		for i := range currentAddresses {
-			if currentAddresses[i] != m.lastSRAddresses[i] {
-				addressesMatch = false
-				break
-			}
-		}
-		if !addressesMatch {
-			// Check if it's just reordering (same addresses, different order)
-			sortedLast := make([]string, len(m.lastSRAddresses))
-			copy(sortedLast, m.lastSRAddresses)
-			sort.Strings(sortedLast)
-
-			sortedCurrent := make([]string, len(currentAddresses))
-			copy(sortedCurrent, currentAddresses)
-			sort.Strings(sortedCurrent)
-
-			if len(sortedLast) == len(sortedCurrent) {
-				allMatch := true
-				for i := range sortedLast {
-					if sortedLast[i] != sortedCurrent[i] {
-						allMatch = false
-						break
-					}
-				}
-				if allMatch {
-					log.Printf("SR set reordered")
-					SRSetMetrics.SRSetChanges.WithLabelValues(m.nodeLabel, "reordered").Inc()
-				}
-			}
-		}
-	}
+	// TODO: track SR ranking reordering (within the common address set) separately in the future
+	// Currently we only expose:
+	// - added: SR entered the top-N active set
+	// - removed: SR left the top-N active set
 }
 
 // computeSRSetHash computes a hash of the SR set
