@@ -52,12 +52,10 @@ var (
 
 	// SRSetMetrics contains metrics related to SR set monitoring
 	SRSetMetrics = struct {
-		SRSetChanges    *prometheus.CounterVec
-		SRCount         *prometheus.GaugeVec
-		SRSetHash       *prometheus.GaugeVec
-		SREnabled       *prometheus.GaugeVec
-		SRTotalProduced *prometheus.GaugeVec
-		SRTotalMissed   *prometheus.GaugeVec
+		SRSetChanges *prometheus.CounterVec
+		SRCount      *prometheus.GaugeVec
+		SRSetHash    *prometheus.GaugeVec
+		SREnabled    *prometheus.GaugeVec
 	}{
 		SRSetChanges: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
@@ -86,20 +84,6 @@ var (
 				Help: "Whether a Super Representative is enabled (1 if yes, 0 if no)",
 			},
 			[]string{"node", "address", "url"},
-		),
-		SRTotalProduced: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Name: "tron_sr_total_produced",
-				Help: "Total blocks produced by a Super Representative",
-			},
-			[]string{"node", "address"},
-		),
-		SRTotalMissed: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Name: "tron_sr_total_missed",
-				Help: "Total blocks missed by a Super Representative",
-			},
-			[]string{"node", "address"},
 		),
 	}
 
@@ -137,8 +121,6 @@ func RegisterAllMetrics(registry *prometheus.Registry) {
 		SRSetMetrics.SRCount,
 		SRSetMetrics.SRSetHash,
 		SRSetMetrics.SREnabled,
-		SRSetMetrics.SRTotalProduced,
-		SRSetMetrics.SRTotalMissed,
 		NodeMetrics.APICallErrors,
 		NodeMetrics.LastCheckTime,
 	)

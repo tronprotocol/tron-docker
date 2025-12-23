@@ -93,7 +93,7 @@
     },
     {
       "type": "stat",
-      "title": "Empty Blocks (Total)",
+      "title": "Empty Blocks (Last 24h)",
       "id": 3,
       "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
       "datasource": {
@@ -102,7 +102,7 @@
       },
       "targets": [
         {
-          "expr": "sum(tron_empty_blocks_total{node=~\"$node\"})",
+          "expr": "sum(increase(tron_empty_blocks_total{node=~\"$node\"}[24h]))",
           "legendFormat": "empty blocks",
           "refId": "A"
         }

@@ -138,10 +138,22 @@ func (c *TronClient) GetBlockByNum(num int64) (*Block, error) {
 }
 
 // ListWitnesses gets the list of witnesses (Super Representatives)
+// Use /wallet/getpaginatednowwitnesslist to fetch the top 27 witnesses by voteCount.
 func (c *TronClient) ListWitnesses() ([]Witness, error) {
-	url := fmt.Sprintf("%s/wallet/listwitnesses", c.baseURL)
+	url := fmt.Sprintf("%s/wallet/getpaginatednowwitnesslist", c.baseURL)
 
-	req, err := http.NewRequest("POST", url, nil)
+	// Always fetch the first 27 witnesses (active SRs) ordered by voteCount.
+	reqBody := map[string]interface{}{
+		"offset": 0,
+		"limit":  27,
+	}
+
+	jsonData, err := json.Marshal(reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request: %w", err)
+	}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}

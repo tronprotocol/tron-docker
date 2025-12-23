@@ -88,8 +88,6 @@ func (m *SRSetMonitor) checkSRSet(ctx context.Context) {
 	// Update SR metrics for active SRs only
 	for _, witness := range activeWitnesses {
 		SRSetMetrics.SREnabled.WithLabelValues(m.nodeLabel, witness.Address, witness.URL).Set(1)
-		SRSetMetrics.SRTotalProduced.WithLabelValues(m.nodeLabel, witness.Address).Set(float64(witness.TotalProduced))
-		SRSetMetrics.SRTotalMissed.WithLabelValues(m.nodeLabel, witness.Address).Set(float64(witness.TotalMissed))
 	}
 
 	// Check for changes if we have a previous state
