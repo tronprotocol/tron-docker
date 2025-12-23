@@ -57,6 +57,7 @@ var (
 		SRSetHash       *prometheus.GaugeVec
 		SREnabled       *prometheus.GaugeVec
 		SRBorderlineLow *prometheus.GaugeVec
+		SRVoteGap       *prometheus.GaugeVec
 	}{
 		SRSetChanges: prometheus.NewCounterVec(
 			prometheus.CounterOpts{
@@ -90,6 +91,13 @@ var (
 			prometheus.GaugeOpts{
 				Name: "tron_sr_borderline_low",
 				Help: "Whether 27th and 28th SR voteCounts are below the configured threshold (1 if yes, 0 if no)",
+			},
+			[]string{"node"},
+		),
+		SRVoteGap: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Name: "tron_sr_vote_gap",
+				Help: "VoteCount gap between 27th and 28th SR (v27 - v28)",
 			},
 			[]string{"node"},
 		),
@@ -130,6 +138,7 @@ func RegisterAllMetrics(registry *prometheus.Registry) {
 		SRSetMetrics.SRSetHash,
 		SRSetMetrics.SREnabled,
 		SRSetMetrics.SRBorderlineLow,
+		SRSetMetrics.SRVoteGap,
 		NodeMetrics.APICallErrors,
 		NodeMetrics.LastCheckTime,
 	)

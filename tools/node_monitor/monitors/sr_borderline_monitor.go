@@ -73,14 +73,16 @@ func (m *SRBorderlineMonitor) checkBorderline(ctx context.Context) {
 
 	v27 := witnesses[0].VoteCount
 	v28 := witnesses[1].VoteCount
+	gap := v27 - v28
 
 	// Trigger condition: voteCount gap between 27th and 28th is below threshold.
-	if v27-v28 < m.threshold {
-		log.Printf("SR borderline gap detected: 27th=%d, 28th=%d, gap=%d, threshold=%d", v27, v28, v27-v28, m.threshold)
+	if gap < m.threshold {
+		log.Printf("SR borderline gap detected: 27th=%d, 28th=%d, gap=%d, threshold=%d", v27, v28, gap, m.threshold)
 		SRSetMetrics.SRBorderlineLow.WithLabelValues(m.nodeLabel).Set(1)
 	} else {
 		SRSetMetrics.SRBorderlineLow.WithLabelValues(m.nodeLabel).Set(0)
 	}
+	SRSetMetrics.SRVoteGap.WithLabelValues(m.nodeLabel).Set(float64(gap))
 
 	NodeMetrics.LastCheckTime.WithLabelValues(m.nodeLabel, "sr_borderline").Set(float64(time.Now().Unix()))
 }
