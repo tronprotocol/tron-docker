@@ -129,7 +129,7 @@ func (m *EmptyBlockMonitor) checkSingleBlock(block *Block, blockNum int64) {
 			blockHash,
 		).Set(1)
 	} else {
-		log.Printf("Non-empty block detected: block_num=%d, witness=%s", blockNum, witnessAddress)
+		// log.Printf("Non-empty block detected: block_num=%d, witness=%s", blockNum, witnessAddress)
 		// Reset the detection flag for non-empty blocks
 		EmptyBlockMetrics.EmptyBlockDetected.WithLabelValues(
 			m.nodeLabel,
