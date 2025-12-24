@@ -52,6 +52,11 @@ func (m *SRSetMonitor) Start(ctx context.Context) {
 func (m *SRSetMonitor) checkSRSet(ctx context.Context) {
 	witnesses, err := m.client.ListWitnesses()
 	if err != nil {
+		// Skip check during maintenance period
+		if IsMaintenanceError(err) {
+			log.Printf("Skip SR set check for node %s due to maintenance period", m.nodeLabel)
+			return
+		}
 		log.Printf("Failed to get witness list: %v", err)
 		NodeMetrics.APICallErrors.WithLabelValues(m.nodeLabel, "listwitnesses", "request_failed").Inc()
 		return

@@ -58,6 +58,11 @@ func (m *SRBorderlineMonitor) checkBorderline(ctx context.Context) {
 	// Fetch 27th and 28th SRs (offset 26, limit 2) ordered by voteCount.
 	witnesses, err := m.client.GetPaginatedNowWitnessList(26, 2)
 	if err != nil {
+		// Skip check during maintenance period
+		if IsMaintenanceError(err) {
+			log.Printf("Skip SR borderline check for node %s due to maintenance period", m.nodeLabel)
+			return
+		}
 		log.Printf("Failed to get borderline witnesses: %v", err)
 		NodeMetrics.APICallErrors.WithLabelValues(m.nodeLabel, "getpaginatednowwitnesslist", "request_failed").Inc()
 		return

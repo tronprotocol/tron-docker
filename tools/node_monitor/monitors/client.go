@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -68,6 +69,19 @@ type Witness struct {
 // WitnessListResponse represents the response from listwitnesses API
 type WitnessListResponse struct {
 	Witnesses []Witness `json:"witnesses"`
+}
+
+// ErrorResponse represents an error response from Tron API (e.g., during maintenance)
+type ErrorResponse struct {
+	Error string `json:"Error"`
+}
+
+// IsMaintenanceError checks if an error indicates maintenance period
+func IsMaintenanceError(err error) bool {
+	if err == nil {
+		return false
+	}
+	return err.Error() == "maintenance period"
 }
 
 // GetNowBlock gets the latest block from the node
@@ -169,8 +183,30 @@ func (c *TronClient) GetPaginatedNowWitnessList(offset, limit int) ([]Witness, e
 		return nil, fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(body))
 	}
 
+	// Read body to check for maintenance error
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	// Check if response contains Error field (maintenance period or other errors)
+	// Use map to safely check without failing on parse errors
+	var checkMap map[string]interface{}
+	if err := json.Unmarshal(bodyBytes, &checkMap); err == nil {
+		if errorMsg, ok := checkMap["Error"].(string); ok && errorMsg != "" {
+			// Check if error message contains "maintenance" (case-insensitive)
+			if strings.Contains(strings.ToLower(errorMsg), "maintenance") {
+				return nil, fmt.Errorf("maintenance period")
+			}
+			// If Error field exists but doesn't contain "maintenance", return API error
+			return nil, fmt.Errorf("api error: %s", errorMsg)
+		}
+	}
+	// If checkMap unmarshal fails or Error field doesn't exist, continue to parse as normal response
+
+	// Parse as normal witness list response
 	var response WitnessListResponse
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
+	if err := json.Unmarshal(bodyBytes, &response); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
