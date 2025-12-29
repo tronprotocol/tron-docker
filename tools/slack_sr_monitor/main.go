@@ -173,15 +173,8 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 	buffer.WriteString("*TRON SR Status Update (Maintenance Period)*\n")
 	buffer.WriteString(fmt.Sprintf("Time: %s (UTC)\n\n", time.Now().UTC().Format(time.RFC1123)))
 
-	buffer.WriteString("```\n")
-	buffer.WriteString(fmt.Sprintf("%-3s | %-25s | %-15s | %-15s | %-8s\n", "#", "SR Name", "Current Votes", "Prev Votes", "Change"))
-	buffer.WriteString("-----------------------------------------------------------------------------------------------------\n")
-
 	for i, w := range witnesses {
 		name := w.DisplayName
-		if len(name) > 25 {
-			name = name[:22] + "..."
-		}
 		if name == "" {
 			name = w.Address
 		}
@@ -193,7 +186,6 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 		if diff >= 0 {
 			diffStr = "+" + diffStr
 		}
-
 		if prev == 0 {
 			diffStr = "-"
 		}
@@ -203,10 +195,10 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 			prevStr = "-"
 		}
 
-		buffer.WriteString(fmt.Sprintf("%-3d | %-25s | %-15s | %-15s | %-8s\n",
-			i+1, name, formatComma(w.VoteCount), prevStr, diffStr))
+		buffer.WriteString(fmt.Sprintf("*%d. %s*\n", i+1, name))
+		buffer.WriteString(fmt.Sprintf("Current: `%s`  Prev: `%s`  Change: `%s` \n\n",
+			formatComma(w.VoteCount), prevStr, diffStr))
 	}
-	buffer.WriteString("```\n")
 
 	payload := map[string]string{
 		"text": buffer.String(),
