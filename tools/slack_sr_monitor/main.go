@@ -2,12 +2,14 @@ package main
 
 import (
 	"bytes"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -27,6 +29,42 @@ type Witness struct {
 	TotalMissed   int64  `json:"totalMissed"`
 	LatestBlock   int64  `json:"latestBlockNum"`
 	IsJobs        bool   `json:"isJobs"`
+	DisplayName   string `json:"-"`
+}
+
+func getAccountName(nodeURL string, address string) string {
+	url := fmt.Sprintf("%s/wallet/getaccount", nodeURL)
+	payload := map[string]interface{}{
+		"address": address,
+		"visible": true,
+	}
+	jsonPayload, _ := json.Marshal(payload)
+
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Post(url, "application/json", bytes.NewBuffer(jsonPayload))
+	if err != nil {
+		return ""
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return ""
+	}
+
+	var data map[string]interface{}
+	if err := json.Unmarshal(body, &data); err != nil {
+		return ""
+	}
+
+	if val, ok := data["account_name"]; ok {
+		if str, ok := val.(string); ok {
+			return str
+		}
+		return fmt.Sprintf("%v", val)
+	}
+
+	return ""
 }
 
 // WitnessListResponse is the wrapper for the witness list API response
@@ -63,8 +101,8 @@ func getNextMaintenanceTime(nodeURL string) (time.Time, error) {
 
 func getWitnessList(nodeURL string) ([]Witness, error) {
 	url := fmt.Sprintf("%s/wallet/getpaginatednowwitnesslist", nodeURL)
-	// Fetch top 28 SRs
-	payload := []byte(`{"offset": 0, "limit": 28}`)
+	// Fetch top 28 SRs with visible=true to get Base58 addresses directly
+	payload := []byte(`{"offset": 0, "limit": 28, "visible": true}`)
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Post(url, "application/json", bytes.NewBuffer(payload))
@@ -86,6 +124,29 @@ func getWitnessList(nodeURL string) ([]Witness, error) {
 	if err := json.Unmarshal(body, &result); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal JSON: %v (body: %s)", err, string(body))
 	}
+
+	// For each witness, try to get the account name in parallel
+	fmt.Printf("Fetching account names for %d witnesses in parallel...\n", len(result.Witnesses))
+	var wg sync.WaitGroup
+	for i := range result.Witnesses {
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			w := &result.Witnesses[idx]
+			accName := getAccountName(nodeURL, w.Address)
+			if accName != "" {
+				if decoded, err := hex.DecodeString(accName); err == nil {
+					w.DisplayName = string(decoded)
+				} else {
+					w.DisplayName = accName
+				}
+			}
+			if w.DisplayName == "" {
+				w.DisplayName = w.URL
+			}
+		}(i)
+	}
+	wg.Wait()
 
 	return result.Witnesses, nil
 }
@@ -113,13 +174,13 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 	buffer.WriteString(fmt.Sprintf("Time: %s (UTC)\n\n", time.Now().UTC().Format(time.RFC1123)))
 
 	buffer.WriteString("```\n")
-	buffer.WriteString(fmt.Sprintf("%-3s | %-30s | %-15s | %-15s | %-8s\n", "#", "SR Name/URL", "Current Votes", "Prev Votes", "Change"))
+	buffer.WriteString(fmt.Sprintf("%-3s | %-25s | %-15s | %-15s | %-8s\n", "#", "SR Name", "Current Votes", "Prev Votes", "Change"))
 	buffer.WriteString("-----------------------------------------------------------------------------------------------------\n")
 
 	for i, w := range witnesses {
-		name := w.URL
-		if len(name) > 30 {
-			name = name[:27] + "..."
+		name := w.DisplayName
+		if len(name) > 25 {
+			name = name[:22] + "..."
 		}
 		if name == "" {
 			name = w.Address
@@ -142,7 +203,7 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 			prevStr = "-"
 		}
 
-		buffer.WriteString(fmt.Sprintf("%-3d | %-30s | %-15s | %-15s | %-8s\n",
+		buffer.WriteString(fmt.Sprintf("%-3d | %-25s | %-15s | %-15s | %-8s\n",
 			i+1, name, formatComma(w.VoteCount), prevStr, diffStr))
 	}
 	buffer.WriteString("```\n")
