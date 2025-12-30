@@ -101,7 +101,7 @@ func getNextMaintenanceTime(nodeURL string) (time.Time, error) {
 
 func getWitnessList(nodeURL string) ([]Witness, error) {
 	url := fmt.Sprintf("%s/wallet/getpaginatednowwitnesslist", nodeURL)
-	// Fetch top 28 SRs with visible=true to get Base58 addresses directly
+
 	payload := []byte(`{"offset": 0, "limit": 28, "visible": true}`)
 
 	client := &http.Client{Timeout: 10 * time.Second}
@@ -168,7 +168,7 @@ func formatComma(n int64) string {
 	return out.String()
 }
 
-func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]int64) error {
+func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]int64, prevSRs []string) error {
 	var buffer bytes.Buffer
 	buffer.WriteString("*TRON SR Status Update (Maintenance Period)*\n")
 	buffer.WriteString(fmt.Sprintf("Time: %s (UTC)\n\n", time.Now().UTC().Format(time.RFC1123)))
@@ -195,6 +195,67 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 			formatComma(w.VoteCount), diffStr))
 	}
 
+	// Check for SR changes in the top 27
+	if len(prevSRs) > 0 {
+		currentTop27 := make(map[string]bool)
+		for i := 0; i < 27 && i < len(witnesses); i++ {
+			currentTop27[witnesses[i].Address] = true
+		}
+
+		prevTop27 := make(map[string]bool)
+		for _, addr := range prevSRs {
+			prevTop27[addr] = true
+		}
+
+		var entered []string
+		var left []string
+
+		// Who enter
+		for i := 0; i < 27 && i < len(witnesses); i++ {
+			w := witnesses[i]
+			if !prevTop27[w.Address] {
+				name := w.DisplayName
+				if name == "" {
+					name = w.Address
+				}
+				entered = append(entered, name)
+			}
+		}
+
+		// Who left
+		for _, addr := range prevSRs {
+			if !currentTop27[addr] {
+				name := addr
+				// Try to find name in current full list
+				for _, w := range witnesses {
+					if w.Address == addr {
+						name = w.DisplayName
+						if name == "" {
+							name = w.Address
+						}
+						break
+					}
+				}
+				left = append(left, name)
+			}
+		}
+
+		if len(entered) > 0 || len(left) > 0 {
+			buffer.WriteString("*SR Replacement Detected:*\n")
+			if len(entered) > 0 {
+				buffer.WriteString(fmt.Sprintf(">:inbox_tray: *Entered:* %s\n", strings.Join(entered, ", ")))
+			}
+			if len(left) > 0 {
+				buffer.WriteString(fmt.Sprintf(">:outbox_tray: *Left:* %s\n", strings.Join(left, ", ")))
+			}
+			buffer.WriteString("\n")
+		} else {
+			buffer.WriteString("*Top 27 SRs remain unchanged.*\n\n")
+		}
+	} else {
+		buffer.WriteString("*First check, initializing SR list*\n\n")
+	}
+
 	payload := map[string]string{
 		"text": buffer.String(),
 	}
@@ -219,6 +280,17 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 	return nil
 }
 
+func updateLastStatus(witnesses []Witness, lastVotes map[string]int64) []string {
+	var top27 []string
+	for i, w := range witnesses {
+		lastVotes[w.Address] = w.VoteCount
+		if i < 27 {
+			top27 = append(top27, w.Address)
+		}
+	}
+	return top27
+}
+
 func main() {
 	// Load .env file
 	if err := godotenv.Load(); err != nil {
@@ -241,12 +313,7 @@ func main() {
 
 	// Map to track votes: Address -> VoteCount
 	lastVotes := make(map[string]int64)
-
-	updateLastVotes := func(witnesses []Witness) {
-		for _, w := range witnesses {
-			lastVotes[w.Address] = w.VoteCount
-		}
-	}
+	var lastTop27 []string
 
 	// Initial check
 	fmt.Println("Performing initial check...")
@@ -255,11 +322,10 @@ func main() {
 		fmt.Printf("Initial check failed: %v\n", err)
 	} else {
 		fmt.Printf("Successfully fetched %d witnesses. Sending to Slack...\n", len(witnesses))
-		if err := sendToSlack(slackWebhook, witnesses, lastVotes); err != nil {
+		if err := sendToSlack(slackWebhook, witnesses, lastVotes, lastTop27); err != nil {
 			fmt.Printf("Failed to send initial update to Slack: %v\n", err)
 		} else {
-			fmt.Println("Initial update sent successfully.")
-			updateLastVotes(witnesses)
+			lastTop27 = updateLastStatus(witnesses, lastVotes)
 		}
 	}
 
@@ -291,11 +357,11 @@ func main() {
 		if err != nil {
 			fmt.Printf("Error fetching witness list: %v\n", err)
 		} else {
-			if err := sendToSlack(slackWebhook, witnesses, lastVotes); err != nil {
+			if err := sendToSlack(slackWebhook, witnesses, lastVotes, lastTop27); err != nil {
 				fmt.Printf("Error sending to Slack: %v\n", err)
 			} else {
 				fmt.Println("Successfully sent SR list to Slack")
-				updateLastVotes(witnesses)
+				lastTop27 = updateLastStatus(witnesses, lastVotes)
 			}
 		}
 
