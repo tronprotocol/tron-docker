@@ -190,14 +190,9 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 			diffStr = "-"
 		}
 
-		prevStr := formatComma(prev)
-		if prev == 0 {
-			prevStr = "-"
-		}
-
 		buffer.WriteString(fmt.Sprintf("*%d. %s*\n", i+1, name))
-		buffer.WriteString(fmt.Sprintf("Current: `%s`  Prev: `%s`  Change: `%s` \n\n",
-			formatComma(w.VoteCount), prevStr, diffStr))
+		buffer.WriteString(fmt.Sprintf("Current: `%s`  Change: `%s` \n\n",
+			formatComma(w.VoteCount), diffStr))
 	}
 
 	payload := map[string]string{
