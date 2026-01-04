@@ -174,6 +174,7 @@ To start all available features, or you want more customized operations, navigat
    - **Gradle Docker**: Automate Docker image builds and testing. Check the [gradle docker](./tools/docker/README.md) documentation.
    - **Toolkit**: Perform a set of database related operations. Follow the [Toolkit guidance](./tools/toolkit/README.md).
    - **Stress Test**: Execute the stress test. Follow the [stress test guidance](./tools/stress_test/README.md).
+   - **Node Monitor**: Monitor Tron nodes for empty blocks and SR set changes. Follow the [node monitor guidance](./tools/node_monitor/README.md).
 
 ## Troubleshooting
 If you encounter any difficulties, please refer to the [Issue Work Flow](https://tronprotocol.github.io/documentation-en/developers/issue-workflow/#issue-work-flow), then raise an issue on [GitHub](https://github.com/tronprotocol/tron-docker/issues). For general questions, please use [Discord](https://discord.gg/cGKSsRVCGm) or [Telegram](https://t.me/TronOfficialDevelopersGroupEn).

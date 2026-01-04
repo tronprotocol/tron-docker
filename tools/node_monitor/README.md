@@ -84,7 +84,3 @@ scrape_configs:
 ```
 
 Metrics for different Tron nodes are separated by the `node` label, so dashboards and alerts can filter or group by it.
-
-## License
-
-Same as the tron-docker project
