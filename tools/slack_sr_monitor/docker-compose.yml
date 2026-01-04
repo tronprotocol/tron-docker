@@ -6,7 +6,6 @@ services:
     environment:
       - SLACK_WEBHOOK=${SLACK_WEBHOOK}
       - TRON_NODE=${TRON_NODE:-https://api.trongrid.io}
-    # Optional: ensure UTC timezone
-    # environment:
-    #   - TZ=UTC
+    volumes:
+      - ./logs:/root/logs
 

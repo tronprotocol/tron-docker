@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -43,17 +45,20 @@ func getAccountName(nodeURL string, address string) string {
 	client := &http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Post(url, "application/json", bytes.NewBuffer(jsonPayload))
 	if err != nil {
+		log.Printf("Error: failed to request account name for %s: %v", address, err)
 		return ""
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		log.Printf("Error: failed to read account response body for %s: %v", address, err)
 		return ""
 	}
 
 	var data map[string]interface{}
 	if err := json.Unmarshal(body, &data); err != nil {
+		log.Printf("Error: failed to unmarshal account JSON for %s: %v", address, err)
 		return ""
 	}
 
@@ -126,7 +131,7 @@ func getWitnessList(nodeURL string) ([]Witness, error) {
 	}
 
 	// For each witness, try to get the account name in parallel
-	fmt.Printf("Fetching account names for %d witnesses in parallel...\n", len(result.Witnesses))
+	log.Printf("Fetching account names for %d witnesses in parallel...\n", len(result.Witnesses))
 	var wg sync.WaitGroup
 	for i := range result.Witnesses {
 		wg.Add(1)
@@ -292,9 +297,26 @@ func updateLastStatus(witnesses []Witness, lastVotes map[string]int64) []string 
 }
 
 func main() {
+	// Ensure logs directory exists
+	logDir := "logs"
+	if _, err := os.Stat(logDir); os.IsNotExist(err) {
+		_ = os.Mkdir(logDir, 0755)
+	}
+
+	// Setup logging to both file and stdout
+	logPath := filepath.Join(logDir, "sr_monitor.log")
+	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		fmt.Printf("Error opening log file: %v, falling back to stdout only\n", err)
+	} else {
+		mw := io.MultiWriter(os.Stdout, logFile)
+		log.SetOutput(mw)
+	}
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+
 	// Load .env file
 	if err := godotenv.Load(); err != nil {
-		fmt.Println("Warning: No .env file found, using system environment variables")
+		log.Println("Warning: No .env file found, using system environment variables")
 	}
 
 	tronNode := os.Getenv("TRON_NODE")
@@ -304,37 +326,37 @@ func main() {
 
 	slackWebhook := os.Getenv("SLACK_WEBHOOK")
 	if slackWebhook == "" {
-		fmt.Println("Error: SLACK_WEBHOOK environment variable is not set")
-		fmt.Println("Usage: SLACK_WEBHOOK=https://hooks.slack.com/... [TRON_NODE=...] go run main.go")
+		log.Println("Error: SLACK_WEBHOOK environment variable is not set")
+		log.Println("Usage: SLACK_WEBHOOK=https://hooks.slack.com/... [TRON_NODE=...] go run main.go")
 		os.Exit(1)
 	}
 
-	fmt.Printf("Starting SR monitor.\nNode: %s\nSlack Webhook: %s\n", tronNode, "[REDACTED]")
+	log.Printf("Starting SR monitor.\nNode: %s\nSlack Webhook: %s\n", tronNode, slackWebhook)
 
 	// Map to track votes: Address -> VoteCount
 	lastVotes := make(map[string]int64)
 	var lastTop27 []string
 
 	// Initial check
-	fmt.Println("Performing initial check...")
+	log.Println("Performing initial check...")
 	witnesses, err := getWitnessList(tronNode)
 	if err != nil {
-		fmt.Printf("Initial check failed: %v\n", err)
+		log.Printf("Initial check failed: %v\n", err)
 	} else {
-		fmt.Printf("Successfully fetched %d witnesses. Sending to Slack...\n", len(witnesses))
+		log.Printf("Successfully fetched %d witnesses. Sending to Slack...\n", len(witnesses))
 		if err := sendToSlack(slackWebhook, witnesses, lastVotes, lastTop27); err != nil {
-			fmt.Printf("Failed to send initial update to Slack: %v\n", err)
+			log.Printf("Failed to send initial update to Slack: %v\n", err)
 		} else {
 			lastTop27 = updateLastStatus(witnesses, lastVotes)
 		}
 	}
 
-	fmt.Println("Monitoring for maintenance periods via getnextmaintenancetime...")
+	log.Println("Monitoring for maintenance periods via getnextmaintenancetime...")
 
 	for {
 		nextTime, err := getNextMaintenanceTime(tronNode)
 		if err != nil {
-			fmt.Printf("Error fetching next maintenance time: %v, retrying in 1 minute...\n", err)
+			log.Printf("Error fetching next maintenance time: %v, retrying in 1 minute...\n", err)
 			time.Sleep(1 * time.Minute)
 			continue
 		}
@@ -345,22 +367,22 @@ func main() {
 		waitDuration := triggerTime.Sub(now)
 
 		if waitDuration > 0 {
-			fmt.Printf("Next maintenance time: %s (UTC). Waiting %v until %s...\n",
+			log.Printf("Next maintenance time: %s (UTC). Waiting %v until %s...\n",
 				nextTime.Format(time.RFC1123), waitDuration.Truncate(time.Second), triggerTime.Format(time.RFC1123))
 			time.Sleep(waitDuration)
 		} else {
-			fmt.Printf("Maintenance time %s has already passed. Checking now...\n", nextTime.Format(time.RFC1123))
+			log.Printf("Maintenance time %s has already passed. Checking now...\n", nextTime.Format(time.RFC1123))
 		}
 
-		fmt.Printf("[%s] Maintenance period reached (+1m). Fetching SR list...\n", time.Now().UTC().Format(time.RFC3339))
+		log.Printf("[%s] Maintenance period reached (+1m). Fetching SR list...\n", time.Now().UTC().Format(time.RFC3339))
 		witnesses, err := getWitnessList(tronNode)
 		if err != nil {
-			fmt.Printf("Error fetching witness list: %v\n", err)
+			log.Printf("Error fetching witness list: %v\n", err)
 		} else {
 			if err := sendToSlack(slackWebhook, witnesses, lastVotes, lastTop27); err != nil {
-				fmt.Printf("Error sending to Slack: %v\n", err)
+				log.Printf("Error sending to Slack: %v\n", err)
 			} else {
-				fmt.Println("Successfully sent SR list to Slack")
+				log.Println("Successfully sent SR list to Slack")
 				lastTop27 = updateLastStatus(witnesses, lastVotes)
 			}
 		}

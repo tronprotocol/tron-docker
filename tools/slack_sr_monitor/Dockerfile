@@ -20,6 +20,9 @@ RUN apk --no-cache add ca-certificates tzdata
 
 WORKDIR /root/
 
+# Create logs directory
+RUN mkdir -p logs
+
 # Copy the binary from builder
 COPY --from=builder /app/slack_sr_monitor .
 
