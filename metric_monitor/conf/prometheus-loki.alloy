@@ -57,7 +57,7 @@ prometheus.remote_write "default" {
 
         endpoint {
                 url            = "http://xxxx/api/v1/receive"
-                remote_timeout = "10s"
+                remote_timeout = "7s"
                 headers        = {
                         "X-Auth-Token"    = "token",
                         "X-Service-Group" = "fullnode",

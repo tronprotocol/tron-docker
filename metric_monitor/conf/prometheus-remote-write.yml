@@ -32,7 +32,7 @@ remote_write:
   - url: http://thanos-receive:10908/api/v1/receive # if Thanos Receive service run on the same host with Prometheus
     headers:
       X-Service-Group: "tron-fullnode-group1"
-    remote_timeout: 15s
+    remote_timeout: 9s
     queue_config:
       capacity: 3000
       max_shards: 10 # the maximum number of shards, or parallelism, Prometheus will use for each remote-write queue
