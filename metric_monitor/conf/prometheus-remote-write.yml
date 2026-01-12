@@ -39,8 +39,9 @@ remote_write:
       min_shards: 1
       max_samples_per_send: 1000
       batch_send_deadline: 6s
-      min_backoff: 1000ms
-      max_backoff: 6s
+      min_backoff: 3000ms
+      sample_age_limit: 10s  # The maximum age of samples to send. This value must be greater than the scrape interval and batch_send_deadline.
+      retry_on_http_429: false  # Drop requests when receiving an HTTP 429 (Too Many Requests) status code
     metadata_config:
       send: true
       send_interval: 120s # How frequently metric metadata is sent to remote storage.

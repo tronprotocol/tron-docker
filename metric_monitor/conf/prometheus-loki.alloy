@@ -66,10 +66,11 @@ prometheus.remote_write "default" {
                 queue_config {
                         capacity             = 3000
                         max_shards           = 10       // Maximum number of parallel requests
-                        max_samples_per_send = 1000     // Maximum samples per send
+                        max_samples_per_send = 3000     // Maximum samples per send
                         batch_send_deadline  = "3s"     // Maximum delay before sending a batch
-                        min_backoff          = "1000ms" // Minimum retry interval
-                        max_backoff          = "3s"     // Maximum retry interval, samples will be dropped if exceeded
+                        min_backoff          = "3000ms" // Minimum retry interval
+                        sample_age_limit     = "7s"     // The maximum age of samples to send. This value must be greater than the scrape interval and batch_send_deadline.
+                        retry_on_http_429    = false    // Drop requests when receiving an HTTP 429 (Too Many Requests) status code
                 }
 
                 metadata_config {
