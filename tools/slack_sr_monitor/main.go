@@ -174,33 +174,11 @@ func formatComma(n int64) string {
 }
 
 func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]int64, prevSRs []string) error {
-	var buffer bytes.Buffer
-	buffer.WriteString("*TRON SR Status Update (Maintenance Period)*\n")
-	buffer.WriteString(fmt.Sprintf("Time: %s (UTC)\n\n", time.Now().UTC().Format(time.RFC1123)))
+	var summary strings.Builder
+	summary.WriteString("*TRON SR Status Update (Maintenance Period)*\n")
+	summary.WriteString(fmt.Sprintf("Time: %s (UTC)\n\n", time.Now().UTC().Format(time.RFC1123)))
 
-	for i, w := range witnesses {
-		name := w.DisplayName
-		if name == "" {
-			name = w.Address
-		}
-
-		prev := prevVotes[w.Address]
-		diff := w.VoteCount - prev
-
-		diffStr := formatComma(diff)
-		if diff >= 0 {
-			diffStr = "+" + diffStr
-		}
-		if prev == 0 {
-			diffStr = "-"
-		}
-
-		buffer.WriteString(fmt.Sprintf("*%d. %s*\n", i+1, name))
-		buffer.WriteString(fmt.Sprintf("Current: `%s`  Change: `%s` \n\n",
-			formatComma(w.VoteCount), diffStr))
-	}
-
-	// Check for SR changes in the top 27
+	// 1. Calculate SR changes for the summary
 	if len(prevSRs) > 0 {
 		currentTop27 := make(map[string]bool)
 		for i := 0; i < 27 && i < len(witnesses); i++ {
@@ -231,7 +209,6 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 		for _, addr := range prevSRs {
 			if !currentTop27[addr] {
 				name := addr
-				// Try to find name in current full list
 				for _, w := range witnesses {
 					if w.Address == addr {
 						name = w.DisplayName
@@ -246,23 +223,63 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 		}
 
 		if len(entered) > 0 || len(left) > 0 {
-			buffer.WriteString("*SR Replacement Detected:*\n")
+			summary.WriteString("*SR Replacement Detected:*\n")
 			if len(entered) > 0 {
-				buffer.WriteString(fmt.Sprintf(">:inbox_tray: *Entered:* %s\n", strings.Join(entered, ", ")))
+				summary.WriteString(fmt.Sprintf(">:inbox_tray: *Entered:* %s\n", strings.Join(entered, ", ")))
 			}
 			if len(left) > 0 {
-				buffer.WriteString(fmt.Sprintf(">:outbox_tray: *Left:* %s\n", strings.Join(left, ", ")))
+				summary.WriteString(fmt.Sprintf(">:outbox_tray: *Left:* %s\n", strings.Join(left, ", ")))
 			}
-			buffer.WriteString("\n")
 		} else {
-			buffer.WriteString("*Top 27 SRs remain unchanged.*\n\n")
+			summary.WriteString("*Top 27 SRs remain unchanged.*")
 		}
 	} else {
-		buffer.WriteString("*First check, initializing SR list*\n\n")
+		summary.WriteString("*First check, initializing SR list*")
 	}
 
-	payload := map[string]string{
-		"text": buffer.String(),
+	// Calculate gap between 27th and 28th SR (always show this if we have enough witnesses)
+	if len(witnesses) >= 28 {
+		v27 := witnesses[26].VoteCount
+		v28 := witnesses[27].VoteCount
+		gap := v27 - v28
+		summary.WriteString(fmt.Sprintf("\n*Gap (27 vs 28):* `%s` votes", formatComma(gap)))
+	}
+
+	// 2. Build detailed list for attachment
+	var details strings.Builder
+	details.WriteString("```\n")
+	for i, w := range witnesses {
+		name := w.DisplayName
+		if name == "" {
+			name = w.Address
+		}
+
+		prev := prevVotes[w.Address]
+		diff := w.VoteCount - prev
+
+		diffStr := formatComma(diff)
+		if diff >= 0 {
+			diffStr = "+" + diffStr
+		}
+		if prev == 0 {
+			diffStr = "-"
+		}
+
+		details.WriteString(fmt.Sprintf("%2d. %-25s Current: %15s  Change: %10s\n",
+			i+1, name, formatComma(w.VoteCount), diffStr))
+	}
+	details.WriteString("```")
+
+	// 3. Construct Payload with Attachments
+	payload := map[string]interface{}{
+		"text": summary.String(),
+		"attachments": []map[string]interface{}{
+			{
+				"title": "Full Witness List Details",
+				"text":  details.String(),
+				"color": "#36a64f",
+			},
+		},
 	}
 
 	jsonPayload, err := json.Marshal(payload)
