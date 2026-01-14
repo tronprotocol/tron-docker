@@ -175,8 +175,8 @@ func formatComma(n int64) string {
 
 func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]int64, prevSRs []string) error {
 	var summary strings.Builder
-	summary.WriteString("*TRON SR Status Update (Maintenance Period)*\n")
-	summary.WriteString(fmt.Sprintf("Time: %s (UTC)\n\n", time.Now().UTC().Format(time.RFC1123)))
+	summary.WriteString("*TRON SR Status Update (Maintenance Period)*")
+	summary.WriteString(fmt.Sprintf("   Time: %s\n", time.Now().UTC().Format(time.RFC1123)))
 
 	// 1. Calculate SR changes for the summary
 	if len(prevSRs) > 0 {
@@ -231,10 +231,10 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 				summary.WriteString(fmt.Sprintf(">:outbox_tray: *Left:* %s\n", strings.Join(left, ", ")))
 			}
 		} else {
-			summary.WriteString("*Top 27 SRs remain unchanged.*")
+			summary.WriteString("*Top 27 SRs remain unchanged.*\n")
 		}
 	} else {
-		summary.WriteString("*First check, initializing SR list*")
+		summary.WriteString("*First check, initializing SR list*\n")
 	}
 
 	// Calculate gap between 27th and 28th SR (always show this if we have enough witnesses)
@@ -242,7 +242,7 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 		v27 := witnesses[26].VoteCount
 		v28 := witnesses[27].VoteCount
 		gap := v27 - v28
-		summary.WriteString(fmt.Sprintf("\n*Gap (27 vs 28):* `%s` votes", formatComma(gap)))
+		summary.WriteString(fmt.Sprintf("*Gap (27 vs 28):* `%s` votes", formatComma(gap)))
 	}
 
 	// 2. Build detailed list for attachment
@@ -275,7 +275,6 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 		"text": summary.String(),
 		"attachments": []map[string]interface{}{
 			{
-				"title": "Full Witness List Details",
 				"text":  details.String(),
 				"color": "#36a64f",
 			},

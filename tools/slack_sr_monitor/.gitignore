@@ -1,4 +1,4 @@
-.env
 slack_sr_monitor
 logs/
+.env
 
