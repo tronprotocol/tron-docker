@@ -24,7 +24,7 @@ RUN apt-get update $NO_PROXY_CACHE  && \
   && git clone https://github.com/tron-nile-testnet/nile-testnet.git \
   && cd nile-testnet \
   && git checkout master \
-  && ./gradlew build -x test \
+  && ./gradlew clean build -x test -x check --no-daemon \
   && cd build/distributions \
   && 7z x -y java-tron-1.0.0.zip  \
   && mv java-tron-1.0.0 $BASE_DIR \

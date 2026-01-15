@@ -22,27 +22,37 @@ var buildCmd = &cobra.Command{
 			# Using code from https://github.com/tronprotocol/java-tron.git
 			$ ./trond docker build
 
-			# Build java-tron docker image with specified org, artifact and version
+			# Build java-tron docker image with specified org, artifact and version, targeting the amd64 platform
 			# Using code from https://github.com/tronprotocol/java-tron.git
 			$ ./trond docker build -o tronprotocol -a java-tron -v latest
 			$ ./trond docker build -o tronprotocol -a java-tron -v latest -n mainnet
 
-			# Build java-tron docker image for nile testnet with specified org, artifact and version
+			# Build java-tron docker image for nile testnet with specified org, artifact and version, targeting the amd64 platform
 			# Using code from https://github.com/tron-nile-testnet/nile-testnet.git
 			$ ./trond docker build -o tronnile -a java-tron -v latest -n nile
+
+			# Build java-tron docker image with specified org, artifact and version, targeting the arm64 platform
+			# Using code from https://github.com/tronprotocol/java-tron.git
+			$ ./trond docker build -o tronprotocol -a java-tron -v latest
+			$ ./trond docker build -o tronprotocol -a java-tron -v latest -n mainnet -p linux/arm64
+
+			# Build java-tron docker image for nile testnet with specified org, artifact and version, targeting the arm64 platform
+			# Using code from https://github.com/tron-nile-testnet/nile-testnet.git
+			$ ./trond docker build -o tronnile -a java-tron -v latest -n nile -p linux/arm64
 		`),
 	Run: func(cmd *cobra.Command, args []string) {
 
-		if yes, err := utils.IsJDK1_8(); err != nil || !yes {
+		/* if yes, err := utils.IsJDK1_8(); err != nil || !yes {
 			fmt.Println("Error: JDK version should be 1.8")
 			return
-		}
+		} */
 
 		// Get the flag value
 		org, _ := cmd.Flags().GetString("org")
 		artifact, _ := cmd.Flags().GetString("artifact")
 		version, _ := cmd.Flags().GetString("version")
 		network, _ := cmd.Flags().GetString("network")
+		platform, _ := cmd.Flags().GetString("platform")
 
 		fmt.Println("The building progress may take a long time, depending on your network speed.")
 		fmt.Println("If you don't specify the flags for building, the default values will be used.")
@@ -52,6 +62,9 @@ var buildCmd = &cobra.Command{
 		cmd1 := fmt.Sprintf("./gradlew --no-daemon sourceDocker -PdockerOrgName=%s -PdockerArtifactName=%s -Prelease.releaseVersion=%s", org, artifact, version)
 		if len(network) > 0 {
 			cmd1 = fmt.Sprintf("./gradlew --no-daemon sourceDocker -PdockerOrgName=%s -PdockerArtifactName=%s -Prelease.releaseVersion=%s  -Pnetwork=%s", org, artifact, version, network)
+		}
+		if len(platform) > 0 {
+			cmd1 = fmt.Sprintf("%s -Pplatform=%s", cmd1, platform)
 		}
 		cmds := []string{cmd1}
 		if err := utils.RunMultipleCommands(strings.Join(cmds, " && "), "./tools/gradlew"); err != nil {
@@ -67,6 +80,7 @@ func init() {
 	buildCmd.Flags().StringP("artifact", "a", "java-tron", "ArtifactName for the docker image")
 	buildCmd.Flags().StringP("version", "v", "latest", "Release version for the docker image")
 	buildCmd.Flags().StringP("network", "n", "mainnet", "Which code will be used for the docker image, mainnet or nile")
+	buildCmd.Flags().StringP("platform", "p", "linux/amd64", "Platform for the docker image, linux/amd64 or linux/arm64")
 
 	DockerCmd.AddCommand(buildCmd)
 }
