@@ -52,6 +52,7 @@
   <logger level="INFO" name="convert"/>
   <logger level="INFO" name="lite"/>
   <logger level="INFO" name="move"/>
-
+  <logger level="INFO" name="fork"/>
+  <logger level="INFO" name="query"/>
 </configuration>
 
