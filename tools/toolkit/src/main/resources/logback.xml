@@ -55,4 +55,3 @@
   <logger level="INFO" name="fork"/>
   <logger level="INFO" name="query"/>
 </configuration>
-
