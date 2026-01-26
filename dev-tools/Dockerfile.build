@@ -1,0 +1,108 @@
+# Multi-Stage Dockerfile for Java-Tron
+# Purpose: Clone code from Git, compile, and build final image
+# 
+# Build arguments:
+#   REPO   - Java-Tron repository URL (default: official repository)
+#   BRANCH - Branch name (default: master)
+#
+# Architecture support:
+#   - ARM64 (Apple Silicon): Auto-selects JDK 17
+#   - AMD64 (x86_64): Auto-selects JDK 8
+#
+# Usage:
+#   docker build -f Dockerfile.build --build-arg BRANCH=develop -t java-tron-dev:latest .
+#
+
+# ============================================
+# Architecture detection: Auto-select JDK version based on target architecture
+# ============================================
+ARG TARGETARCH
+
+# Stage 1a: ARM64 build stage (using JDK 17)
+FROM eclipse-temurin:17-jdk AS builder-arm64
+
+# Stage 1b: AMD64 build stage (using JDK 8)
+FROM eclipse-temurin:8-jdk AS builder-amd64
+
+# Stage 1: Auto-select builder based on architecture
+FROM builder-${TARGETARCH} AS builder
+
+# Define build arguments (passed by docker-compose)
+ARG REPO
+ARG BRANCH
+
+# Set working directory
+WORKDIR /workspace
+
+# Install build dependencies (Git + unzip)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        git \
+        unzip && \
+    # Clean APT cache
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Clone Java-Tron source code
+RUN echo "Cloning repository: ${REPO}" && \
+    echo "Branch: ${BRANCH}" && \
+    git clone --branch ${BRANCH} --depth 1 ${REPO} java-tron
+
+# Compile Java-Tron
+WORKDIR /workspace/java-tron
+RUN echo "Building Java-Tron..." && \
+    chmod +x gradlew && \
+    ./gradlew clean build -x test
+
+# Prepare runtime directory structure
+# Build artifact: build/libs/FullNode.jar
+RUN mkdir -p /java-tron/lib && \
+    echo "Copying build artifact: FullNode.jar" && \
+    cp build/libs/FullNode.jar /java-tron/lib/ && \
+    ls -lh /java-tron/lib/
+
+# ============================================
+# Stage 2: Runtime stage (auto-select JRE based on architecture)
+# ============================================
+
+# Stage 2a: ARM64 runtime stage (using JRE 17)
+FROM eclipse-temurin:17-jre AS runtime-arm64
+
+# Stage 2b: AMD64 runtime stage (using JRE 8)
+FROM eclipse-temurin:8-jre AS runtime-amd64
+
+# Stage 2: Auto-select runtime based on architecture
+ARG TARGETARCH
+FROM runtime-${TARGETARCH} AS runtime
+
+# Install runtime tools (for health checks and debugging)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        curl \
+        jq && \
+    # Clean cache
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy compiled Java-Tron from builder stage
+COPY --from=builder /java-tron /java-tron
+
+# Set working directory
+WORKDIR /java-tron
+
+# Expose ports
+EXPOSE 8090 8091 18888 18888/udp 50051 50061 9527
+
+# Entrypoint (using FullNode.jar)
+ENTRYPOINT ["java", "-jar", "/java-tron/lib/FullNode.jar"]
+
+# Default command (can be overridden by docker-compose)
+CMD ["-c", "/java-tron/config/main_net_config.conf"]
+
+# Image metadata
+ARG TARGETARCH
+ARG BRANCH=master
+LABEL maintainer="TRON Developer"
+LABEL description="Java-Tron built from source (auto-detects architecture)"
+LABEL branch=${BRANCH}
+LABEL architecture=${TARGETARCH}

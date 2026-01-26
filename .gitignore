@@ -40,3 +40,5 @@ go1.*
 /metric_monitor/helm-charts/thanos-receive/Chart.lock
 /metric_monitor/store-data/
 /metric_monitor/grafana_data/
+
+.env
