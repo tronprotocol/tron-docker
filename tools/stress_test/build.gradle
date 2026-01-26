@@ -47,10 +47,10 @@ dependencies {
 //    implementation 'ch.qos.logback:logback-classic:1.2.6'
 
     implementation group: 'info.picocli', name: 'picocli', version: '4.6.3'
-    compileOnly 'org.projectlombok:lombok:1.18.12'
-    annotationProcessor 'org.projectlombok:lombok:1.18.12'
-    testCompileOnly 'org.projectlombok:lombok:1.18.12'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    testCompileOnly 'org.projectlombok:lombok:1.18.34'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
 
     implementation('com.github.federico2014.java-tron:framework:GreatVoyage-v4.8.20') {
         exclude group: 'com.fasterxml.jackson', module: 'jackson-bom'
