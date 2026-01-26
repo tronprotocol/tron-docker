@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.Callable;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.tron.common.application.Application;
 import org.tron.common.application.ApplicationFactory;
 import org.tron.common.application.TronApplicationContext;
@@ -105,10 +106,19 @@ public class BroadcastTx implements Callable<Integer> {
     Args.getInstance().setNodeListenPort(nodeListenPort);
     logger.info("rpc.port: {}, node.listen.port {}", rpcPort, nodeListenPort);
     Args.getInstance().setOpenHistoryQueryWhenLiteFN(true);
+    Args.getInstance().setRpcEnable(true);
+    Args.getInstance().setRpcSolidityEnable(false);
+    Args.getInstance().setRpcPBFTEnable(false);
+    Args.getInstance().setFullNodeHttpEnable(false);
+    Args.getInstance().setSolidityNodeHttpEnable(false);
+    Args.getInstance().setPBFTHttpEnable(false);
+    Args.getInstance().setJsonRpcHttpFullNodeEnable(false);
+    Args.getInstance().setJsonRpcHttpSolidityNodeEnable(false);
+    Args.getInstance().setJsonRpcHttpPBFTNodeEnable(false);
 
     context = new TronApplicationContext(DefaultConfig.class);
     app = ApplicationFactory.create(context);
-    app.addService(context.getBean(RpcApiService.class));
+//    app.addService(context.getBean(RpcApiService.class));
     app.startup();
 
     String url = String.format("%s:%d", "127.0.0.1",

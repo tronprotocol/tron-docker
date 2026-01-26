@@ -1,6 +1,6 @@
 package org.tron;
 
-import static org.tron.plugins.utils.Constant.ACCOUNT_STORE;
+//import static org.tron.plugins.utils.Constant.ACCOUNT_STORE;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -130,7 +130,8 @@ public class CollectAddress implements Callable<Integer> {
       throws IOException, RocksDBException {
     Set<ByteString> addressList = new HashSet<>();
     String srcDir = dbPath + File.separator + "database";
-    DBInterface accountStore = DbTool.getDB(srcDir, ACCOUNT_STORE);
+//    DBInterface accountStore = DbTool.getDB(srcDir, ACCOUNT_STORE);
+    DBInterface accountStore = DbTool.getDB(srcDir, "account");
     DBIterator iterator = accountStore.iterator();
     for (iterator.seekToFirst(); iterator.valid(); iterator.next()) {
       addressList.add(ByteString.copyFrom(iterator.getKey()));

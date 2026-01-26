@@ -7,7 +7,7 @@ plugins {
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.current()
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 repositories {
@@ -52,7 +52,7 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.12'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
 
-    implementation('com.github.tronprotocol.java-tron:framework:GreatVoyage-v4.7.7') {
+    implementation('com.github.federico2014.java-tron:framework:GreatVoyage-v4.8.20') {
         exclude group: 'com.fasterxml.jackson', module: 'jackson-bom'
         exclude group: "pull-parser", module: "pull-parser"
         exclude group: "ch.qos.logback", module: "logback-classic"
