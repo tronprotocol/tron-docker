@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.rocksdb.RocksDBException;
+import org.tron.common.arch.Arch;
 import org.tron.plugins.utils.DBUtils;
 import org.tron.plugins.utils.FileUtils;
 
@@ -164,7 +165,8 @@ public class DbTool {
   private static DbType getDbType(String sourceDir, String dbName) {
     String engineFile = Paths.get(sourceDir, dbName, ENGINE_FILE).toString();
     if (!new File(engineFile).exists()) {
-      return DbType.LevelDB;
+      // For arm64, only support RocksDB
+      return Arch.isArm64() ? DbType.RocksDB : DbType.LevelDB;
     }
     String engine = FileUtils.readProperty(engineFile, KEY_ENGINE);
     if (engine.equalsIgnoreCase(ROCKSDB)) {
