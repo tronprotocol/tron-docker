@@ -20,6 +20,13 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 
+// Force RocksDB version based on architecture (same as java-tron/platform module)
+configurations.all {
+    resolutionStrategy {
+        force "org.rocksdb:rocksdbjni:${rootProject.archInfo.requires.RocksdbVersion}"
+    }
+}
+
 tasks.named('jar') {
     enabled = false
     dependsOn shadowJar
@@ -124,3 +131,20 @@ task checkstyleToolkitTest(type: Checkstyle) {
 }
 
 check.dependsOn checkstyleToolkitMain, checkstyleToolkitTest
+
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+
+    if (rootProject.archInfo.isArm64) {
+        exclude 'org/tron/plugins/leveldb/**'
+        filter {
+            excludeTestsMatching '*.*leveldb*'
+            excludeTestsMatching '*.*Leveldb*'
+            excludeTestsMatching '*.*LevelDB*'
+            excludeTestsMatching '*.*LevelDb*'
+            excludeTestsMatching '*.*Archive*'
+        }
+    }
+}
