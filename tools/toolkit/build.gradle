@@ -72,15 +72,15 @@ dependencies {
 
     if (rootProject.archInfo.isArm64) {
         // ARM64
-        testImplementation('com.github.warku123.java-tron:framework:GreatVoyage-v4.8.0-arm') {
+        testImplementation('com.github.warku123.java-tron:framework:GreatVoyage-v4.8.1-arm') {
             exclude group: 'com.fasterxml.jackson', module: 'jackson-bom'
             exclude group: "pull-parser", module: "pull-parser"
         }
-        implementation('com.github.warku123.java-tron:chainbase:GreatVoyage-v4.8.0-arm') {
+        implementation('com.github.warku123.java-tron:chainbase:GreatVoyage-v4.8.1-arm') {
             exclude group: 'com.fasterxml.jackson', module: 'jackson-bom'
             exclude group: "pull-parser", module: "pull-parser"
         }
-        implementation 'com.github.warku123.java-tron:platform:GreatVoyage-v4.8.0-arm'
+        implementation 'com.github.warku123.java-tron:platform:GreatVoyage-v4.8.1-arm'
     } else {
         // x86
         testImplementation('com.github.federico2014.java-tron:framework:GreatVoyage-v4.8.20') {
