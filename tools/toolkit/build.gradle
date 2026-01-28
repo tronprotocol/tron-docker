@@ -83,15 +83,15 @@ dependencies {
         implementation 'com.github.warku123.java-tron:platform:GreatVoyage-v4.8.1-arm'
     } else {
         // x86
-        testImplementation('com.github.federico2014.java-tron:framework:GreatVoyage-v4.8.20') {
+        testImplementation('com.github.federico2014.java-tron:framework:GreatVoyage-v4.8.1-x86_64') {
             exclude group: 'com.fasterxml.jackson', module: 'jackson-bom'
             exclude group: "pull-parser", module: "pull-parser"
         }
-        implementation('com.github.federico2014.java-tron:chainbase:GreatVoyage-v4.8.20') {
+        implementation('com.github.federico2014.java-tron:chainbase:GreatVoyage-v4.8.1-x86_64') {
             exclude group: 'com.fasterxml.jackson', module: 'jackson-bom'
             exclude group: "pull-parser", module: "pull-parser"
         }
-        implementation('com.github.federico2014.java-tron:platform:GreatVoyage-v4.8.20') {
+        implementation('com.github.federico2014.java-tron:platform:GreatVoyage-v4.8.1-x86_64') {
             exclude(group: 'org.fusesource.leveldbjni', module: 'leveldbjni-all')
             exclude(group: 'io.github.tronprotocol', module: 'zksnark-java-sdk')
             exclude(group: 'commons-io', module: 'commons-io')
