@@ -45,7 +45,7 @@ services:
     #   - "${SR_P2P_PORT:-18888}:18888/udp"   # P2P UDP
     #   - "${SR_METRICS_PORT:-9526}:9527"     # Metrics API
     volumes:
-      - ../conf:/java-tron/conf:ro
+      - ../../conf:/java-tron/conf:ro
       - sr-data:/java-tron/output-directory
       - sr-logs:/java-tron/logs
     command: >
@@ -92,7 +92,7 @@ services:
       - "${FULLNODE_GRPC_PORT:-50051}:50051"    # gRPC API
       - "${FULLNODE_METRICS_PORT:-9527}:9527"   # Metrics API
     volumes:
-      - ../conf:/java-tron/conf:ro
+      - ../../conf:/java-tron/conf:ro
       - fullnode-data:/java-tron/output-directory
       - fullnode-logs:/java-tron/logs
     command: >

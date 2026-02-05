@@ -16,7 +16,7 @@ Build and run a TRON private chain from source code for development and testing 
 
 ### Docker
 
-For Docker and Docker Compose installation, refer to [prerequisites](../README.md#prerequisites).
+For Docker and Docker Compose installation, refer to [prerequisites](../../README.md#prerequisites).
 
 Ensure Docker has at least:
 - **8GB memory** per node container
@@ -34,10 +34,10 @@ The Dockerfile automatically detects your system architecture and uses the appro
 
 ## Quick Start
 
-Download the `tron-docker` repository, enter the [dev-tools](./) directory, and start the services using the following commands:
+Download the `tron-docker` repository, enter the [tools/dev](./) directory, and start the services using the following commands:
 
 ```bash
-cd dev-tools
+cd tools/dev
 
 # Use default configuration (master branch)
 docker-compose -f docker-compose-build.yml up --build -d
@@ -85,7 +85,7 @@ Available configuration options in `.env`:
 # ============================================
 # Java-Tron Source Configuration
 # ============================================
-# Git repository URL (optional, defaults to official repo)
+# Git repository URL (optional, defaults to official repo, also can build from other repository)
 #REPO=https://github.com/tronprotocol/java-tron.git
 
 # Branch name (optional, defaults to master)
@@ -165,36 +165,47 @@ docker-compose -f docker-compose-build.yml up --build -d
 
 ### Monitoring
 
-```bash
-# View logs (all services)
-docker-compose -f docker-compose-build.yml logs -f
+Node logs are persisted in Docker volumes and can be accessed even when containers are stopped:
 
-# View logs (specific service)
-docker-compose -f docker-compose-build.yml logs -f tron-sr
+```bash
+# View Fullnode tron.log (last 100 lines)
+docker run --rm -v tron-dev-fullnode-logs:/logs alpine tail -n 100 /logs/tron.log
+
+# View SR tron.log (last 100 lines)
+docker run --rm -v tron-dev-sr-logs:/logs alpine tail -n 100 /logs/tron.log
+
+# Follow Fullnode tron.log in real-time
+docker run --rm -v tron-dev-fullnode-logs:/logs alpine tail -f /logs/tron.log
+
+# Follow SR tron.log in real-time
+docker run --rm -v tron-dev-sr-logs:/logs alpine tail -f /logs/tron.log
+
+# List all log files
+docker run --rm -v tron-dev-fullnode-logs:/logs alpine ls -lah /logs
+
+# Search for errors in Fullnode logs
+docker run --rm -v tron-dev-fullnode-logs:/logs alpine grep -i "error" /logs/tron.log
+
+# Copy logs to local directory
+mkdir -p ~/tron-logs
+docker run --rm -v tron-dev-fullnode-logs:/logs -v ~/tron-logs:/backup \
+  alpine cp -r /logs/. /backup/fullnode/
+docker run --rm -v tron-dev-sr-logs:/logs -v ~/tron-logs:/backup \
+  alpine cp -r /logs/. /backup/sr/
+```
+
+**Alternative: Use docker-compose logs for container output**
+
+```bash
+# View Docker container logs (stdout/stderr)
 docker-compose -f docker-compose-build.yml logs -f tron-fullnode
+docker-compose -f docker-compose-build.yml logs -f tron-sr
 
 # Check container status
 docker-compose -f docker-compose-build.yml ps
 
 # Check resource usage
 docker stats tron-dev-sr tron-dev-fullnode
-```
-
-### Access logs from volumes
-
-Even if containers are stopped, logs are persisted in Docker volumes:
-
-```bash
-# List available logs
-docker run --rm -v tron-dev-fullnode-logs:/logs alpine ls -lah /logs
-
-# View recent logs
-docker run --rm -v tron-dev-fullnode-logs:/logs alpine tail -n 100 /logs/tron.log
-
-# Copy logs to local directory
-mkdir -p ~/tron-logs
-docker run --rm -v tron-dev-fullnode-logs:/logs -v ~/tron-logs:/backup \
-  alpine cp -r /logs/. /backup/fullnode/
 ```
 
 ### Cleanup
@@ -228,7 +239,7 @@ curl http://localhost:9527/metrics | grep tron_header_height
 curl http://localhost:9527/metrics | grep tron_peers
 ```
 
-For more information about available metrics, see [metric_monitor README](../metric_monitor/README.md#all-metrics).
+For more information about available metrics, see [metric_monitor README](../../metric_monitor/README.md#all-metrics).
 
 ### Integration with Prometheus
 
@@ -344,7 +355,7 @@ FULLNODE_SOLIDITY_PORT=9091
 
 To use a custom genesis block configuration:
 
-1. Edit configuration files in `../conf/`:
+1. Edit configuration files in `../../conf/`:
    - `private_net_config_witness1.conf` (SR configuration)
    - `private_net_config_others.conf` (Fullnode configuration)
 
@@ -392,7 +403,7 @@ docker-compose -f docker-compose-build.yml down -v
 For more detailed information, refer to:
 
 - **[DOCKER-COMPOSE-GUIDE.md](./DOCKER-COMPOSE-GUIDE.md)** - Comprehensive usage guide
-- **[Metric Monitoring](../metric_monitor/README.md)** - Prometheus metrics documentation
+- **[Metric Monitoring](../../metric_monitor/README.md)** - Prometheus metrics documentation
 - **[TRON Developers](https://developers.tron.network/)** - Official TRON documentation
 - **[java-tron GitHub](https://github.com/tronprotocol/java-tron)** - Source code repository
 
