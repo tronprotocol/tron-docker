@@ -201,6 +201,9 @@ statistic = {
 - `startBlockNumber`: configure the start block number of range for the TPS statistic;
 - `endBlockNumber`: configure the end block number of range for the TPS statistic;
 
+*Note*: if the `url` points to Lite full node, you should make sure
+its configuration `openHistoryQueryWhenLiteFN = true` is set.
+
 Then we can execute the `statistic` subcommand.
 ```
 # execute full command
