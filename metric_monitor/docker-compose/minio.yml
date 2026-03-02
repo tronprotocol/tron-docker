@@ -8,6 +8,10 @@ services:
       - "9001:9001"  # Map port for UI
     command: minio server /data --console-address ":9001"
     environment:
+      # ⚠️ DEMO CREDENTIALS FOR LOCAL TESTING ONLY ⚠️
+      # These are publicly known credentials for demonstration purposes
+      # For production: Use AWS S3 or other cloud storage with proper IAM credentials
+      # Never use these credentials in production environments
       MINIO_ROOT_USER: minio
       MINIO_ROOT_PASSWORD: melovethanos
     volumes:
