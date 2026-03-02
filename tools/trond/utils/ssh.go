@@ -11,6 +11,7 @@ import (
 	"github.com/schollz/progressbar/v3"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
+	"golang.org/x/crypto/ssh/knownhosts"
 )
 
 // Check if a port is open on the given IP
@@ -24,10 +25,54 @@ func CheckPort(ip string, port int) bool {
 	return true
 }
 
+// getHostKeyCallback returns the appropriate HostKeyCallback based on environment
+// For production use, set TROND_STRICT_HOST_KEY_CHECK=true environment variable
+func getHostKeyCallback() (ssh.HostKeyCallback, error) {
+	// Check if strict host key checking is enabled via environment variable
+	strictCheck := os.Getenv("TROND_STRICT_HOST_KEY_CHECK")
+
+	if strictCheck == "true" || strictCheck == "1" {
+		// Production mode: Use known_hosts file for verification
+		knownHostsPath := os.Getenv("TROND_KNOWN_HOSTS_FILE")
+		if knownHostsPath == "" {
+			// Default to user's known_hosts file
+			homeDir, err := os.UserHomeDir()
+			if err != nil {
+				return nil, fmt.Errorf("failed to get home directory: %v", err)
+			}
+			knownHostsPath = filepath.Join(homeDir, ".ssh", "known_hosts")
+		}
+
+		// Check if known_hosts file exists
+		if _, err := os.Stat(knownHostsPath); os.IsNotExist(err) {
+			return nil, fmt.Errorf("known_hosts file not found at %s. Please create it or disable strict host key checking for testing", knownHostsPath)
+		}
+
+		callback, err := knownhosts.New(knownHostsPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load known_hosts file: %v", err)
+		}
+
+		fmt.Println("    ✓ Using strict host key verification (production mode)")
+		return callback, nil
+	}
+
+	// Development/Testing mode: Accept any host key with warning
+	fmt.Println("    ⚠️  WARNING: Host key verification is DISABLED (testing mode)")
+	fmt.Println("    ⚠️  For production use, set TROND_STRICT_HOST_KEY_CHECK=true")
+	return ssh.InsecureIgnoreHostKey(), nil
+}
+
 func SSHConnect(ip string, port int, user, password, keyPath string) (*ssh.Client, error) {
+	// Get appropriate host key callback
+	hostKeyCallback, err := getHostKeyCallback()
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure host key verification: %v", err)
+	}
+
 	sshConfig := &ssh.ClientConfig{
 		User:            user,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // Replace with known hosts verification in production
+		HostKeyCallback: hostKeyCallback,
 		Timeout:         5 * time.Second,
 	}
 
