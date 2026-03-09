@@ -70,11 +70,11 @@ var genDocsCmd = &cobra.Command{
 			$ ./trond gen-docs
 		`),
 	Run: func(cmd *cobra.Command, args []string) {
-		docsDir := "./docs"
+		docsDir := "./tools/trond/docs"
 
 		// Create docs directory if it doesn't exist
 		if _, err := os.Stat(docsDir); os.IsNotExist(err) {
-			err := os.MkdirAll(docsDir, os.ModePerm)
+			err := os.Mkdir(docsDir, os.ModePerm)
 			if err != nil {
 				fmt.Println("Error creating docs directory:", err)
 				os.Exit(1)
