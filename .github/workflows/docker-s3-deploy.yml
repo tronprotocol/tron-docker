@@ -48,14 +48,19 @@ jobs:
           # This creates tron-docker.zip.asc (ASCII-armored signature)
 
       - name: Configure AWS Credentials
+        env:
+          AWS_REGION: ${{ github.event.inputs.aws-region }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ github.event.inputs.aws-region }}  # Use input for region
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload tron-docker.zip to S3
+        env:
+          BUCKET_NAME: ${{ github.event.inputs.bucket-name }}
+          VERSION: ${{ github.event.inputs.version }}
         run: |
           zip -r publish.zip tron-docker.zip tron-docker.zip.asc
-          aws s3 cp publish.zip s3://${{ github.event.inputs.bucket-name }}/package/publish-latest.zip
-          aws s3 cp publish.zip s3://${{ github.event.inputs.bucket-name }}/package/publish-${{github.event.inputs.version}}.zip
+          aws s3 cp publish.zip "s3://${BUCKET_NAME}/package/publish-latest.zip"
+          aws s3 cp publish.zip "s3://${BUCKET_NAME}/package/publish-${VERSION}.zip"
