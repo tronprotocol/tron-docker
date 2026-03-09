@@ -1,18 +1,20 @@
-FROM ubuntu:24.04
+FROM ubuntu:24.04@sha256:d1e2e92c075e5ca139d51a140fff46f84315c0fdce203eab2807c7e495eff4f9
 ARG VERSION="dev"
 ENV NO_PROXY_CACHE="-o Acquire::BrokenProxy=true -o Acquire::http::No-Cache=true -o Acquire::http::Pipeline-Depth=0"
 
 ENV TMP_DIR="/tron-build"
 ENV JDK_TAR="jdk-8u202-linux-x64.tar.gz"
 ENV JDK_DIR="jdk1.8.0_202"
-ENV JDK_MD5="0029351f7a946f6c05b582100c7d45b7"
+ENV JDK_SHA256="9a5c32411a6a06e22b69c495b7975034409fa1652d03aeb8eb5b6f59fd4594e0"
 ENV BASE_DIR="/java-tron"
+ENV TRON_DEPLOYMENT_COMMIT="c615658921c3a00d81a5ff7c68ef239a8b9e5172"
+ENV TEST_NET_CONFIG_SHA256="081931d4de63b7bc29045b2f8fd7df98b2c498f5abfecb9b04fca589737f3949"
 
 # Update and install dependencies without using any cache
 RUN apt-get update $NO_PROXY_CACHE  && \
   apt-get --quiet --yes install git wget 7zip curl jq libtcmalloc-minimal4 && \
   wget -P /usr/local https://github.com/frekele/oracle-java/releases/download/8u202-b08/$JDK_TAR \
-  && echo "$JDK_MD5 /usr/local/$JDK_TAR" | md5sum -c \
+  && echo "$JDK_SHA256 /usr/local/$JDK_TAR" | sha256sum -c \
   && tar -zxf /usr/local/$JDK_TAR -C /usr/local\
   && rm /usr/local/$JDK_TAR \
   && export JAVA_HOME=/usr/local/$JDK_DIR \
@@ -32,8 +34,8 @@ RUN apt-get update $NO_PROXY_CACHE  && \
   && rm -rf ~/.gradle \
   && mv /usr/local/$JDK_DIR/jre /usr/local \
   && rm -rf /usr/local/$JDK_DIR \
-  && wget -P $BASE_DIR/config https://raw.githubusercontent.com/tronprotocol/tron-deployment/master/test_net_config.conf \
-  && mv $BASE_DIR/config/test_net_config.conf $BASE_DIR/config.conf \
+  && wget -O $BASE_DIR/config.conf https://raw.githubusercontent.com/tronprotocol/tron-deployment/$TRON_DEPLOYMENT_COMMIT/test_net_config.conf \
+  && echo "$TEST_NET_CONFIG_SHA256 $BASE_DIR/config.conf" | sha256sum -c \
   # Clean apt cache
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/cache/apt/archives/partial/* \
