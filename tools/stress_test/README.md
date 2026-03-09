@@ -60,8 +60,7 @@ generateTx = {
     transferTrc20 = 30
   }
   updateRefUrl = "127.0.0.1:50051"
-  // TRY18iTFy6p8yhWiCt1dhd2gz2c15ungq3
-  privateKey = "aab926e86a17f0f46b4d22e61725edd5770a5b0fbdabb04b0f46ee499b1e34f2"
+  privateKey = "*********"
   addressListFile = "/path/to/address-list.csv"
   trc10Id = 1000001
   trc20Address = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
