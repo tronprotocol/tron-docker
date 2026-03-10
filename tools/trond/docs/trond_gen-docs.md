@@ -30,4 +30,3 @@ $ ./trond gen-docs
 ### SEE ALSO
 
 * [trond](trond.md)	 - Docker automation for TRON nodes
-

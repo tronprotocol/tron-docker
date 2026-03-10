@@ -50,4 +50,3 @@ $ ./trond node run-single stop -t full-main -f ./docker-compose.fullnode.main.ym
 ### SEE ALSO
 
 * [trond node run-single](trond_node_run-single.md)	 - Run single java-tron node for different networks.
-

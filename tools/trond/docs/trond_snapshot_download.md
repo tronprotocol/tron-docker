@@ -39,4 +39,3 @@ $ nohup ./trond snapshot download -d 34.143.247.77 -b backup20250205 -t lite &
 * [trond snapshot](trond_snapshot.md)	 - Commands for getting java-tron node snapshots.
 * [trond snapshot download default-main](trond_snapshot_download_default-main.md)	 - Download latest mainnet lite fullnode snapshot from default source to current directory
 * [trond snapshot download default-nile](trond_snapshot_download_default-nile.md)	 - Download latest nile testnet lite fullnode snapshot from default source to local current directory
-

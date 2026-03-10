@@ -11,7 +11,7 @@ The following files are required:
 	- Configuration file for private network layout (Please refer to the example configuration file and rewrite it according to your needs)
 		./conf/private_net_layout.toml
 
-	
+
 
 ```
 trond node run-multi [flags]
@@ -35,4 +35,3 @@ $ ./trond node run-multi
 
 * [trond node](trond_node.md)	 - Commands for operating java-tron docker node.
 * [trond node run-multi stop](trond_node_run-multi_stop.md)	 - Stop multi java-tron node for different networks.
-

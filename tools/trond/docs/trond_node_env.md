@@ -44,4 +44,3 @@ $ ./trond node env
 ### SEE ALSO
 
 * [trond node](trond_node.md)	 - Commands for operating java-tron docker node.
-
