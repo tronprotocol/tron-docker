@@ -15,7 +15,7 @@ assignees: ''
 
 <!-- What problem does this feature solve? What pain points does it address? -->
 
-# Rationale
+## Rationale
 
 **Why should this feature exist?**
 <!-- Explain the benefits and value this feature would provide -->
@@ -31,11 +31,11 @@ assignees: ''
 
 <!-- Describe your proposed solution in detail -->
 
-# Specification
+### Specification
 
 <!-- Provide technical specifications or requirements -->
 
-# Test Specification
+## Test Specification
 
 <!-- How should this feature be tested? -->
 
@@ -48,11 +48,11 @@ assignees: ''
 **Performance Considerations**
 <!-- Describe any performance implications -->
 
-# Scope Of Impact
+## Scope Of Impact
 
 <!-- What parts of the system will be affected? -->
 
-# Implementation
+## Implementation
 
 **Do you have ideas regarding the implementation?**
 <!-- Share any technical approaches or implementation details -->
