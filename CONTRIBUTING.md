@@ -31,7 +31,7 @@ Feel free to ask any tron-docker related question to solve your doubt. Please cl
 
 ### Report a bug
 
-If you're about to raise an issue because you think you've found a bug with tron-docker, please click **Report a bug** in GitHub Issues, using [Report a bug](.github/ISSUE_TEMPLATE/report-a-bug.md) template.
+If you think you've found a bug with tron-docker, please click **Report a bug** in GitHub Issues, using [Report a bug](.github/ISSUE_TEMPLATE/report-a-bug.md) template.
 
 ### Request a feature
 
