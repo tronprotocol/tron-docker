@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-<!-- 
+<!--
 ⚠️ IMPORTANT: Please read before submitting
 
 This template should only be used in rare cases, such as:

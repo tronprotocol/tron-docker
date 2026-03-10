@@ -23,8 +23,8 @@ assignees: ''
 **What are the use cases?**
 <!-- Describe specific scenarios where this feature would be useful -->
 
-1. 
-2. 
+1.
+2.
 3.
 
 ## Proposed Solution

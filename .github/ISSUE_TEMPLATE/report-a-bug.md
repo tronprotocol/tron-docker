@@ -31,9 +31,9 @@ assignees: ''
 ## Steps to reproduce the behaviour
 <!-- Provide detailed steps to reproduce the issue -->
 
-1. 
-2. 
-3.  
+1.
+2.
+3.
 
 ## Logs and Error Messages
 
