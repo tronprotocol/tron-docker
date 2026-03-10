@@ -11,7 +11,7 @@ Here are some guidelines to get started quickly and easily:
   - [Contribute to tron-docker](#contribute-to-tron-docker)
     - [Key branches](#key-branches)
     - [Submitting code steps](#submitting-code-steps)
-      - [Fork then make changes](#fork-then-make-changes)
+      - [Fork and make changes](#fork-and-make-changes)
       - [Linting](#linting)
       - [Push code](#push-code)
     - [Commit messages](#commit-messages)
@@ -95,14 +95,14 @@ If you want to contribute code to tron-docker, please follow the following steps
     git push origin develop
     ```
 
-  Create a new branch for development. Please refer to[Branch Naming Conventions](#Branch-Naming-Conventions).
+  Create a new branch for development. Please refer to [Branch Naming Conventions](#Branch-Naming-Conventions).
     ```
     git checkout -b feature/branch_name develop
     ```
 
 * Commit and Push
 
-  Write and commit the new code when it is completed. Please refer to [Commit Messages](#Commit-Messages)
+  Write and commit the new code when it is completed. Please refer to [Commit Messages](#Commit-Messages).
      ```
      git add .
      git commit -m 'commit message'
