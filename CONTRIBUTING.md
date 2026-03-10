@@ -86,12 +86,10 @@ If you want to contribute code to tron-docker, please follow the following steps
 
 * Synchronize and Develop
 
-  Before developing new features, please synchronize your local `develop` branch with the upstream repository and update to your fork repository.
+  Before developing new features, fetch the latest changes from the upstream repository, create a local `develop` branch tracking the upstream's version, and push it to your fork to ensure all environments are aligned.
     ```
     git fetch upstream
-    git checkout develop
-    # `--no-ff` means to turn off the default fast merge mode
-    git merge upstream/develop --no-ff
+    git checkout -b develop upstream/develop
     git push origin develop
     ```
 
