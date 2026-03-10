@@ -6,7 +6,7 @@ Here are some guidelines to get started quickly and easily:
 - [Contributing](#contributing)
   - [Before contribution](#before-contribution)
     - [Ask a question](#ask-a-question)
-    - [Reporting an issue](#reporting-an-issue)
+    - [Report a bug](#report-a-bug)
     - [Request a feature](#request-a-feature)
   - [Contribute to tron-docker](#contribute-to-tron-docker)
     - [Key branches](#key-branches)
@@ -22,23 +22,20 @@ Here are some guidelines to get started quickly and easily:
 
 ## Before contribution
 
-Before making any modifications to tron-docker, it's advisable to discuss your issues or suggestions with the community. They may already be working on similar topics or have them in their roadmap, which can avoid duplicating efforts.
+If you have any question about tron-docker, please search [existing issues](https://github.com/tronprotocol/tron-docker/issues?q=is%3Aissue%20state%3Aclosed%20OR%20state%3Aopen) to avoid duplicates. Your questions might already be under discussion or part of our roadmap. Checking first helps us streamline efforts and focus on new contributions.
 
 ### Ask a question
-Feel free to ask any TRON related question to solve your doubt. Please click **Ask a question** in GitHub Issues, then follow the instructions thereafter.
+Feel free to ask any tron-docker related question to solve your doubt. Please click **Ask a question** in GitHub Issues, using [Ask a question](.github/ISSUE_TEMPLATE/ask-a-question.md) template.
 
 ![image](images/github_issue_ask_a_question.png)
 
-### Reporting an issue
+### Report a bug
 
-If you're about to raise an issue because you think you've found a problem or bug with tron-docker, please respect the following restrictions:
-
-- Please search for [existing issues](https://github.com/tronprotocol/tron-docker/issues?q=is%3Aissue%20state%3Aclosed%20OR%20state%3Aopen). Help us keep duplicate issues to a minimum by checking to see if someone has already reported your problem or requested your idea.
-- Use the [Report a bug](.github/ISSUE_TEMPLATE/report-a-bug.md) template.
+If you're about to raise an issue because you think you've found a bug with tron-docker, please click **Report a bug** in GitHub Issues, using [Report a bug](.github/ISSUE_TEMPLATE/report-a-bug.md) template.
 
 ### Request a feature
 
-If you have any good feature suggestions for tron-docker, community would be very welcome to hear them. Please refer to our [Request a feature](.github/ISSUE_TEMPLATE/request-a-feature.md) template.
+If you have any good feature suggestions for tron-docker, please click **Request a feature** in GitHub Issues, using [Request a feature](.github/ISSUE_TEMPLATE/request-a-feature.md) template.
 
 
 ## Contribute to tron-docker
@@ -68,42 +65,59 @@ tron-docker only has `main`, `develop`, `release-*`, `feature-*`, and `hotfix-*`
 
 ### Submitting code steps
 
-If you want to contribute codes to tron-docker, please follow the following steps.
+If you want to contribute code to tron-docker, please follow the following steps.
 
-#### Fork then make changes
-Fork a new repository from tronprotocol/tron-docker to your personal code repository, and then edit the code in the your fork repository.
-```
-  git clone https://github.com/yourname/tron-docker.git
-  git remote add upstream https://github.com/tronprotocol/tron-docker.git ("upstream" refers to upstream projects repositories, namely tronprotocol's repositories, and can be named as you like it. We usually call it "upstream" for convenience)
-```
+#### Fork and make changes
 
-Before developing new features, please synchronize your fork repository with the upstream repository.
-```
-  git fetch upstream
-  git checkout develop
-  git merge upstream/develop --no-ff (Add --no-ff to turn off the default fast merge mode)
-```
+* Fork the Repository
 
-Pull a new branch from the **develop** branch of your repository for local development. Please refer to [Branch Naming Conventions](#Branch-Naming-Conventions).
-```
-  git checkout -b feature/branch_name develop
-```
+  Visit [tronprotocol/tron-docker](https://github.com/tronprotocol/tron-docker/) and click **Fork** to create a fork repository under your GitHub account.
 
-Write and commit the new code when it is completed. Please refer to [Commit Messages](#Commit-Messages).
-```
-  git add .
-  git commit -m 'commit message'
-```
-Commit the new branch to your personal remote repository.
-```
-  git push origin feature/branch_name
-```
+* Setup Local Environment
+
+  Clone your fork repository to local and add the official repository as **upstream**.
+    ```
+    git clone https://github.com/yourname/tron-docker.git
+
+    cd tron-docker
+
+    git remote add upstream https://github.com/tronprotocol/tron-docker.git
+    ```
+
+* Synchronize and Develop
+
+  Before developing new features, please synchronize your local `develop` branch with the upstream repository and update to your fork repository.
+    ```
+    git fetch upstream
+    git checkout develop
+    # `--no-ff` means to turn off the default fast merge mode
+    git merge upstream/develop --no-ff
+    git push origin develop
+    ```
+
+  Create a new branch for development. Please refer to[Branch Naming Conventions](#Branch-Naming-Conventions).
+    ```
+    git checkout -b feature/branch_name develop
+    ```
+
+* Commit and Push
+
+  Write and commit the new code when it is completed. Please refer to [Commit Messages](#Commit-Messages)
+     ```
+     git add .
+     git commit -m 'commit message'
+     ```
+
+  Push the new branch to your fork repository
+     ```
+     git push origin feature/branch_name
+     ```
 
 #### Linting
 
   tron-docker CI uses [pre-commit](https://pre-commit.com/) to lint all code within the repo. Add it to your local following the [installation](https://pre-commit.com/#installation). And ensure ShellCheck is also installed, refer to [installation](https://github.com/koalaman/shellcheck?tab=readme-ov-file#installing). Check [.pre-commit-config.yaml](.pre-commit-config-fix.yaml) for existing validators.
 
-#### Push code
+#### Submit a pull request
 
 Submit a pull request (PR) from your repository to `tronprotocol/tron-docker`. Please be sure to click on the link in the red box shown below. Select the base branch for tron-docker and the compare branch for your personal fork repository.
 
