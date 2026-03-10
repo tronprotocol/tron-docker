@@ -13,7 +13,7 @@ Here are some guidelines to get started quickly and easily:
     - [Submitting code steps](#submitting-code-steps)
       - [Fork and make changes](#fork-and-make-changes)
       - [Linting](#linting)
-      - [Push code](#push-code)
+      - [Submit a pull request](#submit-a-pull-request)
     - [Commit messages](#commit-messages)
     - [Branch naming conventions](#branch-naming-conventions)
     - [Pull request best practise](#pull-request-best-practise)
