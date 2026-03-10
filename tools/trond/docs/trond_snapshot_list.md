@@ -31,4 +31,3 @@ $ ./trond snapshot list -d 34.143.247.77
 ### SEE ALSO
 
 * [trond snapshot](trond_snapshot.md)	 - Commands for getting java-tron node snapshots.
-

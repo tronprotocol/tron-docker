@@ -45,4 +45,3 @@ $ nohup ./trond snapshot download default-nile &
 * [trond snapshot download](trond_snapshot_download.md)	 - Download target backup snapshot to current directory
 * [trond snapshot list](trond_snapshot_list.md)	 - List available snapshots of target source.
 * [trond snapshot source](trond_snapshot_source.md)	 - Show available snapshot source.
-

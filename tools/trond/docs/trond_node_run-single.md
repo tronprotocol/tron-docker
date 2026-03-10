@@ -23,7 +23,7 @@ The following directory will be created after you start any type of java-tron fu
 
 	- Log directory: ./logs/$type
 	- Database directory: ./output-directory/$type
-	
+
 
 ```
 trond node run-single [flags]
@@ -66,4 +66,3 @@ $./trond node run-single -t full-main -f ./docker-compose.fullnode.main.yml
 
 * [trond node](trond_node.md)	 - Commands for operating java-tron docker node.
 * [trond node run-single stop](trond_node_run-single_stop.md)	 - Stop single java-tron node for different networks.
-

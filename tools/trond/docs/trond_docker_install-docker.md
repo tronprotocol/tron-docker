@@ -30,4 +30,3 @@ $ ./trond docker install-docker
 ### SEE ALSO
 
 * [trond docker](trond_docker.md)	 - Commands for operating java-tron docker image.
-
