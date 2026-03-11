@@ -3,7 +3,6 @@ services:
   tron-node:
     image: tronprotocol/java-tron:latest
     container_name: tron-node1
-    user: root
     deploy:
       resources:
         limits:

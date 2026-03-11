@@ -3,7 +3,10 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
-    user: root
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     ports:
       - "9090:9090" # used for local query metrics
     volumes:
