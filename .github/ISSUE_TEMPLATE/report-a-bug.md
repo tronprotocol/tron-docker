@@ -1,7 +1,7 @@
 ---
 name: Report a bug
 about: Create a report to help us improve
-title: ''
+title: '[BUG] '
 labels: 'type:bug'
 assignees: ''
 
@@ -9,42 +9,51 @@ assignees: ''
 
 <!-- Have you done the following? -->
 <!--   * Reproduced the issue in the latest version of the software -->
-<!--   * Duplicate Issue check:  https://github.com/search?q=+is%3Aissue+repo%3Atronprotocol/java-tron -->
+<!--   * Duplicate Issue check:  https://github.com/search?q=+is%3Aissue+repo%3Atronprotocol/tron-docker -->
 
-#### Software Versions
-<!-- `java -jar FullNode.jar -v` -->
+
+## Expected behaviour
+
+<!--[What you expect to happen] -->
+
+## Actual behaviour
+
+<!-- Describe what actually happened -->
+
+## Frequency
+
+<!-- [What percentage of the time does it occur?] -->
+- [ ] Always (100%)
+- [ ] Frequently (>50%)
+- [ ] Sometimes (10-50%)
+- [ ] Rarely (<10%)
+
+## Steps to reproduce the behaviour
+<!-- Provide detailed steps to reproduce the issue -->
+
+1.
+2.
+3.
+
+## Logs and Error Messages
 
 <!--
-```
-OS : Linux
-JVM : Oracle Corporation 1.8.0_161 amd64
-Git : b1fc2f0f2bd79527099bc3027b9aba165c2e20c2
-Version : 4.7.4
-Code : 18260
-```
+⚠️ IMPORTANT: Submit logs as text, not screenshots
 -->
 
-#### Expected behaviour
-<!--[What you expect to happen] -->
+```
+[Paste error messages, stack traces, or relevant logs here]
+```
 
+## Additional Context
 
-#### Actual behaviour
-<!--[What you expect to happen] -->
+<!-- Add any other context about the problem -->
 
+**Screenshots**
+<!-- If applicable, add screenshots to help explain the problem -->
 
-#### Frequency
-<!-- [What percentage of the time does it occur?] -->
+**Related Issues**
+<!-- Link to any related issues or pull requests -->
 
-#### Steps to reproduce the behaviour
-
-1. [Step 1]
-2. [Step 2]
-3. [Step ...]
-
-#### Backtrace
-
-````
-[backtrace]
-````
-
-When submitting logs: please submit them as text and not screenshots.
+**Possible Solution**
+<!-- If you have suggestions on how to fix the bug, describe them here -->
