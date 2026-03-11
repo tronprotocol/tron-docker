@@ -86,14 +86,14 @@ Building for default linux/amd64 platform
 #3 transferring context: 2B done
 #3 DONE 0.0s
 
-#4 [1/5] FROM docker.io/library/ubuntu:24.04@sha256:80dd3c3b9c6cecb9f1667e9290b3bc61b78c2678c02cbdae5f0fea92cc6734ab
+#4 [1/5] FROM docker.io/library/ubuntu:24.04@sha256:d1e2e92c075e5ca139d51a140fff46f84315c0fdce203eab2807c7e495eff4f9
 #4 DONE 0.0s
 
 #5 [internal] load build context
 #5 transferring context: 160B done
 #5 DONE 0.0s
 
-#6 [2/5] RUN apt-get update -o Acquire::BrokenProxy=true -o Acquire::http::No-Cache=true -o Acquire::http::Pipeline-Depth=0  &&   apt-get --quiet --yes install git wget 7zip curl jq &&   wget -P /usr/local https://github.com/frekele/oracle-java/releases/download/8u202-b08/jdk-8u202-linux-x64.tar.gz   && echo "0029351f7a946f6c05b582100c7d45b7 /usr/local/jdk-8u202-linux-x64.tar.gz" | md5sum -c   && tar -zxf /usr/local/jdk-8u202-linux-x64.tar.gz -C /usr/local  && rm /usr/local/jdk-8u202-linux-x64.tar.gz   && export JAVA_HOME=/usr/local/jdk1.8.0_202   && export CLASSPATH=$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar   && export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$JAVA_HOME/bin   && echo "git clone"   && mkdir -p /tron-build   && cd /tron-build   && git clone https://github.com/tronprotocol/java-tron.git   && cd java-tron   && git checkout master   && ./gradlew build -x test   && cd build/distributions   && 7z x -y java-tron-1.0.0.zip    && mv java-tron-1.0.0 /java-tron   && rm -rf /tron-build   && rm -rf ~/.gradle   && mv /usr/local/jdk1.8.0_202/jre /usr/local   && rm -rf /usr/local/jdk1.8.0_202   apt-get clean  &&   rm -rf /var/cache/apt/archives/* /var/cache/apt/archives/partial/*  &&   rm -rf /var/lib/apt/lists/*
+#6 [2/5] RUN apt-get update -o Acquire::BrokenProxy=true -o Acquire::http::No-Cache=true -o Acquire::http::Pipeline-Depth=0  &&   apt-get --quiet --yes install git wget 7zip curl jq &&   wget -P /usr/local https://github.com/frekele/oracle-java/releases/download/8u202-b08/jdk-8u202-linux-x64.tar.gz   && echo "9a5c32411a6a06e22b69c495b7975034409fa1652d03aeb8eb5b6f59fd4594e0 /usr/local/jdk-8u202-linux-x64.tar.gz" | sha256sum -c   && tar -zxf /usr/local/jdk-8u202-linux-x64.tar.gz -C /usr/local  && rm /usr/local/jdk-8u202-linux-x64.tar.gz   && export JAVA_HOME=/usr/local/jdk1.8.0_202   && export CLASSPATH=$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar   && export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$JAVA_HOME/bin   && echo "git clone"   && mkdir -p /tron-build   && cd /tron-build   && git clone https://github.com/tronprotocol/java-tron.git   && cd java-tron   && git checkout master   && ./gradlew build -x test   && cd build/distributions   && 7z x -y java-tron-1.0.0.zip    && mv java-tron-1.0.0 /java-tron   && rm -rf /tron-build   && rm -rf ~/.gradle   && mv /usr/local/jdk1.8.0_202/jre /usr/local   && rm -rf /usr/local/jdk1.8.0_202   apt-get clean  &&   rm -rf /var/cache/apt/archives/* /var/cache/apt/archives/partial/*  &&   rm -rf /var/lib/apt/lists/*
 #6 CACHED
 
 #7 [3/5] RUN wget -P /java-tron/config https://raw.githubusercontent.com/tronprotocol/tron-deployment/master/main_net_config.conf
