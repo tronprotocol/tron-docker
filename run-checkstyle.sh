@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu
+set -eu # exit on any error
 
 # ─── Configuration ───
 CHECKSTYLE_VERSION="8.42"
@@ -9,7 +9,7 @@ CHECKSTYLE_URL="https://github.com/checkstyle/checkstyle/releases/download/check
 # SHA-256 digest of the official release JAR
 # Obtain from: https://github.com/checkstyle/checkstyle/releases/tag/checkstyle-8.42
 # or run: sha256sum checkstyle-8.42-all.jar
-CHECKSTYLE_SHA256="8b79a04ee5c61c350a064d47fcf8a79e20b0e8239dab1b33e8e3553e1d08e0e0"
+CHECKSTYLE_SHA256="4982ebeaa429fe41f3be2c3309a5c49d84c71ee1f78f967344b8bc82cf3101aa"
 
 LIB_DIR="libs"
 mkdir -p "$LIB_DIR"
