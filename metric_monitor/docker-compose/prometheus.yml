@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   prometheus:
-    image: quay.io/prometheus/prometheus:v2.38.0 # NOTE: It is highly recommended to use Prometheus v2.13.0+ due to its remote read improvements.
+    image: prom/prometheus:latest
     container_name: prometheus
     user: root
     ports:
