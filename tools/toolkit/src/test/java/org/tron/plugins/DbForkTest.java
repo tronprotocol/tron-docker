@@ -1,7 +1,33 @@
 package org.tron.plugins;
 
 import static org.tron.plugins.DbFork.getActiveWitness;
-import static org.tron.plugins.utils.Constant.*;
+import static org.tron.plugins.utils.Constant.ACCOUNTS_KEY;
+import static org.tron.plugins.utils.Constant.ACCOUNT_ADDRESS;
+import static org.tron.plugins.utils.Constant.ACCOUNT_ASSET;
+import static org.tron.plugins.utils.Constant.ACCOUNT_BALANCE;
+import static org.tron.plugins.utils.Constant.ACCOUNT_NAME;
+import static org.tron.plugins.utils.Constant.ACCOUNT_OWNER;
+import static org.tron.plugins.utils.Constant.ACCOUNT_STORE;
+import static org.tron.plugins.utils.Constant.ACCOUNT_TRC10_BALANCE;
+import static org.tron.plugins.utils.Constant.ACCOUNT_TRC10_ID;
+import static org.tron.plugins.utils.Constant.ACCOUNT_TYPE;
+import static org.tron.plugins.utils.Constant.ACTIVE_WITNESSES;
+import static org.tron.plugins.utils.Constant.ASSET_ISSUE_V2;
+import static org.tron.plugins.utils.Constant.CONTRACT_STORE;
+import static org.tron.plugins.utils.Constant.DYNAMIC_PROPERTY_STORE;
+import static org.tron.plugins.utils.Constant.LATEST_BLOCK_HEADER_TIMESTAMP;
+import static org.tron.plugins.utils.Constant.LATEST_BLOCK_TIMESTAMP;
+import static org.tron.plugins.utils.Constant.MAINTENANCE_INTERVAL;
+import static org.tron.plugins.utils.Constant.MAINTENANCE_TIME;
+import static org.tron.plugins.utils.Constant.MAINTENANCE_TIME_INTERVAL;
+import static org.tron.plugins.utils.Constant.NEXT_MAINTENANCE_TIME;
+import static org.tron.plugins.utils.Constant.STORAGE_ROW_STORE;
+import static org.tron.plugins.utils.Constant.WITNESS_ADDRESS;
+import static org.tron.plugins.utils.Constant.WITNESS_KEY;
+import static org.tron.plugins.utils.Constant.WITNESS_SCHEDULE_STORE;
+import static org.tron.plugins.utils.Constant.WITNESS_STORE;
+import static org.tron.plugins.utils.Constant.WITNESS_URL;
+import static org.tron.plugins.utils.Constant.WITNESS_VOTE;
 
 import com.google.common.primitives.Bytes;
 import com.google.protobuf.ByteString;
@@ -36,13 +62,10 @@ public class DbForkTest {
   private DBInterface dynamicPropertiesStore;
   private DBInterface accountAssetStore;
   private DBInterface assetIssueV2Store;
-  private DBInterface contractStore;
-  private DBInterface storageRowStore;
 
   @Rule
   public final TemporaryFolder folder = new TemporaryFolder();
   private String dbPath;
-  private String forkPath;
 
   public void createDir() {
     String srcDir = dbPath + File.separator + "database";
@@ -67,8 +90,6 @@ public class DbForkTest {
     dynamicPropertiesStore = DbTool.getDB(srcDir, Constant.DYNAMIC_PROPERTY_STORE);
     accountAssetStore = DbTool.getDB(srcDir, Constant.ACCOUNT_ASSET);
     assetIssueV2Store = DbTool.getDB(srcDir, Constant.ASSET_ISSUE_V2);
-    contractStore = DbTool.getDB(srcDir, Constant.CONTRACT_STORE);
-    storageRowStore = DbTool.getDB(srcDir, Constant.STORAGE_ROW_STORE);
   }
 
   public void close() {
@@ -78,7 +99,7 @@ public class DbForkTest {
   @Test
   public void testDbFork() throws IOException, RocksDBException {
     dbPath = folder.newFolder().toString();
-    forkPath = getConfig("fork.conf");
+    String forkPath = getConfig("fork.conf");
     createDir();
 
     String[] args = new String[]{"-d",
