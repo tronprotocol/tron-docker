@@ -6,6 +6,8 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/schollz/progressbar/v3"
@@ -13,6 +15,35 @@ import (
 	"golang.org/x/crypto/ssh/agent"
 	"golang.org/x/crypto/ssh/knownhosts"
 )
+
+// validPathPattern allows only safe characters in remote paths:
+// alphanumeric, slash, dot, hyphen, underscore
+var validPathPattern = regexp.MustCompile(`^[a-zA-Z0-9/._-]+$`)
+
+// validateRemotePath checks that a path contains no shell-injectable characters.
+// This is the primary defense against command injection via user-controlled paths.
+func validateRemotePath(path string) error {
+	if path == "" {
+		return fmt.Errorf("path cannot be empty")
+	}
+	if !validPathPattern.MatchString(path) {
+		return fmt.Errorf("invalid characters in remote path %q: only alphanumeric, '/', '.', '-', '_' are allowed", path)
+	}
+	// Block path traversal attempts
+	if strings.Contains(path, "..") {
+		return fmt.Errorf("path traversal ('..') is not allowed in remote path: %s", path)
+	}
+	return nil
+}
+
+// shellQuote wraps a string in single quotes with proper escaping.
+// This is the secondary defense — even if validation is bypassed,
+// the shell will treat the entire string as a literal argument.
+func shellQuote(s string) string {
+	// Replace each single quote with: end quote, escaped single quote, start quote
+	// e.g., "it's" -> "'it'\''s'"
+	return "'" + strings.ReplaceAll(s, "'", "'\\''") + "'"
+}
 
 // Check if a port is open on the given IP
 func CheckPort(ip string, port int) bool {
@@ -184,8 +215,14 @@ func SCPFile(ip string, port int, user, password, keyPath, localPath, remotePath
 	}
 	defer stdin.Close()
 
-	// Start SCP command on the remote server
-	scpCmd := fmt.Sprintf("scp -t %s", filepath.Dir(remotePath))
+	// Validate remote path before constructing shell command
+	remotePathDir := filepath.Dir(remotePath)
+	if err := validateRemotePath(remotePathDir); err != nil {
+		return fmt.Errorf("unsafe remote path for SCP: %v", err)
+	}
+
+	// Start SCP command on the remote server (quoted to prevent injection)
+	scpCmd := fmt.Sprintf("scp -t %s", shellQuote(remotePathDir))
 	if err := session.Start(scpCmd); err != nil {
 		return fmt.Errorf("failed to start SCP command: %v", err)
 	}
@@ -240,8 +277,13 @@ func SSHMkdirIfNotExist(ip string, port int, user, password, keyPath, remoteDir 
 	}
 	defer session.Close()
 
-	// Check if the directory exists
-	checkCmd := fmt.Sprintf("[ -d \"%s\" ] && echo \"exists\" || echo \"not exists\"", remoteDir)
+	// Validate remote directory path before constructing shell commands
+	if err := validateRemotePath(remoteDir); err != nil {
+		return fmt.Errorf("unsafe remote directory path: %v", err)
+	}
+
+	// Check if the directory exists (quoted to prevent injection)
+	checkCmd := fmt.Sprintf("[ -d %s ] && echo \"exists\" || echo \"not exists\"", shellQuote(remoteDir))
 	output, err := session.CombinedOutput(checkCmd)
 	if err != nil {
 		return fmt.Errorf("failed to check directory existence: %v", err)
@@ -260,8 +302,8 @@ func SSHMkdirIfNotExist(ip string, port int, user, password, keyPath, remoteDir 
 	}
 	defer session.Close()
 
-	// Execute mkdir command remotely
-	cmd := fmt.Sprintf("mkdir -p %s", remoteDir)
+	// Execute mkdir command remotely (path already validated above)
+	cmd := fmt.Sprintf("mkdir -p %s", shellQuote(remoteDir))
 	if err := session.Run(cmd); err != nil {
 		return fmt.Errorf("failed to create directory: %v", err)
 	}
@@ -286,10 +328,15 @@ func RunRemoteCompose(ip string, port int, user, password, keyPath, composePath 
 	}
 	defer session.Close()
 
-	// Construct the docker-compose command
-	cmd := fmt.Sprintf("docker-compose -f %s up -d", composePath)
+	// Validate compose file path before constructing shell command
+	if err := validateRemotePath(composePath); err != nil {
+		return fmt.Errorf("unsafe docker-compose path: %v", err)
+	}
+
+	// Construct the docker-compose command (quoted to prevent injection)
+	cmd := fmt.Sprintf("docker-compose -f %s up -d", shellQuote(composePath))
 	if down {
-		cmd = fmt.Sprintf("docker-compose -f %s down", composePath)
+		cmd = fmt.Sprintf("docker-compose -f %s down", shellQuote(composePath))
 	}
 
 	// Run the command remotely
