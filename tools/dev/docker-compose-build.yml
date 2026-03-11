@@ -1,0 +1,134 @@
+# Docker Compose for Building and Running TRON Private Chain from Source
+# 
+# Usage:
+#   # Use default branch (master)
+#   docker-compose -f docker-compose-build.yml up --build -d
+#
+#   # Specify branch
+#   BRANCH=develop docker-compose -f docker-compose-build.yml up --build -d
+#
+#   # Use your own repository
+#   REPO=https://github.com/your-name/java-tron.git BRANCH=feature docker-compose -f docker-compose-build.yml up --build -d
+#
+#   # View logs
+#   docker-compose -f docker-compose-build.yml logs -f
+#
+#   # Stop and cleanup
+#   docker-compose -f docker-compose-build.yml down -v
+#
+
+version: '3.8'
+
+services:
+  # SR Node (Witness Node)
+  tron-sr:
+    build:
+      context: .
+      dockerfile: Dockerfile.build
+      args:
+        REPO: ${REPO:-https://github.com/tronprotocol/java-tron.git}
+        BRANCH: ${BRANCH:-master}
+      # Label image for future use
+      labels:
+        - "tron.node.type=sr"
+        - "tron.branch=${BRANCH:-master}"
+    image: java-tron-dev:${BRANCH:-master}
+    container_name: tron-dev-sr
+    hostname: tron-witness1
+    networks:
+      - tron-dev-network 
+    # ports:
+    #   - "${SR_HTTP_PORT:-8090}:8090"        # HTTP API
+    #   - "${SR_SOLIDITY_PORT:-8091}:8091"    # Solidity HTTP API
+    #   - "${SR_GRPC_PORT:-50051}:50051"      # gRPC API
+    #   - "${SR_P2P_PORT:-18888}:18888"       # P2P TCP
+    #   - "${SR_P2P_PORT:-18888}:18888/udp"   # P2P UDP
+    #   - "${SR_METRICS_PORT:-9526}:9527"     # Metrics API
+    volumes:
+      - ../../conf:/java-tron/conf:ro
+      - sr-data:/java-tron/output-directory
+      - sr-logs:/java-tron/logs
+    command: >
+      -c /java-tron/conf/private_net_config_witness1.conf
+      -d /java-tron/output-directory
+      --witness
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: ${SR_MEMORY:-8g}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/wallet/getnodeinfo"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+  # Fullnode
+  tron-fullnode:
+    build:
+      context: .
+      dockerfile: Dockerfile.build
+      args:
+        REPO: ${REPO:-https://github.com/tronprotocol/java-tron.git}
+        BRANCH: ${BRANCH:-master}
+      labels:
+        - "tron.node.type=fullnode"
+        - "tron.branch=${BRANCH:-master}"
+    image: java-tron-dev:${BRANCH:-master}
+    container_name: tron-dev-fullnode
+    hostname: tron-fullnode
+    networks:
+      - tron-dev-network
+    # Fullnode port mappings (exposed by default for API services)
+    ports:
+      - "${FULLNODE_HTTP_PORT:-8090}:8090"      # HTTP API
+      - "${FULLNODE_SOLIDITY_PORT:-8091}:8091"  # Solidity HTTP API
+      - "${FULLNODE_GRPC_PORT:-50051}:50051"    # gRPC API
+      - "${FULLNODE_METRICS_PORT:-9527}:9527"   # Metrics API
+    volumes:
+      - ../../conf:/java-tron/conf:ro
+      - fullnode-data:/java-tron/output-directory
+      - fullnode-logs:/java-tron/logs
+    command: >
+      -c /java-tron/conf/private_net_config_others.conf
+      -d /java-tron/output-directory
+    restart: unless-stopped
+    depends_on:
+      tron-sr:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: ${FULLNODE_MEMORY:-8g}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/wallet/getnodeinfo"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 150s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+networks:
+  tron-dev-network:
+    driver: bridge
+    name: tron-dev-network
+
+volumes:
+  sr-data:
+    name: tron-dev-sr-data
+  sr-logs:
+    name: tron-dev-sr-logs
+  fullnode-data:
+    name: tron-dev-fullnode-data
+  fullnode-logs:
+    name: tron-dev-fullnode-logs
