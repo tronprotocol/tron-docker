@@ -36,31 +36,47 @@ jobs:
             exit 1
           fi
 
-      - name: Import GPG key
-        uses: crazy-max/ghaction-import-gpg@v6
-        with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
 
-      - name: Sign tron-docker.zip with GPG
+      - name: Sign tron-docker.zip with Sigstore cosign (keyless)
+        # Keyless signing using GitHub OIDC — no private keys to manage or leak.
+        # The signature is bound to this workflow's identity (repo, ref, commit SHA).
+        # Verification: cosign verify-blob --certificate tron-docker.zip.cert \
+        #               --signature tron-docker.zip.sig \
+        #               --certificate-identity-regexp "https://github.com/tronprotocol/tron-docker" \
+        #               --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+        #               tron-docker.zip
         run: |
-          gpg --detach-sign --armor tron-docker.zip
-          # This creates tron-docker.zip.asc (ASCII-armored signature)
+          cosign sign-blob tron-docker.zip \
+            --yes \
+            --output-signature tron-docker.zip.sig \
+            --output-certificate tron-docker.zip.cert
 
-      - name: Configure AWS Credentials
-        env:
-          AWS_REGION: ${{ github.event.inputs.aws-region }}
+      - name: Configure AWS Credentials (OIDC — no long-lived keys)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          # Uses GitHub OIDC provider to assume an IAM role with short-lived credentials.
+          # No static keys needed — credentials expire after the workflow run.
+          # Prerequisites:
+          #   1. Create an IAM OIDC identity provider for token.actions.githubusercontent.com
+          #   2. Create an IAM role with trust policy allowing this repo:
+          #        "Condition": {
+          #          "StringEquals": {
+          #            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+          #            "token.actions.githubusercontent.com:sub": "repo:tronprotocol/tron-docker:ref:refs/heads/main"
+          #          }
+          #        }
+          #   3. Attach S3 put-object policy scoped to the target bucket only
+          #   4. Delete the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY secrets from GitHub
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ github.event.inputs.aws-region }}
 
       - name: Upload tron-docker.zip to S3
         env:
           BUCKET_NAME: ${{ github.event.inputs.bucket-name }}
           VERSION: ${{ github.event.inputs.version }}
         run: |
-          zip -r publish.zip tron-docker.zip tron-docker.zip.asc
+          zip -r publish.zip tron-docker.zip tron-docker.zip.sig tron-docker.zip.cert
           aws s3 cp publish.zip "s3://${BUCKET_NAME}/package/publish-latest.zip"
           aws s3 cp publish.zip "s3://${BUCKET_NAME}/package/publish-${VERSION}.zip"
