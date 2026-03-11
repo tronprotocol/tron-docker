@@ -1,0 +1,11 @@
+services:
+  slack-sr-monitor:
+    build: .
+    container_name: slack-sr-monitor
+    restart: always
+    environment:
+      - SLACK_WEBHOOK=${SLACK_WEBHOOK}
+      - TRON_NODE=${TRON_NODE:-https://api.trongrid.io}
+    volumes:
+      - ./logs:/root/logs
+
