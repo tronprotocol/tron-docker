@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   tron-node:
-    image: tronprotocol/java-tron:latest
+    image: tronprotocol/java-tron:latest # always use the lastest
     container_name: tron-node1
     deploy:
       resources:
