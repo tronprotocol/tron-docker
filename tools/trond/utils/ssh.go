@@ -36,6 +36,47 @@ func validateRemotePath(path string) error {
 	return nil
 }
 
+// validateSCPFileName validates a filename for SCP transfer.
+// SCP protocol is sensitive to special characters that could break the control line format.
+// The control line format is: C<mode> <size> <filename>\n
+// Filenames with newlines, carriage returns, or other control characters can break this format.
+func validateSCPFileName(fileName string) error {
+	if fileName == "" {
+		return fmt.Errorf("filename cannot be empty")
+	}
+
+	// Check for path traversal attempts
+	if strings.Contains(fileName, "/") || strings.Contains(fileName, "\\") {
+		return fmt.Errorf("filename cannot contain path separators: %s", fileName)
+	}
+
+	// Block path traversal attempts
+	if strings.Contains(fileName, "..") {
+		return fmt.Errorf("filename cannot contain path traversal sequences: %s", fileName)
+	}
+
+	// Check for control characters that could break SCP protocol
+	// SCP control line ends with \n, so any \n or \r in filename breaks the protocol
+	for _, ch := range fileName {
+		// Block control characters (0x00-0x1F) and DEL (0x7F)
+		if ch < 0x20 || ch == 0x7F {
+			return fmt.Errorf("filename contains invalid control character (0x%02X): %s", ch, fileName)
+		}
+		// Block characters that have special meaning in SCP protocol or shell
+		// While we use proper escaping, defense-in-depth means rejecting these outright
+		if strings.ContainsRune("*?[]{}()<>|;&$`\\\"'", ch) {
+			return fmt.Errorf("filename contains shell-special character %q: %s", ch, fileName)
+		}
+	}
+
+	// Ensure filename is not too long (SCP protocol limitation)
+	if len(fileName) > 255 {
+		return fmt.Errorf("filename exceeds maximum length (255 bytes): %s", fileName)
+	}
+
+	return nil
+}
+
 // shellQuote wraps a string in single quotes with proper escaping.
 // This is the secondary defense — even if validation is bypassed,
 // the shell will treat the entire string as a literal argument.
@@ -227,8 +268,14 @@ func SCPFile(ip string, port int, user, password, keyPath, localPath, remotePath
 		return fmt.Errorf("failed to start SCP command: %v", err)
 	}
 
-	// Send SCP file metadata
-	_, err = fmt.Fprintf(stdin, "C0644 %d %s\n", fileSize, filepath.Base(remotePath))
+	// Validate and sanitize the filename
+	fileName := filepath.Base(remotePath)
+	if err := validateSCPFileName(fileName); err != nil {
+		return fmt.Errorf("unsafe filename for SCP: %v", err)
+	}
+
+	// Send SCP file metadata with properly escaped filename
+	_, err = fmt.Fprintf(stdin, "C0644 %d %s\n", fileSize, fileName)
 	if err != nil {
 		return fmt.Errorf("failed to send file metadata: %v", err)
 	}
