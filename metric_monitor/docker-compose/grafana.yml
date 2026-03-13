@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   grafana:
-    image: grafana/grafana-oss
+    image: grafana/grafana-oss:12.4.1
     container_name: grafana
     security_opt:
       - no-new-privileges:true
