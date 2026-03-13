@@ -3,7 +3,6 @@ services:
   thanos-querier:
     image: quay.io/thanos/thanos:v0.33.0
     container_name: thanos-querier
-    user: root
     ports:
       - "9091:9091"
     command:

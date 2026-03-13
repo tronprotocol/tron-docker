@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   alloy:
-    image: grafana/alloy:latest
+    image: grafana/alloy:v1.14.0
     container_name: grafana-alloy
     volumes:
       - '/:/host:ro,rslave'

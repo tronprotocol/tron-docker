@@ -145,12 +145,18 @@ docker-compose -f ./docker-compose/docker-compose-alloy.yml up -d
  The [Thanos Receive](https://thanos.io/tip/components/receive.md/#receiver) service implements the Prometheus Remote Write API. It builds on top of the existing Prometheus TSDB and retains its usefulness while extending its functionality with long-term-storage, horizontal scalability, and downsampling. Prometheus instances are configured to continuously write metrics to it. Thanos Receive exposes the StoreAPI so that Thanos Queriers can query received metrics in real-time.
 
 
-First, deploy [Minio](https://github.com/minio/minio) for long-term metric storage. Minio offers S3-compatible object storage functionality, allowing Thanos Receive to upload TSDB blocks to storage buckets at 2-hour intervals. While this guide uses Minio, you can opt for any storage service from the [Thanos Supported Clients](https://thanos.io/tip/thanos/storage.md/#supported-clients) list. For long-term monitoring, we recommend implementing a retention policy on your storage service to efficiently manage historical metric data. For instance, you might configure an S3 lifecycle policy when using AWS to automatically remove metrics older than one year.
+First, deploy [Minio](https://github.com/minio/minio) for long-term metric storage. Minio offers S3-compatible object storage functionality, allowing Thanos Receive to upload TSDB blocks to storage buckets at 2-hour intervals.
+
+**⚠️ Important**: The MinIO configuration in this guide uses demo credentials (`minio`/`melovethanos`) for local testing only. For production deployments, use AWS S3 or other cloud storage services with proper IAM credentials, or generate strong unique credentials if using MinIO.
+
+While this guide uses Minio, you can opt for any storage service from the [Thanos Supported Clients](https://thanos.io/tip/thanos/storage.md/#supported-clients) list. For long-term monitoring, we recommend implementing a retention policy on your storage service to efficiently manage historical metric data. For instance, you might configure an S3 lifecycle policy when using AWS to automatically remove metrics older than one year.
+
 ```sh
-# Start Minio
+# Start Minio (for local testing only)
 docker-compose -f ./docker-compose/minio.yml up -d
 
 # First set the MinIO alias with root credentials to enable bucket creation permissions
+# Note: These are demo credentials - replace with your own in production
 docker exec minio mc alias set local http://localhost:9000 minio melovethanos
 
 # Then create the bucket
