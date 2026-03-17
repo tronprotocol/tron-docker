@@ -222,13 +222,48 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 			}
 		}
 
-		if len(entered) > 0 || len(left) > 0 {
-			summary.WriteString("*SR Replacement Detected:*\n")
+		// Build rank map for previous SRs
+		prevRankMap := make(map[string]int)
+		for i, addr := range prevSRs {
+			prevRankMap[addr] = i + 1 // Rank is 1-based
+		}
+
+		// Detect rank changes within top 27
+		var rankChanges []string
+		for i := 0; i < 27 && i < len(witnesses); i++ {
+			w := witnesses[i]
+			if prevRank, ok := prevRankMap[w.Address]; ok {
+				change := prevRank - (i + 1) // Positive = rank up, negative = rank down
+				if change != 0 {
+					direction := "↑"
+					if change < 0 {
+						direction = "↓"
+						change = -change
+					}
+					name := w.DisplayName
+					if name == "" {
+						name = w.Address
+					}
+					rankChanges = append(rankChanges,
+						fmt.Sprintf("%s: %d → %d (%s%d)", name, prevRank, i+1, direction, change))
+				}
+			}
+		}
+
+		// Output all changes (entering, leaving, and rank changes) in one block
+		if len(entered) > 0 || len(left) > 0 || len(rankChanges) > 0 {
+			summary.WriteString("*SR Changes Detected:*\n")
 			if len(entered) > 0 {
 				summary.WriteString(fmt.Sprintf(">:inbox_tray: *Entered:* %s\n", strings.Join(entered, ", ")))
 			}
 			if len(left) > 0 {
 				summary.WriteString(fmt.Sprintf(">:outbox_tray: *Left:* %s\n", strings.Join(left, ", ")))
+			}
+			if len(rankChanges) > 0 {
+				summary.WriteString(">*Rank Changes:*\n")
+				for _, rc := range rankChanges {
+					summary.WriteString(fmt.Sprintf(">  `%s`\n", rc))
+				}
 			}
 		} else {
 			summary.WriteString("*Top 27 SRs remain unchanged.*\n")
