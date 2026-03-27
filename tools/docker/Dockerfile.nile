@@ -10,7 +10,7 @@ ENV BASE_DIR="/java-tron"
 
 # Update and install dependencies without using any cache
 RUN apt-get update $NO_PROXY_CACHE  && \
-  apt-get --quiet --yes install git wget 7zip curl jq && \
+  apt-get --quiet --yes install git wget 7zip curl jq libtcmalloc-minimal4 && \
   wget -P /usr/local https://github.com/frekele/oracle-java/releases/download/8u202-b08/$JDK_TAR \
   && echo "$JDK_MD5 /usr/local/$JDK_TAR" | md5sum -c \
   && tar -zxf /usr/local/$JDK_TAR -C /usr/local\
@@ -41,6 +41,8 @@ RUN apt-get update $NO_PROXY_CACHE  && \
 
 ENV JAVA_HOME="/usr/local/jre"
 ENV PATH=$PATH:$JAVA_HOME/bin
+ENV LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4"
+ENV TCMALLOC_RELEASE_RATE=10
 
 COPY docker-entrypoint.sh $BASE_DIR/bin
 
