@@ -6,12 +6,85 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/schollz/progressbar/v3"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/agent"
+	"golang.org/x/crypto/ssh/knownhosts"
 )
+
+// validPathPattern allows only safe characters in remote paths:
+// alphanumeric, slash, dot, hyphen, underscore
+var validPathPattern = regexp.MustCompile(`^[a-zA-Z0-9/._-]+$`)
+
+// validateRemotePath checks that a path contains no shell-injectable characters.
+// This is the primary defense against command injection via user-controlled paths.
+func validateRemotePath(path string) error {
+	if path == "" {
+		return fmt.Errorf("path cannot be empty")
+	}
+	if !validPathPattern.MatchString(path) {
+		return fmt.Errorf("invalid characters in remote path %q: only alphanumeric, '/', '.', '-', '_' are allowed", path)
+	}
+	// Block path traversal attempts
+	if strings.Contains(path, "..") {
+		return fmt.Errorf("path traversal ('..') is not allowed in remote path: %s", path)
+	}
+	return nil
+}
+
+// validateSCPFileName validates a filename for SCP transfer.
+// SCP protocol is sensitive to special characters that could break the control line format.
+// The control line format is: C<mode> <size> <filename>\n
+// Filenames with newlines, carriage returns, or other control characters can break this format.
+func validateSCPFileName(fileName string) error {
+	if fileName == "" {
+		return fmt.Errorf("filename cannot be empty")
+	}
+
+	// Check for path traversal attempts
+	if strings.Contains(fileName, "/") || strings.Contains(fileName, "\\") {
+		return fmt.Errorf("filename cannot contain path separators: %s", fileName)
+	}
+
+	// Block path traversal attempts
+	if strings.Contains(fileName, "..") {
+		return fmt.Errorf("filename cannot contain path traversal sequences: %s", fileName)
+	}
+
+	// Check for control characters that could break SCP protocol
+	// SCP control line ends with \n, so any \n or \r in filename breaks the protocol
+	for _, ch := range fileName {
+		// Block control characters (0x00-0x1F) and DEL (0x7F)
+		if ch < 0x20 || ch == 0x7F {
+			return fmt.Errorf("filename contains invalid control character (0x%02X): %s", ch, fileName)
+		}
+		// Block characters that have special meaning in SCP protocol or shell
+		// While we use proper escaping, defense-in-depth means rejecting these outright
+		if strings.ContainsRune("*?[]{}()<>|;&$`\\\"'", ch) {
+			return fmt.Errorf("filename contains shell-special character %q: %s", ch, fileName)
+		}
+	}
+
+	// Ensure filename is not too long (SCP protocol limitation)
+	if len(fileName) > 255 {
+		return fmt.Errorf("filename exceeds maximum length (255 bytes): %s", fileName)
+	}
+
+	return nil
+}
+
+// shellQuote wraps a string in single quotes with proper escaping.
+// This is the secondary defense — even if validation is bypassed,
+// the shell will treat the entire string as a literal argument.
+func shellQuote(s string) string {
+	// Replace each single quote with: end quote, escaped single quote, start quote
+	// e.g., "it's" -> "'it'\''s'"
+	return "'" + strings.ReplaceAll(s, "'", "'\\''") + "'"
+}
 
 // Check if a port is open on the given IP
 func CheckPort(ip string, port int) bool {
@@ -24,10 +97,54 @@ func CheckPort(ip string, port int) bool {
 	return true
 }
 
+// getHostKeyCallback returns the appropriate HostKeyCallback based on environment
+// For production use, set TROND_STRICT_HOST_KEY_CHECK=true environment variable
+func getHostKeyCallback() (ssh.HostKeyCallback, error) {
+	// Check if strict host key checking is enabled via environment variable
+	strictCheck := os.Getenv("TROND_STRICT_HOST_KEY_CHECK")
+
+	if strictCheck == "true" || strictCheck == "1" {
+		// Production mode: Use known_hosts file for verification
+		knownHostsPath := os.Getenv("TROND_KNOWN_HOSTS_FILE")
+		if knownHostsPath == "" {
+			// Default to user's known_hosts file
+			homeDir, err := os.UserHomeDir()
+			if err != nil {
+				return nil, fmt.Errorf("failed to get home directory: %v", err)
+			}
+			knownHostsPath = filepath.Join(homeDir, ".ssh", "known_hosts")
+		}
+
+		// Check if known_hosts file exists
+		if _, err := os.Stat(knownHostsPath); os.IsNotExist(err) {
+			return nil, fmt.Errorf("known_hosts file not found at %s. Please create it or disable strict host key checking for testing", knownHostsPath)
+		}
+
+		callback, err := knownhosts.New(knownHostsPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load known_hosts file: %v", err)
+		}
+
+		fmt.Println("    ✓ Using strict host key verification (production mode)")
+		return callback, nil
+	}
+
+	// Development/Testing mode: Accept any host key with warning
+	fmt.Println("    ⚠️  WARNING: Host key verification is DISABLED (testing mode)")
+	fmt.Println("    ⚠️  For production use, set TROND_STRICT_HOST_KEY_CHECK=true")
+	return ssh.InsecureIgnoreHostKey(), nil
+}
+
 func SSHConnect(ip string, port int, user, password, keyPath string) (*ssh.Client, error) {
+	// Get appropriate host key callback
+	hostKeyCallback, err := getHostKeyCallback()
+	if err != nil {
+		return nil, fmt.Errorf("failed to configure host key verification: %v", err)
+	}
+
 	sshConfig := &ssh.ClientConfig{
 		User:            user,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // Replace with known hosts verification in production
+		HostKeyCallback: hostKeyCallback,
 		Timeout:         5 * time.Second,
 	}
 
@@ -139,14 +256,26 @@ func SCPFile(ip string, port int, user, password, keyPath, localPath, remotePath
 	}
 	defer stdin.Close()
 
-	// Start SCP command on the remote server
-	scpCmd := fmt.Sprintf("scp -t %s", filepath.Dir(remotePath))
+	// Validate remote path before constructing shell command
+	remotePathDir := filepath.Dir(remotePath)
+	if err := validateRemotePath(remotePathDir); err != nil {
+		return fmt.Errorf("unsafe remote path for SCP: %v", err)
+	}
+
+	// Start SCP command on the remote server (quoted to prevent injection)
+	scpCmd := fmt.Sprintf("scp -t %s", shellQuote(remotePathDir))
 	if err := session.Start(scpCmd); err != nil {
 		return fmt.Errorf("failed to start SCP command: %v", err)
 	}
 
-	// Send SCP file metadata
-	_, err = fmt.Fprintf(stdin, "C0644 %d %s\n", fileSize, filepath.Base(remotePath))
+	// Validate and sanitize the filename
+	fileName := filepath.Base(remotePath)
+	if err := validateSCPFileName(fileName); err != nil {
+		return fmt.Errorf("unsafe filename for SCP: %v", err)
+	}
+
+	// Send SCP file metadata with properly escaped filename
+	_, err = fmt.Fprintf(stdin, "C0644 %d %s\n", fileSize, fileName)
 	if err != nil {
 		return fmt.Errorf("failed to send file metadata: %v", err)
 	}
@@ -195,8 +324,13 @@ func SSHMkdirIfNotExist(ip string, port int, user, password, keyPath, remoteDir 
 	}
 	defer session.Close()
 
-	// Check if the directory exists
-	checkCmd := fmt.Sprintf("[ -d \"%s\" ] && echo \"exists\" || echo \"not exists\"", remoteDir)
+	// Validate remote directory path before constructing shell commands
+	if err := validateRemotePath(remoteDir); err != nil {
+		return fmt.Errorf("unsafe remote directory path: %v", err)
+	}
+
+	// Check if the directory exists (quoted to prevent injection)
+	checkCmd := fmt.Sprintf("[ -d %s ] && echo \"exists\" || echo \"not exists\"", shellQuote(remoteDir))
 	output, err := session.CombinedOutput(checkCmd)
 	if err != nil {
 		return fmt.Errorf("failed to check directory existence: %v", err)
@@ -215,8 +349,8 @@ func SSHMkdirIfNotExist(ip string, port int, user, password, keyPath, remoteDir 
 	}
 	defer session.Close()
 
-	// Execute mkdir command remotely
-	cmd := fmt.Sprintf("mkdir -p %s", remoteDir)
+	// Execute mkdir command remotely (path already validated above)
+	cmd := fmt.Sprintf("mkdir -p %s", shellQuote(remoteDir))
 	if err := session.Run(cmd); err != nil {
 		return fmt.Errorf("failed to create directory: %v", err)
 	}
@@ -241,10 +375,15 @@ func RunRemoteCompose(ip string, port int, user, password, keyPath, composePath 
 	}
 	defer session.Close()
 
-	// Construct the docker-compose command
-	cmd := fmt.Sprintf("docker-compose -f %s up -d", composePath)
+	// Validate compose file path before constructing shell command
+	if err := validateRemotePath(composePath); err != nil {
+		return fmt.Errorf("unsafe docker-compose path: %v", err)
+	}
+
+	// Construct the docker-compose command (quoted to prevent injection)
+	cmd := fmt.Sprintf("docker-compose -f %s up -d", shellQuote(composePath))
 	if down {
-		cmd = fmt.Sprintf("docker-compose -f %s down", composePath)
+		cmd = fmt.Sprintf("docker-compose -f %s down", shellQuote(composePath))
 	}
 
 	// Run the command remotely

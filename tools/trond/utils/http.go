@@ -21,6 +21,44 @@ import (
 	"golang.org/x/net/html"
 )
 
+// secureResolveWithinDir resolves a path through the real filesystem (following symlinks)
+// and verifies the result stays within the allowed directory.
+// This is the single, authoritative boundary check used by the tar extractor.
+func secureResolveWithinDir(destDir, targetPath string) error {
+	// Resolve destDir itself to an absolute, symlink-free path
+	absDestDir, err := filepath.Abs(destDir)
+	if err != nil {
+		return fmt.Errorf("failed to resolve destination directory: %v", err)
+	}
+	// EvalSymlinks on destDir (which must already exist)
+	realDestDir, err := filepath.EvalSymlinks(absDestDir)
+	if err != nil {
+		return fmt.Errorf("failed to resolve destination directory symlinks: %v", err)
+	}
+
+	// Resolve the target through the real filesystem.
+	// Walk up to the deepest existing ancestor, then validate the rest lexically.
+	realTarget, err := filepath.EvalSymlinks(targetPath)
+	if err != nil {
+		// If the full path doesn't exist yet, resolve the parent (which should exist
+		// because we create dirs in order) and append the base name.
+		parentDir := filepath.Dir(targetPath)
+		realParent, err2 := filepath.EvalSymlinks(parentDir)
+		if err2 != nil {
+			return fmt.Errorf("failed to resolve parent path %q: %v", parentDir, err2)
+		}
+		realTarget = filepath.Join(realParent, filepath.Base(targetPath))
+	}
+
+	realTarget = filepath.Clean(realTarget)
+	prefix := realDestDir + string(os.PathSeparator)
+
+	if realTarget != realDestDir && !strings.HasPrefix(realTarget, prefix) {
+		return fmt.Errorf("path %q resolves to %q which is outside destination %q", targetPath, realTarget, realDestDir)
+	}
+	return nil
+}
+
 // Function to fetch and parse HTML, extracting absolute links
 func fetchAndExtractLinks(webURL string) ([]string, error) {
 	resp, err := http.Get(webURL)
@@ -460,75 +498,121 @@ func ExtractTgzWithStatus(tgzFile, destDir string) error {
 			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
 				return fmt.Errorf("failed to create directory: %v", err)
 			}
+			// Verify the created directory resolves within destDir
+			if err := secureResolveWithinDir(destDir, target); err != nil {
+				return fmt.Errorf("directory traversal detected in dir entry %q: %v", header.Name, err)
+			}
+
 		case tar.TypeReg:
 			// Ensure parent directory exists
 			if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
 				return fmt.Errorf("failed to create parent directory: %v", err)
 			}
 
-			// Create file
-			outFile, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY, os.FileMode(header.Mode))
+			// Verify the target path resolves within destDir BEFORE creating the file.
+			// This catches traversal via previously extracted symlinks in the path.
+			if err := secureResolveWithinDir(destDir, target); err != nil {
+				return fmt.Errorf("directory traversal detected in file entry %q: %v", header.Name, err)
+			}
+
+			// Create file with explicit O_NOFOLLOW-like behavior:
+			// use Lstat to check the target doesn't already exist as a symlink
+			if info, err := os.Lstat(target); err == nil && info.Mode()&os.ModeSymlink != 0 {
+				return fmt.Errorf("refusing to write through existing symlink: %s", header.Name)
+			}
+
+			outFile, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, os.FileMode(header.Mode))
 			if err != nil {
 				return fmt.Errorf("failed to create file: %v", err)
 			}
-			defer outFile.Close()
 
 			// Read data in chunks and write to the output file
 			buf := make([]byte, 32*1024) // 32KB buffer for reading
 			for {
-				n, err := tr.Read(buf)
+				n, readErr := tr.Read(buf)
 				if n > 0 {
-					// Write the data to the file
 					if _, writeErr := outFile.Write(buf[:n]); writeErr != nil {
+						outFile.Close()
 						return fmt.Errorf("failed to write file: %v", writeErr)
 					}
-
-					// Update the total extracted size and file count
 					totalExtractedSize += int64(n)
 				}
-				if err == io.EOF {
+				if readErr == io.EOF {
 					break
 				}
-				if err != nil {
-					return fmt.Errorf("error reading file: %v", err)
+				if readErr != nil {
+					outFile.Close()
+					return fmt.Errorf("error reading file: %v", readErr)
 				}
 			}
+			outFile.Close()
 
-			// Increment the file count
 			totalFilesExtracted++
+
 		case tar.TypeSymlink:
-			// Resolve the symlink target
-			resolvedLinkname, err := filepath.EvalSymlinks(filepath.Join(filepath.Dir(target), header.Linkname))
+			// Validate: the symlink TARGET must resolve within destDir.
+			// Compute what the symlink would point to.
+			linkTarget := filepath.Join(filepath.Dir(target), header.Linkname)
+			linkTarget = filepath.Clean(linkTarget)
+
+			// Validate the resolved link target stays within destDir.
+			// Use lexical check first (works even if target doesn't exist yet).
+			absDestDir, err := filepath.Abs(destDir)
+			if err != nil {
+				return fmt.Errorf("failed to resolve destDir: %v", err)
+			}
+			absLinkTarget, err := filepath.Abs(linkTarget)
 			if err != nil {
 				return fmt.Errorf("failed to resolve symlink target: %v", err)
 			}
-			// Sanitize symlink target to prevent directory traversal
-			if !strings.HasPrefix(filepath.Clean(resolvedLinkname), filepath.Clean(destDir)+string(os.PathSeparator)) {
-				return fmt.Errorf("invalid symlink target in archive: %s -> %s", header.Name, header.Linkname)
+			if absLinkTarget != absDestDir && !strings.HasPrefix(absLinkTarget, absDestDir+string(os.PathSeparator)) {
+				return fmt.Errorf("symlink %q -> %q escapes destination directory (resolves to %q)", header.Name, header.Linkname, absLinkTarget)
 			}
 
-			// Create symlink
-			if err := os.Symlink(resolvedLinkname, target); err != nil {
+			// If the parent directory of the symlink target exists on the filesystem,
+			// also verify through EvalSymlinks (catches multi-hop symlink chains).
+			if _, statErr := os.Lstat(filepath.Dir(linkTarget)); statErr == nil {
+				if err := secureResolveWithinDir(destDir, linkTarget); err != nil {
+					return fmt.Errorf("symlink chain traversal detected: %q -> %q: %v", header.Name, header.Linkname, err)
+				}
+			}
+
+			// Also verify the symlink itself will be placed within destDir
+			if err := secureResolveWithinDir(destDir, filepath.Dir(target)); err != nil {
+				return fmt.Errorf("symlink location traversal detected: %q: %v", header.Name, err)
+			}
+
+			// Remove any existing entry at target to prevent symlink-following attacks
+			os.Remove(target)
+
+			// Create symlink using the ORIGINAL relative linkname (not an absolute resolved path)
+			if err := os.Symlink(header.Linkname, target); err != nil {
 				return fmt.Errorf("failed to create symlink: %v", err)
 			}
+
 		case tar.TypeLink:
-			// Create hard link
+			// Hard link: both source and target must resolve within destDir
 			linkTarget := filepath.Join(destDir, header.Linkname)
-			// Sanitize the link target to prevent directory traversal
-			// Resolve the hard link target
+
+			// Verify the hard link target resolves within destDir
+			if err := secureResolveWithinDir(destDir, linkTarget); err != nil {
+				return fmt.Errorf("hard link target traversal: %q -> %q: %v", header.Name, header.Linkname, err)
+			}
+			// Verify the hard link location resolves within destDir
+			if err := secureResolveWithinDir(destDir, filepath.Dir(target)); err != nil {
+				return fmt.Errorf("hard link location traversal: %q: %v", header.Name, err)
+			}
+
+			// Use the RESOLVED target for creating the hard link (consistent with validation)
 			resolvedLinkTarget, err := filepath.EvalSymlinks(linkTarget)
 			if err != nil {
 				return fmt.Errorf("failed to resolve hard link target: %v", err)
 			}
 
-			// Ensure the resolved hard link target stays within the destination directory
-			if !strings.HasPrefix(filepath.Clean(resolvedLinkTarget), filepath.Clean(destDir)+string(os.PathSeparator)) {
-				return fmt.Errorf("attempted directory traversal in hard link: %s -> %s", header.Name, header.Linkname)
-			}
-
-			if err := os.Link(linkTarget, target); err != nil {
+			if err := os.Link(resolvedLinkTarget, target); err != nil {
 				return fmt.Errorf("failed to create hard link: %v", err)
 			}
+
 		default:
 			fmt.Printf("Skipping unknown file type: %v\n", header.Typeflag)
 		}

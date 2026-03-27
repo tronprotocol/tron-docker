@@ -6,7 +6,7 @@ services:
       service: tron-node
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.10.0
     container_name: prometheus
     deploy:
       resources:

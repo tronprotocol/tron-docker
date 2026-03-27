@@ -1,64 +1,67 @@
-#!/bin/sh
+#!/bin/bash
+set -eu # exit on any error
 
-# Define the URL for the Checkstyle JAR file
+# ─── Configuration ───
 CHECKSTYLE_VERSION="8.42"
 CHECKSTYLE_JAR="checkstyle-${CHECKSTYLE_VERSION}-all.jar"
 CHECKSTYLE_URL="https://github.com/checkstyle/checkstyle/releases/download/checkstyle-${CHECKSTYLE_VERSION}/${CHECKSTYLE_JAR}"
 
-# Define the directory where the JAR file should be stored
+# SHA-256 digest of the official release JAR
+# Obtain from: https://github.com/checkstyle/checkstyle/releases/tag/checkstyle-8.42
+# or run: sha256sum checkstyle-8.42-all.jar
+CHECKSTYLE_SHA256="4982ebeaa429fe41f3be2c3309a5c49d84c71ee1f78f967344b8bc82cf3101aa"
+
 LIB_DIR="libs"
-
-# Create the directory if it does not exist
 mkdir -p "$LIB_DIR"
-
-# Define the full path to the JAR file
 CHECKSTYLE_PATH="${LIB_DIR}/${CHECKSTYLE_JAR}"
 
-# Check if the JAR file already exists
+# ─── Download with integrity verification ───
+verify_checksum() {
+    local file="$1"
+    local expected="$2"
+    local actual
+    actual=$(sha256sum "$file" | awk '{print $1}')
+    if [ "$actual" != "$expected" ]; then
+        echo "ERROR: Checksum mismatch for ${file}" >&2
+        echo "  Expected: ${expected}" >&2
+        echo "  Actual:   ${actual}" >&2
+        rm -f "$file"
+        exit 1
+    fi
+    echo "Checksum verified: ${file}"
+}
+
 if [ -f "$CHECKSTYLE_PATH" ]; then
-    echo "Checkstyle JAR file already exists at ${CHECKSTYLE_PATH}"
+    echo "Checkstyle JAR exists at ${CHECKSTYLE_PATH}, verifying integrity..."
+    verify_checksum "$CHECKSTYLE_PATH" "$CHECKSTYLE_SHA256"
 else
-    echo "Checkstyle JAR file not found. Downloading from ${CHECKSTYLE_URL}..."
-    curl -L -o "$CHECKSTYLE_PATH" "$CHECKSTYLE_URL" && echo "downloaded successfully"
+    echo "Downloading Checkstyle from ${CHECKSTYLE_URL}..."
+    curl --fail --silent --show-error -L -o "$CHECKSTYLE_PATH" "$CHECKSTYLE_URL"
+    verify_checksum "$CHECKSTYLE_PATH" "$CHECKSTYLE_SHA256"
+    echo "Downloaded and verified successfully."
 fi
 
-# Add the lib directory to .gitignore if it's not already present
+# ─── .gitignore handling ───
 GITIGNORE_FILE=".gitignore"
-
-if ! grep -q "^${LIB_DIR}/$" "$GITIGNORE_FILE"; then
-    echo "Adding ${LIB_DIR}/ to ${GITIGNORE_FILE}"
+if [ -f "$GITIGNORE_FILE" ] && ! grep -q "^${LIB_DIR}/$" "$GITIGNORE_FILE"; then
     echo "${LIB_DIR}/" >> "$GITIGNORE_FILE"
-else
-    echo "${LIB_DIR}/ is already in ${GITIGNORE_FILE}"
 fi
 
-# Check if there are any Java files in the project
-JAVA_FILES_FOUND=$(find . -name "*.java")
-
-# if there is java file go ahead to trigger checkStyle for all java files
-if [ -z "$JAVA_FILES_FOUND" ]; then
-    echo "No Java files found in the project."
-    exit 0
-else
-    echo "Java files found in the project. Now run further checks."
-fi
-
-# Path to your Checkstyle configuration file
+# ─── Find and check Java files ───
 CHECKSTYLE_CONFIG="./conf/checkstyle/checkStyleAll.xml"
 
-# shellcheck disable=SC2027
-# shellcheck disable=SC2046
+# Use find with -print0 / xargs -0 to handle filenames with spaces
+JAVA_COUNT=$(find . -name "*.java" | wc -l)
+if [ "$JAVA_COUNT" -eq 0 ]; then
+    echo "No Java files found."
+    exit 0
+fi
 
-All_Java_Files=$(find . -name "*.java")
+echo "Found ${JAVA_COUNT} Java files, running Checkstyle..."
 
-# Run Checkstyle on all Java files in the repository
-java -jar "$CHECKSTYLE_PATH" -c "$CHECKSTYLE_CONFIG" "$All_Java_Files"
-
-echo "finish ...."
-
-# Capture the exit code of Checkstyle
-# shellcheck disable=SC2320
+# Capture exit code correctly (not after echo)
+find . -name "*.java" -print0 | xargs -0 java -jar "$CHECKSTYLE_PATH" -c "$CHECKSTYLE_CONFIG"
 STATUS=$?
 
-# Exit with the same status code as Checkstyle
+echo "Checkstyle finished with exit code: ${STATUS}"
 exit $STATUS
