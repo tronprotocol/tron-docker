@@ -1,4 +1,4 @@
-FROM ubuntu:24.04@sha256:d1e2e92c075e5ca139d51a140fff46f84315c0fdce203eab2807c7e495eff4f9
+FROM ubuntu:24.04
 ARG VERSION="dev"
 ENV NO_PROXY_CACHE="-o Acquire::BrokenProxy=true -o Acquire::http::No-Cache=true -o Acquire::http::Pipeline-Depth=0"
 
@@ -7,8 +7,6 @@ ENV JDK_TAR="jdk-8u202-linux-x64.tar.gz"
 ENV JDK_DIR="jdk1.8.0_202"
 ENV JDK_SHA256="9a5c32411a6a06e22b69c495b7975034409fa1652d03aeb8eb5b6f59fd4594e0"
 ENV BASE_DIR="/java-tron"
-ENV TRON_DEPLOYMENT_COMMIT="c615658921c3a00d81a5ff7c68ef239a8b9e5172"
-ENV MAIN_NET_CONFIG_SHA256="1b00084ab1f8c965fdaa22981ac73b458e0c2e86c240454b70321af4b07a2740"
 
 # Update and install dependencies without using any cache
 RUN apt-get update $NO_PROXY_CACHE  && \
@@ -34,8 +32,7 @@ RUN apt-get update $NO_PROXY_CACHE  && \
   && rm -rf ~/.gradle \
   && mv /usr/local/$JDK_DIR/jre /usr/local \
   && rm -rf /usr/local/$JDK_DIR \
-  && wget -O $BASE_DIR/config.conf https://raw.githubusercontent.com/tronprotocol/tron-deployment/$TRON_DEPLOYMENT_COMMIT/main_net_config.conf \
-  && echo "$MAIN_NET_CONFIG_SHA256 $BASE_DIR/config.conf" | sha256sum -c \
+  && wget -O $BASE_DIR/config.conf https://raw.githubusercontent.com/tronprotocol/tron-deployment/master/main_net_config.conf \
   # Clean apt cache
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/cache/apt/archives/partial/* \

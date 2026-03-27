@@ -86,7 +86,7 @@ Building for default linux/amd64 platform
 #3 transferring context: 2B done
 #3 DONE 0.0s
 
-#4 [1/5] FROM docker.io/library/ubuntu:24.04@sha256:d1e2e92c075e5ca139d51a140fff46f84315c0fdce203eab2807c7e495eff4f9
+#4 [1/5] FROM docker.io/library/ubuntu:24.04
 #4 DONE 0.0s
 
 #5 [internal] load build context
