@@ -5,14 +5,14 @@ ENV NO_PROXY_CACHE="-o Acquire::BrokenProxy=true -o Acquire::http::No-Cache=true
 ENV TMP_DIR="/tron-build"
 ENV JDK_TAR="jdk-8u202-linux-x64.tar.gz"
 ENV JDK_DIR="jdk1.8.0_202"
-ENV JDK_MD5="0029351f7a946f6c05b582100c7d45b7"
+ENV JDK_SHA256="9a5c32411a6a06e22b69c495b7975034409fa1652d03aeb8eb5b6f59fd4594e0"
 ENV BASE_DIR="/java-tron"
 
 # Update and install dependencies without using any cache
 RUN apt-get update $NO_PROXY_CACHE  && \
   apt-get --quiet --yes install git wget 7zip curl jq libtcmalloc-minimal4 && \
   wget -P /usr/local https://github.com/frekele/oracle-java/releases/download/8u202-b08/$JDK_TAR \
-  && echo "$JDK_MD5 /usr/local/$JDK_TAR" | md5sum -c \
+  && echo "$JDK_SHA256 /usr/local/$JDK_TAR" | sha256sum -c \
   && tar -zxf /usr/local/$JDK_TAR -C /usr/local\
   && rm /usr/local/$JDK_TAR \
   && export JAVA_HOME=/usr/local/$JDK_DIR \
@@ -32,8 +32,7 @@ RUN apt-get update $NO_PROXY_CACHE  && \
   && rm -rf ~/.gradle \
   && mv /usr/local/$JDK_DIR/jre /usr/local \
   && rm -rf /usr/local/$JDK_DIR \
-  && wget -P $BASE_DIR/config https://raw.githubusercontent.com/tronprotocol/tron-deployment/master/main_net_config.conf \
-  && mv $BASE_DIR/config/main_net_config.conf $BASE_DIR/config.conf \
+  && wget -O $BASE_DIR/config.conf https://raw.githubusercontent.com/tronprotocol/tron-deployment/master/main_net_config.conf \
   # Clean apt cache
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/cache/apt/archives/partial/* \

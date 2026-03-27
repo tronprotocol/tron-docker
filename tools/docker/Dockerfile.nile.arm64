@@ -20,8 +20,7 @@ RUN apt-get update $NO_PROXY_CACHE \
   && mv java-tron-1.0.0 $BASE_DIR \
   && rm -rf $TMP_DIR \
   && rm -rf ~/.gradle \
-  && wget -4 -P $BASE_DIR/config https://raw.githubusercontent.com/tronprotocol/tron-deployment/master/test_net_config.conf \
-  && mv $BASE_DIR/config/test_net_config.conf $BASE_DIR/config.conf \
+  && wget -4 -O $BASE_DIR/config.conf https://raw.githubusercontent.com/tronprotocol/tron-deployment/master/test_net_config.conf \
   # Clean apt cache
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/cache/apt/archives/partial/* \
