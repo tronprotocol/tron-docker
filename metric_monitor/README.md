@@ -120,6 +120,11 @@ Used to check the block process performance from TronNetDelegate:
 - `tron:block_process_latency_seconds_count`: Count of events
 - `tron:block_process_latency_seconds_sum`: Total sum of all observed values
 
+Used to check the block generate performance from the Manager:
+- `tron:block_generate_latency_seconds_bucket`: Cumulative counters
+- `tron:block_generate_latency_seconds_count`: Count of events
+- `tron:block_generate_latency_seconds_sum`: Total sum of all observed values
+
 Used to check the block processing latency from the Manager, which is invoked by TronNetDelegate:
 - `tron:block_push_latency_seconds_bucket`: Cumulative counters
 - `tron:block_push_latency_seconds_count`: Count of events
