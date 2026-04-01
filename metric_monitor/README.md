@@ -16,7 +16,7 @@ Download the `tron-docker` repository, enter the [metric_monitor](./) directory,
 ```sh
 docker-compose -f ./docker-compose/docker-compose-quick-start.yml up -d
 ```
-It will start a TRON FullNode that connects to the Mainnet, along with Prometheus and Grafana services. Note that in [main_net_config.conf](../conf/main_net_config.conf), it contains the configuration below to enable metrics.
+It will start a TRON FullNode that connects to the Mainnet, along with Prometheus and Grafana services. Note that in [main_net_config_open_metric.conf](../conf/main_net_config_open_metric.conf), it contains the configuration below to enable metrics.
 ```
 node.metrics{
   prometheus{
@@ -119,6 +119,11 @@ Used to check the block process performance from TronNetDelegate:
 - `tron:block_process_latency_seconds_bucket`: Cumulative counters
 - `tron:block_process_latency_seconds_count`: Count of events
 - `tron:block_process_latency_seconds_sum`: Total sum of all observed values
+
+Used to check the block generate performance from the Manager:
+- `tron:block_generate_latency_seconds_bucket`: Cumulative counters
+- `tron:block_generate_latency_seconds_count`: Count of events
+- `tron:block_generate_latency_seconds_sum`: Total sum of all observed values
 
 Used to check the block processing latency from the Manager, which is invoked by TronNetDelegate:
 - `tron:block_push_latency_seconds_bucket`: Cumulative counters

@@ -14,7 +14,7 @@ services:
       - "18888:18888/udp" # for p2p node discovery
       - "50051:50051"
     volumes:
-      - ../conf:/java-tron/conf # ensure the config path is correct, make sure the config file metric is enabled
+      - ../../conf:/java-tron/conf # ensure the config path is correct, make sure the config file metric is enabled
       - ../output-directory:/java-tron/output-directory # mount a local directory to make the block data persistent.
       - ../logs:/java-tron/logs
     command: >
