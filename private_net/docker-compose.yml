@@ -17,7 +17,7 @@ services:
       - ./datadir:/java-tron/data # mount a local directory to make the blocks data persistent.
       - ./logs/tron-witness1:/java-tron/logs # map to host logs
     command: >
-      -jvm "{-Xmx12g -Xmn2g -XX:+UseConcMarkSweepGC -Xloggc:./logs/gc.log}" -c /java-tron/conf/private_net_config_witness1.conf -d /java-tron/data -w
+      -jvm "{-Xmx12g -Xmn2g -Xlog:gc:./logs/gc.log}" -c /java-tron/conf/private_net_config_witness1.conf -d /java-tron/data -w
 
     #  tron-witness2:
     #    image: tronprotocol/java-tron:latest
@@ -32,7 +32,7 @@ services:
     #      - ../conf:/java-tron/conf
     #      - ./logs/tron-witness2:/java-tron/logs
     #    command: >
-    #      -jvm "{-Xmx12g -Xmn2g -XX:+UseConcMarkSweepGC -Xloggc:./logs/gc.log}"
+    #      -jvm "{-Xmx12g -Xmn2g -Xlog:gc:./logs/gc.log}"
     #      -c /java-tron/conf/private_net_config_witness2.conf
     #      -w
   tron-node1:
@@ -48,7 +48,7 @@ services:
       - ../conf:/java-tron/conf
       - ./logs/tron-node1:/java-tron/logs
     command: >
-      -jvm "{-Xmx12g -Xmn2g -XX:+UseConcMarkSweepGC -Xloggc:./logs/gc.log}" -c /java-tron/conf/private_net_config_others.conf
+      -jvm "{-Xmx12g -Xmn2g -Xlog:gc:./logs/gc.log}" -c /java-tron/conf/private_net_config_others.conf
 
 #  tron-node2:
 #    image: tronprotocol/java-tron:latest
@@ -63,7 +63,7 @@ services:
 #      - ../conf:/java-tron/conf
 #      - ./logs/tron-node2:/java-tron/logs
 #    command: >
-#      -jvm "{-Xmx12g -Xmn2g -XX:+UseConcMarkSweepGC -Xloggc:./logs/gc.log}"
+#      -jvm "{-Xmx12g -Xmn2g -Xlog:gc:./logs/gc.log}"
 #      -c /java-tron/conf/private_net_config_others.conf
 networks:
   tron_private_network:
