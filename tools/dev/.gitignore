@@ -1,0 +1,15 @@
+java-tron-source/
+
+build/
+
+docker-compose.yml
+
+data/
+logs/
+
+config.env
+.env
+
+*.tmp
+*.log
+.DS_Store
