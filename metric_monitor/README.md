@@ -147,7 +147,7 @@ Verify the latency of all transactions' signatures when processing a block:
 - `tron:verify_sign_latency_seconds_count`: Count of events
 - `tron:verify_sign_latency_seconds_sum`: Total sum of all observed values
 
-Histogram of transaction count per block, with buckets `[0, 10, 50, 100, 200, 500, 1000, 2000, 5000, 10000]`. Empty blocks can be queried via the `le="0.0"` bucket; the distribution buckets enable transaction volume analysis (P50/P99, large-block ratio, etc.):
+Histogram of transaction count per block, with buckets `[0, 20, 50, 80, 100, 120, 140, 160, 180, 200, 230, 260, 300, 500, 2000]` (densified around 0–300 for percentile interpolation in the typical per-SR TPS range). Empty blocks can be queried via the `le="0.0"` bucket; the distribution buckets enable transaction volume analysis (P50/P99, large-block ratio, etc.):
 - `tron:block_transaction_count_bucket`: Cumulative counters per bucket. Label: `miner` (SR address).
 - `tron:block_transaction_count_count`: Count of observed blocks
 - `tron:block_transaction_count_sum`: Total sum of all observed transaction counts
