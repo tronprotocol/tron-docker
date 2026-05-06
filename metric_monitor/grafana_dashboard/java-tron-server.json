@@ -2508,12 +2508,678 @@
       "type": "row"
     },
     {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
         "y": 19
+      },
+      "id": 110,
+      "panels": [
+        {
+          "datasource": "${datasource}",
+          "description": "Ratio of blocks with zero transactions over total blocks.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 20,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "percentunit",
+              "max": 1,
+              "min": 0
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 20
+          },
+          "id": 111,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "rate(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"}[$__interval]) / ignoring(le) rate(tron:block_transaction_count_count{group=`$group`,instance=`$instance`}[$__interval])",
+              "legendFormat": "{{miner}}",
+              "refId": "A"
+            }
+          ],
+          "title": "Empty Block Rate",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "${datasource}",
+          "description": "Number of empty blocks per SR in the last 1 hour.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "Empty Blocks",
+                "axisPlacement": "auto",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 20
+          },
+          "id": 112,
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "table",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"}[1h]))",
+              "instant": true,
+              "legendFormat": "{{miner}}",
+              "refId": "A"
+            }
+          ],
+          "title": "Per-SR Empty Block Count (1h)",
+          "type": "barchart"
+        },
+        {
+          "datasource": "${datasource}",
+          "description": "Average number of transactions per block.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "Avg TXs / Block",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "smooth",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "short",
+              "min": 0
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 28
+          },
+          "id": 113,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "rate(tron:block_transaction_count_sum{group=`$group`,instance=`$instance`}[$__interval]) / rate(tron:block_transaction_count_count{group=`$group`,instance=`$instance`}[$__interval])",
+              "legendFormat": "{{miner}}",
+              "refId": "A"
+            }
+          ],
+          "title": "Avg Transactions per Block",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "${datasource}",
+          "description": "Distribution of transaction counts per block across histogram buckets.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "Blocks",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "bars",
+                "fillOpacity": 80,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "normal"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 28
+          },
+          "id": 114,
+          "options": {
+            "legend": {
+              "calcs": [
+                "sum"
+              ],
+              "displayMode": "table",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"}[$__interval]))",
+              "legendFormat": "0 (empty)",
+              "refId": "A"
+            },
+            {
+              "exemplar": true,
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"20.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"}[$__interval]))",
+              "legendFormat": "1-20",
+              "refId": "B"
+            },
+            {
+              "exemplar": true,
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"50.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"20.0\"}[$__interval]))",
+              "legendFormat": "21-50",
+              "refId": "C"
+            },
+            {
+              "exemplar": true,
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"100.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"50.0\"}[$__interval]))",
+              "legendFormat": "51-100",
+              "refId": "D"
+            },
+            {
+              "exemplar": true,
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"200.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"100.0\"}[$__interval]))",
+              "legendFormat": "101-200",
+              "refId": "E"
+            },
+            {
+              "exemplar": true,
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"300.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"200.0\"}[$__interval]))",
+              "legendFormat": "201-300",
+              "refId": "F"
+            },
+            {
+              "exemplar": true,
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"500.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"300.0\"}[$__interval]))",
+              "legendFormat": "301-500",
+              "refId": "G"
+            },
+            {
+              "exemplar": true,
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"2000.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"500.0\"}[$__interval]))",
+              "legendFormat": "501-2000",
+              "refId": "H"
+            },
+            {
+              "exemplar": true,
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"+Inf\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"2000.0\"}[$__interval]))",
+              "legendFormat": "2000+",
+              "refId": "I"
+            }
+          ],
+          "title": "Block Transaction Count Distribution",
+          "type": "timeseries"
+        }
+      ],
+      "title": "Block Metrics",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 115,
+      "panels": [
+        {
+          "datasource": "${datasource}",
+          "description": "Table of SR set change events showing additions and removals.",
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "action"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 80
+                  },
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "type": "value",
+                        "options": {
+                          "add": {
+                            "text": "ADD",
+                            "color": "green"
+                          },
+                          "remove": {
+                            "text": "REMOVE",
+                            "color": "red"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-text"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "witness"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 360
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 80
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Count"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Time"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 200
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 21
+          },
+          "id": 116,
+          "options": {
+            "showHeader": true,
+            "sortBy": [
+              {
+                "displayName": "Time",
+                "desc": true
+              }
+            ],
+            "cellHeight": "sm",
+            "footer": {
+              "show": false
+            }
+          },
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "tron:sr_set_change_total{group=`$group`,instance=`$instance`}",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "__name__": true,
+                  "group": true,
+                  "instance": true,
+                  "job": true
+                },
+                "indexByName": {
+                  "Time": 0,
+                  "action": 1,
+                  "witness": 2,
+                  "Value": 3
+                }
+              }
+            }
+          ],
+          "title": "SR Set Change Events",
+          "type": "table"
+        },
+        {
+          "datasource": "${datasource}",
+          "description": "Cumulative count of SR additions and removals.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 5
+                  },
+                  {
+                    "color": "red",
+                    "value": 10
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "SR Removed"
+                },
+                "properties": [
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        },
+                        {
+                          "color": "orange",
+                          "value": 5
+                        },
+                        {
+                          "color": "red",
+                          "value": 10
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 21
+          },
+          "id": 117,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "horizontal",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "sum(tron:sr_set_change_total{group=`$group`,instance=`$instance`,action=\"add\"}) or vector(0)",
+              "legendFormat": "SR Added",
+              "refId": "A"
+            },
+            {
+              "exemplar": true,
+              "expr": "sum(tron:sr_set_change_total{group=`$group`,instance=`$instance`,action=\"remove\"}) or vector(0)",
+              "legendFormat": "SR Removed",
+              "refId": "B"
+            }
+          ],
+          "title": "SR Set Change Total",
+          "type": "stat"
+        }
+      ],
+      "title": "SR Set Change",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 21
       },
       "id": 46,
       "panels": [],
