@@ -2854,14 +2854,14 @@
             },
             {
               "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"10.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"}[$__interval]))",
-              "legendFormat": "1-10",
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"20.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"}[$__interval]))",
+              "legendFormat": "1-20",
               "refId": "B"
             },
             {
               "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"50.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"10.0\"}[$__interval]))",
-              "legendFormat": "11-50",
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"50.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"20.0\"}[$__interval]))",
+              "legendFormat": "21-50",
               "refId": "C"
             },
             {
@@ -2878,21 +2878,27 @@
             },
             {
               "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"500.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"200.0\"}[$__interval]))",
-              "legendFormat": "201-500",
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"300.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"200.0\"}[$__interval]))",
+              "legendFormat": "201-300",
               "refId": "F"
             },
             {
               "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"1000.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"500.0\"}[$__interval]))",
-              "legendFormat": "501-1000",
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"500.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"300.0\"}[$__interval]))",
+              "legendFormat": "301-500",
               "refId": "G"
             },
             {
               "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"+Inf\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"1000.0\"}[$__interval]))",
-              "legendFormat": "1000+",
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"2000.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"500.0\"}[$__interval]))",
+              "legendFormat": "501-2000",
               "refId": "H"
+            },
+            {
+              "exemplar": true,
+              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"+Inf\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"2000.0\"}[$__interval]))",
+              "legendFormat": "2000+",
+              "refId": "I"
             }
           ],
           "title": "Block Transaction Count Distribution",
