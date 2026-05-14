@@ -40,7 +40,11 @@ func getAccountName(nodeURL string, address string) string {
 		"address": address,
 		"visible": true,
 	}
-	jsonPayload, _ := json.Marshal(payload)
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		log.Printf("Error: failed to marshal account name payload for %s: %v", address, err)
+		return ""
+	}
 
 	client := &http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Post(url, "application/json", bytes.NewBuffer(jsonPayload))
@@ -347,6 +351,15 @@ func updateLastStatus(witnesses []Witness, lastVotes map[string]int64) []string 
 	return top27
 }
 
+// The final path segment of a Slack webhook URL is the secret token; mask it before logging.
+func maskWebhook(url string) string {
+	idx := strings.LastIndex(url, "/")
+	if idx < 0 || idx == len(url)-1 {
+		return "***"
+	}
+	return url[:idx+1] + "***"
+}
+
 func main() {
 	// Ensure logs directory exists
 	logDir := "logs"
@@ -356,7 +369,7 @@ func main() {
 
 	// Setup logging to both file and stdout
 	logPath := filepath.Join(logDir, "sr_monitor.log")
-	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 	if err != nil {
 		fmt.Printf("Error opening log file: %v, falling back to stdout only\n", err)
 	} else {
@@ -382,7 +395,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	log.Printf("Starting SR monitor.\nNode: %s\nSlack Webhook: %s\n", tronNode, slackWebhook)
+	log.Printf("Starting SR monitor.\nNode: %s\nSlack Webhook: %s\n", tronNode, maskWebhook(slackWebhook))
 
 	// Map to track votes: Address -> VoteCount
 	lastVotes := make(map[string]int64)
