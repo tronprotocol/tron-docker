@@ -31,4 +31,3 @@ USER monitor
 
 # Command to run
 CMD ["./slack_sr_monitor"]
-

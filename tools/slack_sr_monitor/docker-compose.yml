@@ -8,4 +8,3 @@ services:
       - TRON_NODE=${TRON_NODE:-https://api.trongrid.io}
     volumes:
       - ./logs:/home/monitor/logs
-
