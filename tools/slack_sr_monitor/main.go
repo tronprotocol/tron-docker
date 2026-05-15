@@ -108,6 +108,42 @@ func getNextMaintenanceTime(nodeURL string) (time.Time, error) {
 	return time.Unix(result.Num/1000, (result.Num%1000)*1000000), nil
 }
 
+// NowBlockResponse captures the timestamp of the node's latest block.
+type NowBlockResponse struct {
+	BlockHeader struct {
+		RawData struct {
+			Number    int64 `json:"number"`
+			Timestamp int64 `json:"timestamp"`
+		} `json:"raw_data"`
+	} `json:"block_header"`
+}
+
+// A fresh TRON node should always be within a few block intervals (block time is 3s).
+// Anything beyond this threshold means the node is still catching up to the chain head.
+const maxBlockAge = 30 * time.Second
+
+func getLatestBlockTime(nodeURL string) (time.Time, error) {
+	url := fmt.Sprintf("%s/wallet/getnowblock", nodeURL)
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Post(url, "application/json", nil)
+	if err != nil {
+		return time.Time{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return time.Time{}, fmt.Errorf("status code %d", resp.StatusCode)
+	}
+
+	var result NowBlockResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return time.Time{}, err
+	}
+
+	ts := result.BlockHeader.RawData.Timestamp
+	return time.Unix(ts/1000, (ts%1000)*1000000), nil
+}
+
 func getWitnessList(nodeURL string) ([]Witness, error) {
 	url := fmt.Sprintf("%s/wallet/getpaginatednowwitnesslist", nodeURL)
 
@@ -422,6 +458,21 @@ func main() {
 		if err != nil {
 			log.Printf("Error fetching next maintenance time: %v, retrying in 1 minute...\n", err)
 			time.Sleep(1 * time.Minute)
+			continue
+		}
+
+		// A node that is still catching up will report a past maintenance time and would
+		// otherwise cause this loop to send duplicate Slack messages every 2 minutes.
+		blockTime, err := getLatestBlockTime(tronNode)
+		if err != nil {
+			log.Printf("Error fetching latest block: %v, retrying in 1 minute...\n", err)
+			time.Sleep(1 * time.Minute)
+			continue
+		}
+		if age := time.Since(blockTime); age > maxBlockAge {
+			log.Printf("Node is %s behind chain head (latest block at %s), waiting 2 minutes...\n",
+				age.Truncate(time.Second), blockTime.UTC().Format(time.RFC3339))
+			time.Sleep(2 * time.Minute)
 			continue
 		}
 
