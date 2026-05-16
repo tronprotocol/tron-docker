@@ -127,6 +127,22 @@ public class DbFork implements Callable<Integer> {
     storageRowStore = DbTool.getDB(srcDir, STORAGE_ROW_STORE);
   }
 
+  private AccountCapsule getOrCreateAccountCapsule(byte[] address) {
+    byte[] value = accountStore.get(address);
+    Account account = null;
+    try {
+      account = ArrayUtils.isEmpty(value) ? null : Account.parseFrom(value);
+    } catch (InvalidProtocolBufferException e) {
+      e.printStackTrace();
+      System.exit(-1);
+    }
+
+    if (Objects.isNull(account)) {
+      account = Account.newBuilder().setAddress(ByteString.copyFrom(address)).build();
+    }
+    return new AccountCapsule(account);
+  }
+
   @Override
   public Integer call() throws IOException, RocksDBException {
     if (help) {
@@ -189,7 +205,9 @@ public class DbFork implements Callable<Integer> {
             ByteString address = ByteString.copyFrom(
                 Commons.decodeFromBase58Check(w.getString(WITNESS_ADDRESS)));
             WitnessCapsule witness = new WitnessCapsule(address);
+            AccountCapsule accountCapsule = getOrCreateAccountCapsule(address.toByteArray());
             witness.setIsJobs(true);
+            accountCapsule.setIsWitness(true);
             if (w.hasPath(WITNESS_VOTE) && w.getLong(WITNESS_VOTE) > 0) {
               witness.setVoteCount(w.getLong(WITNESS_VOTE));
             }
@@ -197,6 +215,7 @@ public class DbFork implements Callable<Integer> {
               witness.setUrl(w.getString(WITNESS_URL));
             }
             witnessStore.put(address.toByteArray(), witness.getData());
+            accountStore.put(address.toByteArray(), accountCapsule.getData());
             witnessList.add(witness.getAddress());
           });
 
@@ -230,21 +249,7 @@ public class DbFork implements Callable<Integer> {
       accounts.stream().forEach(
           a -> {
             byte[] address = Commons.decodeFromBase58Check(a.getString(ACCOUNT_ADDRESS));
-            byte[] value = accountStore.get(address);
-            Account account = null;
-            try {
-              account = ArrayUtils.isEmpty(value) ? null : Account.parseFrom(value);
-            } catch (InvalidProtocolBufferException e) {
-              e.printStackTrace();
-              System.exit(-1);
-            }
-
-            if (Objects.isNull(account)) {
-              ByteString byteAddress = ByteString.copyFrom(
-                  Commons.decodeFromBase58Check(a.getString(ACCOUNT_ADDRESS)));
-              account = Account.newBuilder().setAddress(byteAddress).build();
-            }
-            AccountCapsule accountCapsule = new AccountCapsule(account);
+            AccountCapsule accountCapsule = getOrCreateAccountCapsule(address);
 
             if (a.hasPath(ACCOUNT_BALANCE) && a.getLong(ACCOUNT_BALANCE) > 0) {
               accountCapsule.setBalance(a.getLong(ACCOUNT_BALANCE));
@@ -273,7 +278,7 @@ public class DbFork implements Callable<Integer> {
                   byte[] k = Bytes.concat(address, ByteArray.fromString(trc10Id));
                   accountAssetStore.put(k, Longs.toByteArray(a.getLong(ACCOUNT_TRC10_BALANCE)));
                 } else {
-                  Map<String, Long> assetMapV2 = new HashMap<>(account.getAssetV2Map());
+                  Map<String, Long> assetMapV2 = new HashMap<>(accountCapsule.getAssetMapV2());
                   assetMapV2.put(trc10Id, a.getLong(ACCOUNT_TRC10_BALANCE));
                   accountCapsule.clearAssetV2();
                   accountCapsule.addAssetMapV2(assetMapV2);

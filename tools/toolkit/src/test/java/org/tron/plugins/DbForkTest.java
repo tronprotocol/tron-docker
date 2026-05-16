@@ -122,12 +122,15 @@ public class DbForkTest {
           w -> {
             WitnessCapsule witnessCapsule = new WitnessCapsule(witnessStore.get(
                 Commons.decodeFromBase58Check(w.getString(WITNESS_ADDRESS))));
+            AccountCapsule accountCapsule = new AccountCapsule(accountStore.get(
+                Commons.decodeFromBase58Check(w.getString(WITNESS_ADDRESS))));
             if (w.hasPath(WITNESS_VOTE)) {
               Assert.assertEquals(w.getLong(WITNESS_VOTE), witnessCapsule.getVoteCount());
             }
             if (w.hasPath(WITNESS_URL)) {
               Assert.assertEquals(w.getString(WITNESS_URL), witnessCapsule.getUrl());
             }
+            Assert.assertTrue(accountCapsule.getIsWitness());
           }
       );
     }
@@ -175,6 +178,9 @@ public class DbForkTest {
                   Assert.assertEquals(a.getLong(ACCOUNT_TRC10_BALANCE), value);
                 }
               }
+            }
+            if (a.getString(ACCOUNT_ADDRESS).equals("TLLM21wteSPs4hKjbxgmH1L6poyMjeTbHm")) {
+              Assert.assertFalse(account.getIsWitness());
             }
           });
     }
