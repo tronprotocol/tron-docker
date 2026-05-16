@@ -23,9 +23,6 @@ public class Constant {
   public static final String TRC20_ACCOUNT = "address";
   public static final String TRC20_BALANCE = "balance";
 
-  public static final String LATEST_BLOCK_TIMESTAMP = "latestBlockHeaderTimestamp";
-  public static final String MAINTENANCE_INTERVAL = "maintenanceTimeInterval";
-  public static final String NEXT_MAINTENANCE_TIME = "nextMaintenanceTime";
   public static final int MAX_ACTIVE_WITNESS_NUM = 27;
 
   public static final String WITNESS_STORE = "witness";
@@ -60,4 +57,7 @@ public class Constant {
       "NEW_REWARD_ALGORITHM_EFFECTIVE_CYCLE".getBytes();
   public static final byte[] ALLOW_OLD_REWARD_OPT = "ALLOW_OLD_REWARD_OPT".getBytes();
   public static final BigInteger DECIMAL_OF_VI_REWARD = BigInteger.valueOf(10).pow(18);
+
+
+
 }

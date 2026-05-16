@@ -22,6 +22,7 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Commons;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.WitnessCapsule;
+import org.tron.plugins.utils.ChainParameters;
 import org.tron.plugins.utils.Constant;
 import org.tron.plugins.utils.FileUtils;
 import org.tron.plugins.utils.db.DBInterface;
@@ -179,20 +180,25 @@ public class DbForkTest {
           });
     }
 
-    if (forkConfig.hasPath(LATEST_BLOCK_TIMESTAMP)) {
-      long latestBlockHeaderTimestamp = forkConfig.getLong(LATEST_BLOCK_TIMESTAMP);
+    if (!forkConfig.hasPath(ChainParameters.CHAIN_PARAMETERS)) {
+      return;
+    }
+
+    Config chainParamsConfig = forkConfig.getConfig(ChainParameters.CHAIN_PARAMETERS);
+    if (chainParamsConfig.hasPath(ChainParameters.LATEST_BLOCK_TIMESTAMP)) {
+      long latestBlockHeaderTimestamp = chainParamsConfig.getLong(ChainParameters.LATEST_BLOCK_TIMESTAMP);
       Assert.assertEquals(latestBlockHeaderTimestamp,
           ByteArray.toLong(dynamicPropertiesStore.get(LATEST_BLOCK_HEADER_TIMESTAMP)));
     }
 
-    if (forkConfig.hasPath(MAINTENANCE_INTERVAL)) {
-      long maintenanceTimeInterval = forkConfig.getLong(MAINTENANCE_INTERVAL);
+    if (chainParamsConfig.hasPath(ChainParameters.MAINTENANCE_INTERVAL)) {
+      long maintenanceTimeInterval = chainParamsConfig.getLong(ChainParameters.MAINTENANCE_INTERVAL);
       Assert.assertEquals(maintenanceTimeInterval,
           ByteArray.toLong(dynamicPropertiesStore.get(MAINTENANCE_TIME_INTERVAL)));
     }
 
-    if (forkConfig.hasPath(NEXT_MAINTENANCE_TIME)) {
-      long nextMaintenanceTime = forkConfig.getLong(NEXT_MAINTENANCE_TIME);
+    if (chainParamsConfig.hasPath(ChainParameters.NEXT_MAINTENANCE_TIME)) {
+      long nextMaintenanceTime = chainParamsConfig.getLong(ChainParameters.NEXT_MAINTENANCE_TIME);
       Assert.assertEquals(nextMaintenanceTime,
           ByteArray.toLong(dynamicPropertiesStore.get(MAINTENANCE_TIME)));
     }
