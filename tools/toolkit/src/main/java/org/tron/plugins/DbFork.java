@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +72,9 @@ import org.tron.plugins.utils.db.DBIterator;
 import org.tron.plugins.utils.db.DbTool;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.AccountType;
+import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
+import org.tron.protos.Protocol.Permission.PermissionType;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -143,6 +146,47 @@ public class DbFork implements Callable<Integer> {
     return new AccountCapsule(account);
   }
 
+  private boolean isMultiSignEnabled() {
+    byte[] allowMultiSign = dynamicPropertiesStore.get(Constant.ALLOW_MULTI_SIGN);
+    return allowMultiSign != null && ByteArray.toLong(allowMultiSign) == 1L;
+  }
+
+  private Permission createDefaultActivePermission(ByteString address) {
+    byte[] operations = dynamicPropertiesStore.get(Constant.ACTIVE_DEFAULT_OPERATIONS);
+    if (operations == null) {
+      throw new IllegalStateException(
+          "ACTIVE_DEFAULT_OPERATIONS not found while ALLOW_MULTI_SIGN is enabled");
+    }
+
+    Key.Builder key = Key.newBuilder();
+    key.setAddress(address);
+    key.setWeight(1);
+
+    return Permission.newBuilder()
+        .setType(PermissionType.Active)
+        .setId(2)
+        .setPermissionName("active")
+        .setThreshold(1)
+        .setParentId(0)
+        .setOperations(ByteString.copyFrom(operations))
+        .addKeys(key)
+        .build();
+  }
+
+  private void setDefaultWitnessPermission(AccountCapsule accountCapsule) {
+    if (accountCapsule.getInstance().hasWitnessPermission()) {
+      return;
+    }
+    Permission owner = accountCapsule.getInstance().hasOwnerPermission()
+        ? accountCapsule.getInstance().getOwnerPermission()
+        : AccountCapsule.createDefaultOwnerPermission(accountCapsule.getAddress());
+    Permission witness = AccountCapsule.createDefaultWitnessPermission(accountCapsule.getAddress());
+    List<Permission> actives = accountCapsule.getInstance().getActivePermissionCount() > 0
+        ? new ArrayList<>(accountCapsule.getInstance().getActivePermissionList())
+        : Collections.singletonList(createDefaultActivePermission(accountCapsule.getAddress()));
+    accountCapsule.updatePermissions(owner, witness, actives);
+  }
+
   @Override
   public Integer call() throws IOException, RocksDBException {
     if (help) {
@@ -208,6 +252,9 @@ public class DbFork implements Callable<Integer> {
             AccountCapsule accountCapsule = getOrCreateAccountCapsule(address.toByteArray());
             witness.setIsJobs(true);
             accountCapsule.setIsWitness(true);
+            if (isMultiSignEnabled()) {
+              setDefaultWitnessPermission(accountCapsule);
+            }
             if (w.hasPath(WITNESS_VOTE) && w.getLong(WITNESS_VOTE) > 0) {
               witness.setVoteCount(w.getLong(WITNESS_VOTE));
             }

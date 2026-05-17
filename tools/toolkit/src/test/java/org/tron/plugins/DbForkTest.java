@@ -4,6 +4,7 @@ import static org.tron.plugins.DbFork.getActiveWitness;
 import static org.tron.plugins.utils.Constant.*;
 
 import com.google.common.primitives.Bytes;
+import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -11,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Assert;
@@ -26,6 +28,10 @@ import org.tron.plugins.utils.Constant;
 import org.tron.plugins.utils.FileUtils;
 import org.tron.plugins.utils.db.DBInterface;
 import org.tron.plugins.utils.db.DbTool;
+import org.tron.protos.Protocol.Account;
+import org.tron.protos.Protocol.Key;
+import org.tron.protos.Protocol.Permission;
+import org.tron.protos.Protocol.Permission.PermissionType;
 import picocli.CommandLine;
 
 public class DbForkTest {
@@ -202,6 +208,99 @@ public class DbForkTest {
       Assert.assertEquals(nextMaintenanceTime,
           ByteArray.toLong(dynamicPropertiesStore.get(MAINTENANCE_TIME)));
     }
+    close();
+  }
+
+  @Test
+  public void testDbForkAddsWitnessPermissionWhenMultiSignEnabled()
+      throws IOException, RocksDBException {
+    dbPath = folder.newFolder().toString();
+    forkPath = getConfig("fork.conf");
+    createDir();
+    init();
+    dynamicPropertiesStore.put(ALLOW_MULTI_SIGN, Longs.toByteArray(1L));
+    byte[] activeDefaultOperations = new byte[32];
+    Arrays.fill(activeDefaultOperations, (byte) 0x7f);
+    dynamicPropertiesStore.put(ACTIVE_DEFAULT_OPERATIONS, activeDefaultOperations);
+    close();
+
+    String[] args = new String[]{"-d",
+        dbPath, "-c",
+        forkPath};
+    CommandLine cli = new CommandLine(new DbFork());
+    Assert.assertEquals(0, cli.execute(args));
+
+    init();
+    Config forkConfig = ConfigFactory.parseFile(Paths.get(forkPath).toFile());
+    List<? extends Config> witnesses = forkConfig.getConfigList(WITNESS_KEY).stream()
+        .filter(c -> c.hasPath(WITNESS_ADDRESS))
+        .collect(Collectors.toList());
+
+    witnesses.forEach(w -> {
+      byte[] address = Commons.decodeFromBase58Check(w.getString(WITNESS_ADDRESS));
+      AccountCapsule account = new AccountCapsule(accountStore.get(address));
+      Assert.assertTrue(account.getInstance().hasOwnerPermission());
+      Assert.assertTrue(account.getInstance().hasWitnessPermission());
+      Assert.assertEquals(1, account.getInstance().getActivePermissionCount());
+      Assert.assertArrayEquals(address,
+          account.getInstance().getOwnerPermission().getKeys(0).getAddress().toByteArray());
+      Assert.assertArrayEquals(address, account.getWitnessPermissionAddress());
+      Assert.assertArrayEquals(activeDefaultOperations,
+          account.getInstance().getActivePermission(0).getOperations().toByteArray());
+    });
+
+    close();
+  }
+
+  @Test
+  public void testDbForkKeepsExistingWitnessPermissionWhenMultiSignEnabled()
+      throws IOException, RocksDBException {
+    dbPath = folder.newFolder().toString();
+    forkPath = getConfig("fork.conf");
+    createDir();
+    init();
+    dynamicPropertiesStore.put(ALLOW_MULTI_SIGN, Longs.toByteArray(1L));
+    byte[] activeDefaultOperations = new byte[32];
+    Arrays.fill(activeDefaultOperations, (byte) 0x7f);
+    dynamicPropertiesStore.put(ACTIVE_DEFAULT_OPERATIONS, activeDefaultOperations);
+
+    byte[] witnessAddress = Commons.decodeFromBase58Check("TS1hu4ZCcwBFYpQqUGoWy1GWBzamqxiT5W");
+    byte[] customWitnessAddress = Commons.decodeFromBase58Check("TLLM21wteSPs4hKjbxgmH1L6poyMjeTbHm");
+    Permission ownerPermission = AccountCapsule.createDefaultOwnerPermission(
+        ByteString.copyFrom(witnessAddress));
+    Permission activePermission = Permission.newBuilder()
+        .setType(PermissionType.Active)
+        .setId(2)
+        .setPermissionName("active")
+        .setThreshold(1)
+        .setParentId(0)
+        .setOperations(ByteString.copyFrom(activeDefaultOperations))
+        .addKeys(Key.newBuilder()
+            .setAddress(ByteString.copyFrom(witnessAddress))
+            .setWeight(1)
+            .build())
+        .build();
+    Permission witnessPermission = AccountCapsule.createDefaultWitnessPermission(
+        ByteString.copyFrom(customWitnessAddress));
+    AccountCapsule existingAccount = new AccountCapsule(Account.newBuilder()
+        .setAddress(ByteString.copyFrom(witnessAddress))
+        .setOwnerPermission(ownerPermission)
+        .addActivePermission(activePermission)
+        .setWitnessPermission(witnessPermission)
+        .build());
+    accountStore.put(witnessAddress, existingAccount.getData());
+    close();
+
+    String[] args = new String[]{"-d",
+        dbPath, "-c",
+        forkPath};
+    CommandLine cli = new CommandLine(new DbFork());
+    Assert.assertEquals(0, cli.execute(args));
+
+    init();
+    AccountCapsule account = new AccountCapsule(accountStore.get(witnessAddress));
+    Assert.assertTrue(account.getInstance().hasWitnessPermission());
+    Assert.assertArrayEquals(customWitnessAddress, account.getWitnessPermissionAddress());
     close();
   }
 
