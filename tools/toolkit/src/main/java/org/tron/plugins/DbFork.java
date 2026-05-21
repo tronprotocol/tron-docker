@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -71,7 +72,9 @@ import org.tron.plugins.utils.db.DBIterator;
 import org.tron.plugins.utils.db.DbTool;
 import org.tron.protos.Protocol.Account;
 import org.tron.protos.Protocol.AccountType;
+import org.tron.protos.Protocol.Key;
 import org.tron.protos.Protocol.Permission;
+import org.tron.protos.Protocol.Permission.PermissionType;
 import org.tron.protos.contract.SmartContractOuterClass.SmartContract;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -125,6 +128,63 @@ public class DbFork implements Callable<Integer> {
     assetIssueV2Store = DbTool.getDB(srcDir, ASSET_ISSUE_V2);
     contractStore = DbTool.getDB(srcDir, CONTRACT_STORE);
     storageRowStore = DbTool.getDB(srcDir, STORAGE_ROW_STORE);
+  }
+
+  private AccountCapsule getOrCreateAccountCapsule(byte[] address) {
+    byte[] value = accountStore.get(address);
+    Account account = null;
+    try {
+      account = ArrayUtils.isEmpty(value) ? null : Account.parseFrom(value);
+    } catch (InvalidProtocolBufferException e) {
+      e.printStackTrace();
+      System.exit(-1);
+    }
+
+    if (Objects.isNull(account)) {
+      account = Account.newBuilder().setAddress(ByteString.copyFrom(address)).build();
+    }
+    return new AccountCapsule(account);
+  }
+
+  private boolean isMultiSignEnabled() {
+    byte[] allowMultiSign = dynamicPropertiesStore.get(Constant.ALLOW_MULTI_SIGN);
+    return allowMultiSign != null && ByteArray.toLong(allowMultiSign) == 1L;
+  }
+
+  private Permission createDefaultActivePermission(ByteString address) {
+    byte[] operations = dynamicPropertiesStore.get(Constant.ACTIVE_DEFAULT_OPERATIONS);
+    if (operations == null) {
+      throw new IllegalStateException(
+          "ACTIVE_DEFAULT_OPERATIONS not found while ALLOW_MULTI_SIGN is enabled");
+    }
+
+    Key.Builder key = Key.newBuilder();
+    key.setAddress(address);
+    key.setWeight(1);
+
+    return Permission.newBuilder()
+        .setType(PermissionType.Active)
+        .setId(2)
+        .setPermissionName("active")
+        .setThreshold(1)
+        .setParentId(0)
+        .setOperations(ByteString.copyFrom(operations))
+        .addKeys(key)
+        .build();
+  }
+
+  private void setDefaultWitnessPermission(AccountCapsule accountCapsule) {
+    if (accountCapsule.getInstance().hasWitnessPermission()) {
+      return;
+    }
+    Permission owner = accountCapsule.getInstance().hasOwnerPermission()
+        ? accountCapsule.getInstance().getOwnerPermission()
+        : AccountCapsule.createDefaultOwnerPermission(accountCapsule.getAddress());
+    Permission witness = AccountCapsule.createDefaultWitnessPermission(accountCapsule.getAddress());
+    List<Permission> actives = accountCapsule.getInstance().getActivePermissionCount() > 0
+        ? new ArrayList<>(accountCapsule.getInstance().getActivePermissionList())
+        : Collections.singletonList(createDefaultActivePermission(accountCapsule.getAddress()));
+    accountCapsule.updatePermissions(owner, witness, actives);
   }
 
   @Override
@@ -189,7 +249,12 @@ public class DbFork implements Callable<Integer> {
             ByteString address = ByteString.copyFrom(
                 Commons.decodeFromBase58Check(w.getString(WITNESS_ADDRESS)));
             WitnessCapsule witness = new WitnessCapsule(address);
+            AccountCapsule accountCapsule = getOrCreateAccountCapsule(address.toByteArray());
             witness.setIsJobs(true);
+            accountCapsule.setIsWitness(true);
+            if (isMultiSignEnabled()) {
+              setDefaultWitnessPermission(accountCapsule);
+            }
             if (w.hasPath(WITNESS_VOTE) && w.getLong(WITNESS_VOTE) > 0) {
               witness.setVoteCount(w.getLong(WITNESS_VOTE));
             }
@@ -197,6 +262,7 @@ public class DbFork implements Callable<Integer> {
               witness.setUrl(w.getString(WITNESS_URL));
             }
             witnessStore.put(address.toByteArray(), witness.getData());
+            accountStore.put(address.toByteArray(), accountCapsule.getData());
             witnessList.add(witness.getAddress());
           });
 
@@ -230,21 +296,7 @@ public class DbFork implements Callable<Integer> {
       accounts.stream().forEach(
           a -> {
             byte[] address = Commons.decodeFromBase58Check(a.getString(ACCOUNT_ADDRESS));
-            byte[] value = accountStore.get(address);
-            Account account = null;
-            try {
-              account = ArrayUtils.isEmpty(value) ? null : Account.parseFrom(value);
-            } catch (InvalidProtocolBufferException e) {
-              e.printStackTrace();
-              System.exit(-1);
-            }
-
-            if (Objects.isNull(account)) {
-              ByteString byteAddress = ByteString.copyFrom(
-                  Commons.decodeFromBase58Check(a.getString(ACCOUNT_ADDRESS)));
-              account = Account.newBuilder().setAddress(byteAddress).build();
-            }
-            AccountCapsule accountCapsule = new AccountCapsule(account);
+            AccountCapsule accountCapsule = getOrCreateAccountCapsule(address);
 
             if (a.hasPath(ACCOUNT_BALANCE) && a.getLong(ACCOUNT_BALANCE) > 0) {
               accountCapsule.setBalance(a.getLong(ACCOUNT_BALANCE));
@@ -273,7 +325,7 @@ public class DbFork implements Callable<Integer> {
                   byte[] k = Bytes.concat(address, ByteArray.fromString(trc10Id));
                   accountAssetStore.put(k, Longs.toByteArray(a.getLong(ACCOUNT_TRC10_BALANCE)));
                 } else {
-                  Map<String, Long> assetMapV2 = new HashMap<>(account.getAssetV2Map());
+                  Map<String, Long> assetMapV2 = new HashMap<>(accountCapsule.getAssetMapV2());
                   assetMapV2.put(trc10Id, a.getLong(ACCOUNT_TRC10_BALANCE));
                   accountCapsule.clearAssetV2();
                   accountCapsule.addAssetMapV2(assetMapV2);
