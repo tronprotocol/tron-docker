@@ -25,7 +25,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 4,
+  "id": null,
   "links": [],
   "panels": [
     {
@@ -2502,24 +2502,10 @@
           ],
           "title": "Block Push Lock Acquire Latency",
           "type": "timeseries"
-        }
-      ],
-      "title": "Block",
-      "type": "row"
-    },
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 19
-      },
-      "id": 110,
-      "panels": [
+        },
         {
           "datasource": "${datasource}",
-          "description": "Ratio of blocks with zero transactions over total blocks.",
+          "description": "95th percentile of transaction count per block.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -2529,11 +2515,11 @@
                 "axisBorderShow": false,
                 "axisCenteredZero": false,
                 "axisColorMode": "text",
-                "axisLabel": "",
+                "axisLabel": "TX Count",
                 "axisPlacement": "auto",
                 "barAlignment": 0,
                 "drawStyle": "line",
-                "fillOpacity": 20,
+                "fillOpacity": 10,
                 "gradientMode": "none",
                 "hideFrom": {
                   "legend": false,
@@ -2563,15 +2549,10 @@
                   {
                     "color": "green",
                     "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
                   }
                 ]
               },
-              "unit": "percentunit",
-              "max": 1,
+              "unit": "short",
               "min": 0
             },
             "overrides": []
@@ -2580,7 +2561,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 20
+            "y": 126
           },
           "id": 111,
           "options": {
@@ -2600,92 +2581,19 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "rate(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"}[$__interval]) / ignoring(le) rate(tron:block_transaction_count_count{group=`$group`,instance=`$instance`}[$__interval])",
-              "legendFormat": "{{miner}}",
+              "expr": "histogram_quantile(0.95, rate(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`}[$__interval]))",
+              "legendFormat": "P95 {{miner}}",
               "refId": "A"
-            }
-          ],
-          "title": "Empty Block Rate",
-          "type": "timeseries"
-        },
-        {
-          "datasource": "${datasource}",
-          "description": "Number of empty blocks per SR in the last 1 hour.",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "Empty Blocks",
-                "axisPlacement": "auto",
-                "fillOpacity": 80,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineWidth": 1,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "short"
             },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 20
-          },
-          "id": 112,
-          "options": {
-            "legend": {
-              "calcs": [
-                "sum"
-              ],
-              "displayMode": "table",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            }
-          },
-          "targets": [
             {
               "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"}[1h]))",
-              "instant": true,
-              "legendFormat": "{{miner}}",
-              "refId": "A"
+              "expr": "histogram_quantile(0.99, rate(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`}[$__interval]))",
+              "legendFormat": "P99 {{miner}}",
+              "refId": "B"
             }
           ],
-          "title": "Per-SR Empty Block Count (1h)",
-          "type": "barchart"
+          "title": "P95 / P99 Block Transaction Count",
+          "type": "timeseries"
         },
         {
           "datasource": "${datasource}",
@@ -2744,8 +2652,8 @@
           "gridPos": {
             "h": 8,
             "w": 12,
-            "x": 0,
-            "y": 28
+            "x": 12,
+            "y": 126
           },
           "id": 113,
           "options": {
@@ -2775,41 +2683,11 @@
         },
         {
           "datasource": "${datasource}",
-          "description": "Distribution of transaction counts per block across histogram buckets.",
+          "description": "Timestamp of the most recent empty block produced by each witness.",
           "fieldConfig": {
             "defaults": {
               "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "Blocks",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "drawStyle": "bars",
-                "fillOpacity": 80,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "normal"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
+                "mode": "thresholds"
               },
               "mappings": [],
               "thresholds": {
@@ -2821,91 +2699,48 @@
                   }
                 ]
               },
-              "unit": "short"
+              "unit": "dateTimeAsIso"
             },
             "overrides": []
           },
           "gridPos": {
             "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 28
+            "w": 24,
+            "x": 0,
+            "y": 134
           },
-          "id": 114,
+          "id": 118,
           "options": {
-            "legend": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "center",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
               "calcs": [
-                "sum"
+                "lastNotNull"
               ],
-              "displayMode": "table",
-              "placement": "bottom"
+              "fields": "",
+              "values": false
             },
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            }
+            "showPercentChange": false,
+            "textMode": "value_and_name",
+            "wideLayout": true
           },
+          "pluginVersion": "11.6.0",
           "targets": [
             {
               "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"}[$__interval]))",
-              "legendFormat": "0 (empty)",
+              "expr": "max_over_time((timestamp(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"}) and (tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"} != tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"} offset 1m))[1h:1m]) * 1000",
+              "legendFormat": "{{miner}}",
               "refId": "A"
-            },
-            {
-              "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"20.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"}[$__interval]))",
-              "legendFormat": "1-20",
-              "refId": "B"
-            },
-            {
-              "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"50.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"20.0\"}[$__interval]))",
-              "legendFormat": "21-50",
-              "refId": "C"
-            },
-            {
-              "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"100.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"50.0\"}[$__interval]))",
-              "legendFormat": "51-100",
-              "refId": "D"
-            },
-            {
-              "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"200.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"100.0\"}[$__interval]))",
-              "legendFormat": "101-200",
-              "refId": "E"
-            },
-            {
-              "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"300.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"200.0\"}[$__interval]))",
-              "legendFormat": "201-300",
-              "refId": "F"
-            },
-            {
-              "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"500.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"300.0\"}[$__interval]))",
-              "legendFormat": "301-500",
-              "refId": "G"
-            },
-            {
-              "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"2000.0\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"500.0\"}[$__interval]))",
-              "legendFormat": "501-2000",
-              "refId": "H"
-            },
-            {
-              "exemplar": true,
-              "expr": "round(increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"+Inf\"}[$__interval]) - increase(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"2000.0\"}[$__interval]))",
-              "legendFormat": "2000+",
-              "refId": "I"
             }
           ],
-          "title": "Block Transaction Count Distribution",
-          "type": "timeseries"
+          "title": "Last Empty Block",
+          "type": "stat"
         }
       ],
-      "title": "Block Metrics",
+      "title": "Block",
       "type": "row"
     },
     {
@@ -3170,7 +3005,7 @@
           "type": "stat"
         }
       ],
-      "title": "SR Set Change",
+      "title": "SR Set",
       "type": "row"
     },
     {
@@ -3211,7 +3046,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 20
+        "y": 22
       },
       "id": 20,
       "interval": "3s",
@@ -3327,7 +3162,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 20
+        "y": 22
       },
       "id": 17,
       "interval": "10m",
@@ -3395,7 +3230,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 28
+        "y": 30
       },
       "id": 108,
       "interval": "3s",
@@ -3529,7 +3364,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 28
+        "y": 30
       },
       "id": 107,
       "interval": "10m",
@@ -3654,7 +3489,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 36
+        "y": 38
       },
       "id": 16,
       "interval": "10m",
@@ -3758,7 +3593,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 36
+        "y": 38
       },
       "id": 106,
       "options": {
@@ -5541,6 +5376,6 @@
   },
   "timezone": "",
   "title": "java-tron-server",
-  "uid": "WAY66gQ07X",
+  "uid": "java-tron-server",
   "version": 8
 }
