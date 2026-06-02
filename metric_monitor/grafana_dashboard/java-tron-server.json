@@ -2680,64 +2680,6 @@
           ],
           "title": "Avg Transactions per Block",
           "type": "timeseries"
-        },
-        {
-          "datasource": "${datasource}",
-          "description": "Timestamp of the most recent empty block produced by each witness.",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  }
-                ]
-              },
-              "unit": "dateTimeAsIso"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 134
-          },
-          "id": 118,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "none",
-            "justifyMode": "center",
-            "orientation": "auto",
-            "percentChangeColorMode": "standard",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showPercentChange": false,
-            "textMode": "value_and_name",
-            "wideLayout": true
-          },
-          "pluginVersion": "11.6.0",
-          "targets": [
-            {
-              "exemplar": true,
-              "expr": "max_over_time((timestamp(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"}) and (tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"} != tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`,le=\"0.0\"} offset 1m))[1h:1m]) * 1000",
-              "legendFormat": "{{miner}}",
-              "refId": "A"
-            }
-          ],
-          "title": "Last Empty Block",
-          "type": "stat"
         }
       ],
       "title": "Block",
