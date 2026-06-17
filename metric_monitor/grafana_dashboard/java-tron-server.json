@@ -2581,13 +2581,13 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "histogram_quantile(0.95, rate(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`}[$__interval]))",
+              "expr": "histogram_quantile(0.95, sum by (le, miner) (rate(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`}[$__rate_interval])))",
               "legendFormat": "P95 {{miner}}",
               "refId": "A"
             },
             {
               "exemplar": true,
-              "expr": "histogram_quantile(0.99, rate(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`}[$__interval]))",
+              "expr": "histogram_quantile(0.99, sum by (le, miner) (rate(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`}[$__rate_interval])))",
               "legendFormat": "P99 {{miner}}",
               "refId": "B"
             }
@@ -2673,7 +2673,7 @@
           "targets": [
             {
               "exemplar": true,
-              "expr": "rate(tron:block_transaction_count_sum{group=`$group`,instance=`$instance`}[$__interval]) / rate(tron:block_transaction_count_count{group=`$group`,instance=`$instance`}[$__interval])",
+              "expr": "rate(tron:block_transaction_count_sum{group=`$group`,instance=`$instance`}[$__rate_interval]) / rate(tron:block_transaction_count_count{group=`$group`,instance=`$instance`}[$__rate_interval])",
               "legendFormat": "{{miner}}",
               "refId": "A"
             }
@@ -2845,7 +2845,7 @@
               }
             }
           ],
-          "title": "SR Set Change Events",
+          "title": "SR Set Change Counts",
           "type": "table"
         },
         {
