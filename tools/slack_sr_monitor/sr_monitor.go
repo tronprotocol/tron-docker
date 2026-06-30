@@ -180,7 +180,13 @@ type NowBlockResponse struct {
 
 // A fresh TRON node should always be within a few block intervals (block time is 3s).
 // Anything beyond this threshold means the node is still catching up to the chain head.
-const maxBlockAge = 30 * time.Second
+const (
+	maxBlockAge            = 30 * time.Second
+	freshnessRetryInterval = 2 * time.Minute
+	freshnessRetryTimeout  = 2 * time.Hour
+	witnessRetryInterval   = 30 * time.Second
+	witnessRetryTimeout    = 10 * time.Minute
+)
 
 func getLatestBlockTimeFromNodes(nodeURLs []string) (time.Time, error) {
 	var errors []string
@@ -224,6 +230,46 @@ func getWitnessListFromNodes(nodeURLs []string) ([]Witness, error) {
 	}
 
 	return nil, fmt.Errorf("all TRON nodes failed for /wallet/getpaginatednowwitnesslist: %s", strings.Join(errors, "; "))
+}
+
+func waitForFreshNode(nodeURLs []string) error {
+	deadline := time.Now().Add(freshnessRetryTimeout)
+
+	for {
+		blockTime, err := getLatestBlockTimeFromNodes(nodeURLs)
+		if err != nil {
+			log.Printf("Error fetching latest block: %v", err)
+		} else if age := time.Since(blockTime); age <= maxBlockAge {
+			log.Printf("Node is fresh (latest block at %s, age %s)", blockTime.UTC().Format(time.RFC3339), age.Truncate(time.Second))
+			return nil
+		} else {
+			log.Printf("Node is %s behind chain head (latest block at %s), waiting %s...",
+				age.Truncate(time.Second), blockTime.UTC().Format(time.RFC3339), freshnessRetryInterval)
+		}
+
+		if time.Now().Add(freshnessRetryInterval).After(deadline) {
+			return fmt.Errorf("node did not become fresh within %s", freshnessRetryTimeout)
+		}
+		time.Sleep(freshnessRetryInterval)
+	}
+}
+
+func getWitnessListWithRetry(nodeURLs []string) ([]Witness, error) {
+	deadline := time.Now().Add(witnessRetryTimeout)
+
+	for {
+		witnesses, err := getWitnessListFromNodes(nodeURLs)
+		if err == nil {
+			return witnesses, nil
+		}
+
+		log.Printf("Error fetching witness list: %v", err)
+		if time.Now().Add(witnessRetryInterval).After(deadline) {
+			return nil, fmt.Errorf("failed to fetch witness list within %s: %v", witnessRetryTimeout, err)
+		}
+		log.Printf("Retrying witness list in %s...", witnessRetryInterval)
+		time.Sleep(witnessRetryInterval)
+	}
 }
 
 func parseWitnessList(nodeURLs []string, body []byte) ([]Witness, error) {
@@ -568,21 +614,6 @@ func runSRMonitor(tronNodes []string, slackWebhook string) {
 			continue
 		}
 
-		// A node that is still catching up will report a past maintenance time and would
-		// otherwise cause this loop to send duplicate Slack messages every 2 minutes.
-		blockTime, err := getLatestBlockTimeFromNodes(tronNodes)
-		if err != nil {
-			log.Printf("Error fetching latest block: %v, retrying in 1 minute...\n", err)
-			time.Sleep(1 * time.Minute)
-			continue
-		}
-		if age := time.Since(blockTime); age > maxBlockAge {
-			log.Printf("Node is %s behind chain head (latest block at %s), waiting 2 minutes...\n",
-				age.Truncate(time.Second), blockTime.UTC().Format(time.RFC3339))
-			time.Sleep(2 * time.Minute)
-			continue
-		}
-
 		// Calculate trigger time: next maintenance time + 1 minute
 		triggerTime := nextTime.Add(1 * time.Minute)
 		now := time.Now().UTC()
@@ -596,10 +627,17 @@ func runSRMonitor(tronNodes []string, slackWebhook string) {
 			log.Printf("Maintenance time %s has already passed. Checking now...\n", nextTime.Format(time.RFC1123))
 		}
 
-		log.Printf("[%s] Maintenance period reached (+1m). Fetching SR list...\n", time.Now().UTC().Format(time.RFC3339))
-		witnesses, err := getWitnessListFromNodes(tronNodes)
+		log.Printf("[%s] Maintenance period reached (+1m). Waiting for fresh node...\n", time.Now().UTC().Format(time.RFC3339))
+		if err := waitForFreshNode(tronNodes); err != nil {
+			log.Printf("Skipping this maintenance report: %v\n", err)
+			time.Sleep(2 * time.Minute)
+			continue
+		}
+
+		log.Printf("[%s] Fetching SR list...\n", time.Now().UTC().Format(time.RFC3339))
+		witnesses, err := getWitnessListWithRetry(tronNodes)
 		if err != nil {
-			log.Printf("Error fetching witness list: %v\n", err)
+			log.Printf("Skipping this maintenance report: %v\n", err)
 		} else {
 			if err := sendToSlack(slackWebhook, witnesses, lastVotes, lastTop27); err != nil {
 				log.Printf("Error sending to Slack: %v\n", err)
