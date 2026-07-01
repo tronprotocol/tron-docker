@@ -321,7 +321,7 @@ func formatComma(n int64) string {
 	return out.String()
 }
 
-func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]int64, prevSRs []string) error {
+func sendToSlack(webhookURL string, nodeURLs []string, witnesses []Witness, prevVotes map[string]int64, prevSRs []string) error {
 	var summary strings.Builder
 	summary.WriteString("*TRON SR Status Update (Maintenance Period)*")
 	summary.WriteString(fmt.Sprintf("   Time: %s\n", time.Now().UTC().Format(time.RFC1123)))
@@ -357,13 +357,20 @@ func sendToSlack(webhookURL string, witnesses []Witness, prevVotes map[string]in
 		for _, addr := range prevSRs {
 			if !currentTop27[addr] {
 				name := addr
+				foundInCurrentList := false
 				for _, w := range witnesses {
 					if w.Address == addr {
+						foundInCurrentList = true
 						name = w.DisplayName
 						if name == "" {
 							name = w.Address
 						}
 						break
+					}
+				}
+				if !foundInCurrentList {
+					if accountName := getAccountNameFromNodes(nodeURLs, addr); accountName != "" {
+						name = accountName
 					}
 				}
 				left = append(left, name)
@@ -595,7 +602,7 @@ func runSRMonitor(tronNodes []string, slackWebhook string) {
 			log.Printf("Initial check failed: %v\n", err)
 		} else {
 			log.Printf("Successfully fetched %d witnesses. Sending to Slack...\n", len(witnesses))
-			if err := sendToSlack(slackWebhook, witnesses, lastVotes, lastTop27); err != nil {
+			if err := sendToSlack(slackWebhook, tronNodes, witnesses, lastVotes, lastTop27); err != nil {
 				log.Printf("Failed to send initial update to Slack: %v\n", err)
 			} else {
 				lastTop27 = updateLastStatus(witnesses, lastVotes)
@@ -639,7 +646,7 @@ func runSRMonitor(tronNodes []string, slackWebhook string) {
 		if err != nil {
 			log.Printf("Skipping this maintenance report: %v\n", err)
 		} else {
-			if err := sendToSlack(slackWebhook, witnesses, lastVotes, lastTop27); err != nil {
+			if err := sendToSlack(slackWebhook, tronNodes, witnesses, lastVotes, lastTop27); err != nil {
 				log.Printf("Error sending to Slack: %v\n", err)
 			} else {
 				log.Println("Successfully sent SR list to Slack")
