@@ -280,7 +280,7 @@ func buildPhoneAlertSummary(entered []Witness, left []string, nameCache map[stri
 }
 
 // triggerPhoneAlert posts a short message to a webhook that triggers a phone/voice
-// call alert, independent of the Slack alert sent by sendAlert.
+// call alert after the Slack alert has been delivered successfully.
 func triggerPhoneAlert(phoneAlertURL string, entered []Witness, left []string, nameCache map[string]string) error {
 	summary := buildPhoneAlertSummary(entered, left, nameCache)
 
@@ -384,20 +384,20 @@ func runSRGuard(tronNodes []string, slackWebhook string, phoneAlertURL string) {
 				if len(entered) > 0 || len(left) > 0 {
 					log.Printf("Top 27 change detected: entered=%d left=%d", len(entered), len(left))
 
-					if phoneAlertURL != "" {
-						if err := triggerPhoneAlert(phoneAlertURL, entered, left, nameCache); err != nil {
-							log.Printf("failed to trigger phone alert: %v", err)
-						} else {
-							log.Println("triggered phone alert")
-						}
-					}
-
 					if err := sendAlert(slackWebhook, witnesses, entered, left, nameCache); err != nil {
 						log.Printf("failed to send Slack alert: %v", err)
 					} else {
 						previousTop27 = topAddresses(witnesses)
 						saveGuardState(previousTop27, nameCache)
 						log.Println("sent Slack alert and updated Top 27 snapshot")
+
+						if phoneAlertURL != "" {
+							if err := triggerPhoneAlert(phoneAlertURL, entered, left, nameCache); err != nil {
+								log.Printf("failed to trigger phone alert: %v", err)
+							} else {
+								log.Println("triggered phone alert")
+							}
+						}
 					}
 				} else {
 					previousTop27 = topAddresses(witnesses)
