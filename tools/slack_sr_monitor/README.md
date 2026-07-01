@@ -47,6 +47,7 @@ All configurations are managed via environment variables or a `.env` file in the
 - `SLACK_SR_GUARD_WEBHOOK`: Optional Slack webhook URL for `slack_sr_guard`. Falls back to `SLACK_WEBHOOK` if unset.
 - `TRON_NODE`: The TRON node HTTP API endpoint (e.g., `http://https://api.trongrid.io`). Default is Trongrid.
 - `TRON_NODES`: Optional comma-separated TRON node HTTP API endpoints. If set, the tools try each node in order for every TRON API request and only return an error after all nodes fail. This takes precedence over `TRON_NODE`.
+- `PHONE_ALERT_URL`: Optional webhook endpoint for phone/voice call escalation. When set, `slack_sr_guard` sends a short alert message here on every Top 27 change, in addition to the Slack alert, so on-call staff can be reached even outside Slack. Skipped entirely when unset.
 
 ### State Persistence
 
@@ -88,6 +89,8 @@ If no changes occur, it displays `Top 27 SRs remain unchanged.`
 The `slack_sr_guard` process calls `/wallet/getpaginatednowwitnesslist` every minute with `limit=28`, keeps a persisted Top 27 snapshot, and sends a Slack alert only when an SR enters or leaves the Top 27 before the next maintenance period.
 
 The alert includes the entered SRs, left SRs, current 27th/28th vote gap, and a Top 28 vote table.
+
+When `PHONE_ALERT_URL` is configured, the same Top 27 change also triggers a phone call escalation, independent of the Slack alert (a failure to reach it is logged but never blocks or fails the Slack notification).
 
 ### Notifications
 

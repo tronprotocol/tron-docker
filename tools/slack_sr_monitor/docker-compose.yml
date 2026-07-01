@@ -22,5 +22,6 @@ services:
       - SLACK_SR_GUARD_WEBHOOK=${SLACK_SR_GUARD_WEBHOOK:-}
       - TRON_NODES=${TRON_NODES:-}
       - TRON_NODE=${TRON_NODE:-https://api.trongrid.io}
+      - PHONE_ALERT_URL=${PHONE_ALERT_URL:-}
     volumes:
       - ./logs:/home/monitor/logs

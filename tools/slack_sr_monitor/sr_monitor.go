@@ -109,6 +109,12 @@ func getSlackWebhook(specificEnv string) string {
 	return os.Getenv("SLACK_WEBHOOK")
 }
 
+// getPhoneAlertURL returns the Phone_AWS API Gateway endpoint used by slack_sr_guard to
+// trigger a phone call directly. Optional; when unset, the phone alert is skipped.
+func getPhoneAlertURL() string {
+	return os.Getenv("PHONE_ALERT_URL")
+}
+
 func postToTron(nodeURLs []string, path string, payload []byte, timeout time.Duration) ([]byte, string, error) {
 	client := &http.Client{Timeout: timeout}
 	var errors []string

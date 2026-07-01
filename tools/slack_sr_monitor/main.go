@@ -57,7 +57,7 @@ func main() {
 			log.Println("Usage: SLACK_SR_GUARD_WEBHOOK=https://hooks.slack.com/... [TRON_NODES=...] go run . guard")
 			os.Exit(1)
 		}
-		runSRGuard(tronNodes, slackWebhook)
+		runSRGuard(tronNodes, slackWebhook, getPhoneAlertURL())
 	case "both", "":
 		monitorWebhook := getSlackWebhook("SLACK_SR_MONITOR_WEBHOOK")
 		guardWebhook := getSlackWebhook("SLACK_SR_GUARD_WEBHOOK")
@@ -66,6 +66,7 @@ func main() {
 			log.Println("Usage: SLACK_WEBHOOK=https://hooks.slack.com/... [TRON_NODES=...] go run .")
 			os.Exit(1)
 		}
+		phoneAlertURL := getPhoneAlertURL()
 
 		var wg sync.WaitGroup
 		wg.Add(2)
@@ -75,7 +76,7 @@ func main() {
 		}()
 		go func() {
 			defer wg.Done()
-			runSRGuard(tronNodes, guardWebhook)
+			runSRGuard(tronNodes, guardWebhook, phoneAlertURL)
 		}()
 		wg.Wait()
 	default:
