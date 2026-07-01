@@ -214,13 +214,6 @@ func sendAlert(webhookURL string, witnesses []Witness, entered []Witness, left [
 		text.WriteString(fmt.Sprintf(">:outbox_tray: *Left Top 27:* %s\n", strings.Join(names, ", ")))
 	}
 
-	if len(witnesses) >= fetchLimit {
-		gap := witnesses[26].VoteCount - witnesses[27].VoteCount
-		text.WriteString(fmt.Sprintf("*Gap (27 vs 28):* `%s` votes\n", formatComma(gap)))
-		text.WriteString(fmt.Sprintf("*27:* %s `%s` votes\n", witnessName(witnesses[26]), formatComma(witnesses[26].VoteCount)))
-		text.WriteString(fmt.Sprintf("*28:* %s `%s` votes\n", witnessName(witnesses[27]), formatComma(witnesses[27].VoteCount)))
-	}
-
 	var details strings.Builder
 	details.WriteString("```\n")
 	for i, witness := range witnesses {
