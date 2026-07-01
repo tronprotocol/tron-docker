@@ -251,6 +251,63 @@ func sendAlert(webhookURL string, witnesses []Witness, entered []Witness, left [
 	return nil
 }
 
+// buildPhoneAlertSummary produces a plain-text (no Slack markdown) summary, describing
+// which SRs entered/left the Top 27, for the phone alert message.
+func buildPhoneAlertSummary(entered []Witness, left []string, nameCache map[string]string) string {
+	var parts []string
+
+	if len(entered) > 0 {
+		var names []string
+		for _, witness := range entered {
+			names = append(names, witnessName(witness))
+		}
+		parts = append(parts, fmt.Sprintf("entered: %s", strings.Join(names, ", ")))
+	}
+
+	if len(left) > 0 {
+		var names []string
+		for _, address := range left {
+			name := nameCache[address]
+			if name == "" {
+				name = address
+			}
+			names = append(names, name)
+		}
+		parts = append(parts, fmt.Sprintf("left: %s", strings.Join(names, ", ")))
+	}
+
+	return "TRON Top 27 SR change detected (" + strings.Join(parts, "; ") + ")"
+}
+
+// triggerPhoneAlert posts a short message to a webhook that triggers a phone/voice
+// call alert, independent of the Slack alert sent by sendAlert.
+func triggerPhoneAlert(phoneAlertURL string, entered []Witness, left []string, nameCache map[string]string) error {
+	summary := buildPhoneAlertSummary(entered, left, nameCache)
+
+	payload := map[string]string{
+		"message": summary,
+	}
+
+	jsonPayload, err := json.Marshal(payload)
+	if err != nil {
+		return fmt.Errorf("failed to marshal phone alert payload: %v", err)
+	}
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Post(phoneAlertURL, "application/json", bytes.NewBuffer(jsonPayload))
+	if err != nil {
+		return fmt.Errorf("failed to send phone alert: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("phone alert endpoint returned status %d: %s", resp.StatusCode, string(body))
+	}
+
+	return nil
+}
+
 func loadGuardState() guardState {
 	state := guardState{
 		Version:   guardStateVersion,
@@ -297,8 +354,13 @@ func saveGuardState(previousTop27 []string, nameCache map[string]string) {
 	}
 }
 
-func runSRGuard(tronNodes []string, slackWebhook string) {
-	log.Printf("Starting SR guard. Nodes: %s Slack Webhook: %s Poll interval: %s", strings.Join(tronNodes, ", "), maskWebhook(slackWebhook), pollInterval)
+func runSRGuard(tronNodes []string, slackWebhook string, phoneAlertURL string) {
+	phoneLog := "disabled"
+	if phoneAlertURL != "" {
+		phoneLog = maskWebhook(phoneAlertURL)
+	}
+	log.Printf("Starting SR guard. Nodes: %s Slack Webhook: %s Phone Alert URL: %s Poll interval: %s",
+		strings.Join(tronNodes, ", "), maskWebhook(slackWebhook), phoneLog, pollInterval)
 
 	state := loadGuardState()
 	nameCache := state.NameCache
@@ -321,6 +383,15 @@ func runSRGuard(tronNodes []string, slackWebhook string) {
 				entered, left := findTopSRChanges(previousTop27, witnesses)
 				if len(entered) > 0 || len(left) > 0 {
 					log.Printf("Top 27 change detected: entered=%d left=%d", len(entered), len(left))
+
+					if phoneAlertURL != "" {
+						if err := triggerPhoneAlert(phoneAlertURL, entered, left, nameCache); err != nil {
+							log.Printf("failed to trigger phone alert: %v", err)
+						} else {
+							log.Println("triggered phone alert")
+						}
+					}
+
 					if err := sendAlert(slackWebhook, witnesses, entered, left, nameCache); err != nil {
 						log.Printf("failed to send Slack alert: %v", err)
 					} else {
