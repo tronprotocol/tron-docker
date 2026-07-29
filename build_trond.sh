@@ -6,15 +6,30 @@ ARCH=$(uname -m)
 
 # Set Go version to 1.23.6
 GO_VERSION="1.23.6"
+GO_SHA256=""
+
+calculate_sha256() {
+    local file="$1"
+    if command -v sha256sum &> /dev/null; then
+        sha256sum "$file" | awk '{print $1}'
+    elif command -v shasum &> /dev/null; then
+        shasum -a 256 "$file" | awk '{print $1}'
+    else
+        echo "No SHA-256 checksum tool found (sha256sum or shasum)."
+        exit 1
+    fi
+}
 
 # Determine download URL and archive filename based on OS and ARCH
 if [[ "$OS" == "Linux" ]]; then
     if [[ "$ARCH" == "x86_64" ]]; then
         GO_ARCHIVE="go$GO_VERSION.linux-amd64.tar.gz"
         GO_URL="https://go.dev/dl/$GO_ARCHIVE"
+        GO_SHA256="9379441ea310de000f33a4dc767bd966e72ab2826270e038e78b2c53c2e7802d"
     elif [[ "$ARCH" == "arm64" || "$ARCH" == "aarch64" ]]; then
         GO_ARCHIVE="go$GO_VERSION.linux-arm64.tar.gz"
         GO_URL="https://go.dev/dl/$GO_ARCHIVE"
+        GO_SHA256="561c780e8f4a8955d32bf72e46af0b5ee5e0debe1e4633df9a03781878219202"
     else
         echo "Unsupported architecture: $ARCH"
         exit 1
@@ -23,9 +38,11 @@ elif [[ "$OS" == "Darwin" ]]; then
     if [[ "$ARCH" == "x86_64" ]]; then
         GO_ARCHIVE="go$GO_VERSION.darwin-amd64.tar.gz"
         GO_URL="https://go.dev/dl/$GO_ARCHIVE"
+        GO_SHA256="782da50ce8ec5e98fac2cd3cdc6a1d7130d093294fc310038f651444232a3fb0"
     elif [[ "$ARCH" == "arm64" ]]; then
         GO_ARCHIVE="go$GO_VERSION.darwin-arm64.tar.gz"
         GO_URL="https://go.dev/dl/$GO_ARCHIVE"
+        GO_SHA256="5cae2450a1708aeb0333237a155640d5562abaf195defebc4306054565536221"
     else
         echo "Unsupported architecture: $ARCH"
         exit 1
@@ -106,8 +123,20 @@ if [[ "$SYSTEM_GO" == false ]]; then
         echo "go/$GO_ARCHIVE already exists. Skipping download."
     else
         echo "Downloading Go from $GO_URL..."
-        curl -Lo "go/$GO_ARCHIVE" "$GO_URL"
+        curl -fL -o "go/$GO_ARCHIVE" "$GO_URL"
     fi
+
+    # Verify the downloaded archive checksum
+    echo "Verifying SHA-256 for go/$GO_ARCHIVE..."
+    ACTUAL_SHA256="$(calculate_sha256 "go/$GO_ARCHIVE")"
+    if [[ "$ACTUAL_SHA256" != "$GO_SHA256" ]]; then
+        echo "SHA-256 mismatch for go/$GO_ARCHIVE"
+        echo "Expected: $GO_SHA256"
+        echo "Actual:   $ACTUAL_SHA256"
+        rm -f "go/$GO_ARCHIVE"
+        exit 1
+    fi
+    echo "SHA-256 verification passed."
 
     # Extract Golang to the go directory
     if [[ -d "go/bin" ]]; then

@@ -3,6 +3,16 @@ The stress testing tool is designed to evaluate the performance of the `java-tro
 It can generate a large volume of transactions, store them locally, and broadcast them to the test network.
 Finally, it provides a TPS (Transactions Per Second) report as the stress test result.
 
+### ⚠️ Security Notice
+
+The `stress.conf` file contains placeholder values for configuration purposes only.
+
+**IMPORTANT:**
+- Always replace the placeholder `privateKey` with your own test private key before running the tool
+- Never commit your real private keys to version control
+- Use test networks (Nile, Shasta) for stress testing, not mainnet with real funds
+- Ensure your test private key has sufficient balance for the stress test (use DBFork tool if needed)
+
 ### Build the stress test tool
 To build the stress test tool, we need to execute the following commands:
 ```shell script
@@ -60,11 +70,11 @@ generateTx = {
     transferTrc20 = 30
   }
   updateRefUrl = "127.0.0.1:50051"
-  // TRY18iTFy6p8yhWiCt1dhd2gz2c15ungq3
-  privateKey = "aab926e86a17f0f46b4d22e61725edd5770a5b0fbdabb04b0f46ee499b1e34f2"
+  // IMPORTANT: Replace with your own private key
+  privateKey = "YOUR_PRIVATE_KEY_HERE_64_CHARACTERS_HEXADECIMAL_STRING_EXAMPLE"
   addressListFile = "/path/to/address-list.csv"
   trc10Id = 1000001
-  trc20Address = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"
+  trc20Address = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t" // Mainnet USDT - for reference only
 }
 ```
 Here is the introduction for the configuration options:
@@ -80,7 +90,7 @@ including `transfer`, `transferTrc10`, `transferTrc20`. The sum of all transacti
 
 `updateRefUrl`: configure the url which is used to update the `refBlockNum` and `refBlockNum` when generating the transactions;
 
-`privateKey`: configure the private key used to sign the transactions;
+`privateKey`: configure the private key used to sign the transactions. **IMPORTANT: Replace the placeholder with your own test private key. Never use keys with real funds.**
 
 `addressListFile`: configure the file path of receiver address list used to build the transactions;
 

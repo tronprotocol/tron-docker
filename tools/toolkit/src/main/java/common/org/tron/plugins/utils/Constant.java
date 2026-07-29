@@ -23,9 +23,6 @@ public class Constant {
   public static final String TRC20_ACCOUNT = "address";
   public static final String TRC20_BALANCE = "balance";
 
-  public static final String LATEST_BLOCK_TIMESTAMP = "latestBlockHeaderTimestamp";
-  public static final String MAINTENANCE_INTERVAL = "maintenanceTimeInterval";
-  public static final String NEXT_MAINTENANCE_TIME = "nextMaintenanceTime";
   public static final int MAX_ACTIVE_WITNESS_NUM = 27;
 
   public static final String WITNESS_STORE = "witness";
@@ -47,11 +44,20 @@ public class Constant {
   public static final byte[] LATEST_BLOCK_HEADER_NUMBER = "latest_block_header_number".getBytes();
   public static final byte[] MAINTENANCE_TIME = "NEXT_MAINTENANCE_TIME".getBytes();
   public static final byte[] ACTIVE_WITNESSES = "active_witnesses".getBytes();
+  public static final byte[] ALLOW_MULTI_SIGN = "ALLOW_MULTI_SIGN".getBytes();
+  public static final byte[] ACTIVE_DEFAULT_OPERATIONS = "ACTIVE_DEFAULT_OPERATIONS".getBytes();
   public static final int ADDRESS_BYTE_ARRAY_LENGTH = 21;
 
   public static final String VOTES_ALL_WITNESSES = "vote.allWitnesses";
   public static final String VOTES_WITNESS_LIST = "vote.witnessList";
   public static final int BLOCK_PRODUCED_INTERVAL = 3000;
+
+  public static final String VOTERS_ALL_WITNESSES = "voters.allWitnesses";
+  public static final String VOTERS_ALL_ACTIVE_WITNESSES = "voters.allActiveWitnesses";
+
+  public static final String VOTERS_WITNESS_LIST = "voters.witnessList";
+  public static final String VOTERS_WITNESS_THRESHOLD = "voters.threshold";
+
 
   public static final String REWARDS_KEY = "reward";
   public static final byte[] CHANGE_DELEGATION = "CHANGE_DELEGATION".getBytes();
@@ -60,4 +66,7 @@ public class Constant {
       "NEW_REWARD_ALGORITHM_EFFECTIVE_CYCLE".getBytes();
   public static final byte[] ALLOW_OLD_REWARD_OPT = "ALLOW_OLD_REWARD_OPT".getBytes();
   public static final BigInteger DECIMAL_OF_VI_REWARD = BigInteger.valueOf(10).pow(18);
+
+
+
 }

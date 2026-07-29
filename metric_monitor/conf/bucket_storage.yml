@@ -3,5 +3,8 @@ config:
   bucket: "test-thanos-001"
   endpoint: "minio:9000" # for example: s3.ap-southeast-1.amazonaws.com for AWS S3 on region ap-southeast-1
   insecure: true # True for local test using http instead of https
+  # ⚠️ DEMO CREDENTIALS FOR LOCAL TESTING ONLY ⚠️
+  # These match the MinIO demo credentials and should NEVER be used in production
+  # For production: Use AWS S3 with proper IAM roles or access keys
   access_key: "minio"
   secret_key: "melovethanos"

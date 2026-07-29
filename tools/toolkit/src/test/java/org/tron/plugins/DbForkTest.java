@@ -11,16 +11,15 @@ import static org.tron.plugins.utils.Constant.ACCOUNT_STORE;
 import static org.tron.plugins.utils.Constant.ACCOUNT_TRC10_BALANCE;
 import static org.tron.plugins.utils.Constant.ACCOUNT_TRC10_ID;
 import static org.tron.plugins.utils.Constant.ACCOUNT_TYPE;
+import static org.tron.plugins.utils.Constant.ACTIVE_DEFAULT_OPERATIONS;
 import static org.tron.plugins.utils.Constant.ACTIVE_WITNESSES;
+import static org.tron.plugins.utils.Constant.ALLOW_MULTI_SIGN;
 import static org.tron.plugins.utils.Constant.ASSET_ISSUE_V2;
 import static org.tron.plugins.utils.Constant.CONTRACT_STORE;
 import static org.tron.plugins.utils.Constant.DYNAMIC_PROPERTY_STORE;
 import static org.tron.plugins.utils.Constant.LATEST_BLOCK_HEADER_TIMESTAMP;
-import static org.tron.plugins.utils.Constant.LATEST_BLOCK_TIMESTAMP;
-import static org.tron.plugins.utils.Constant.MAINTENANCE_INTERVAL;
 import static org.tron.plugins.utils.Constant.MAINTENANCE_TIME;
 import static org.tron.plugins.utils.Constant.MAINTENANCE_TIME_INTERVAL;
-import static org.tron.plugins.utils.Constant.NEXT_MAINTENANCE_TIME;
 import static org.tron.plugins.utils.Constant.STORAGE_ROW_STORE;
 import static org.tron.plugins.utils.Constant.WITNESS_ADDRESS;
 import static org.tron.plugins.utils.Constant.WITNESS_KEY;
@@ -30,6 +29,7 @@ import static org.tron.plugins.utils.Constant.WITNESS_URL;
 import static org.tron.plugins.utils.Constant.WITNESS_VOTE;
 
 import com.google.common.primitives.Bytes;
+import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Assert;
@@ -48,10 +49,15 @@ import org.tron.common.utils.ByteArray;
 import org.tron.common.utils.Commons;
 import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.WitnessCapsule;
+import org.tron.plugins.utils.ChainParameters;
 import org.tron.plugins.utils.Constant;
 import org.tron.plugins.utils.FileUtils;
 import org.tron.plugins.utils.db.DBInterface;
 import org.tron.plugins.utils.db.DbTool;
+import org.tron.protos.Protocol.Account;
+import org.tron.protos.Protocol.Key;
+import org.tron.protos.Protocol.Permission;
+import org.tron.protos.Protocol.Permission.PermissionType;
 import picocli.CommandLine;
 
 public class DbForkTest {
@@ -66,6 +72,7 @@ public class DbForkTest {
   @Rule
   public final TemporaryFolder folder = new TemporaryFolder();
   private String dbPath;
+  private String forkPath;
 
   public void createDir() {
     String srcDir = dbPath + File.separator + "database";
@@ -143,12 +150,15 @@ public class DbForkTest {
           w -> {
             WitnessCapsule witnessCapsule = new WitnessCapsule(witnessStore.get(
                 Commons.decodeFromBase58Check(w.getString(WITNESS_ADDRESS))));
+            AccountCapsule accountCapsule = new AccountCapsule(accountStore.get(
+                Commons.decodeFromBase58Check(w.getString(WITNESS_ADDRESS))));
             if (w.hasPath(WITNESS_VOTE)) {
               Assert.assertEquals(w.getLong(WITNESS_VOTE), witnessCapsule.getVoteCount());
             }
             if (w.hasPath(WITNESS_URL)) {
               Assert.assertEquals(w.getString(WITNESS_URL), witnessCapsule.getUrl());
             }
+            Assert.assertTrue(accountCapsule.getIsWitness());
           }
       );
     }
@@ -197,26 +207,127 @@ public class DbForkTest {
                 }
               }
             }
+            if (a.getString(ACCOUNT_ADDRESS).equals("TLLM21wteSPs4hKjbxgmH1L6poyMjeTbHm")) {
+              Assert.assertFalse(account.getIsWitness());
+            }
           });
     }
 
-    if (forkConfig.hasPath(LATEST_BLOCK_TIMESTAMP)) {
-      long latestBlockHeaderTimestamp = forkConfig.getLong(LATEST_BLOCK_TIMESTAMP);
+    if (!forkConfig.hasPath(ChainParameters.CHAIN_PARAMETERS)) {
+      return;
+    }
+
+    Config chainParamsConfig = forkConfig.getConfig(ChainParameters.CHAIN_PARAMETERS);
+    if (chainParamsConfig.hasPath(ChainParameters.LATEST_BLOCK_TIMESTAMP)) {
+      long latestBlockHeaderTimestamp = chainParamsConfig.getLong(ChainParameters.LATEST_BLOCK_TIMESTAMP);
       Assert.assertEquals(latestBlockHeaderTimestamp,
           ByteArray.toLong(dynamicPropertiesStore.get(LATEST_BLOCK_HEADER_TIMESTAMP)));
     }
 
-    if (forkConfig.hasPath(MAINTENANCE_INTERVAL)) {
-      long maintenanceTimeInterval = forkConfig.getLong(MAINTENANCE_INTERVAL);
+    if (chainParamsConfig.hasPath(ChainParameters.MAINTENANCE_INTERVAL)) {
+      long maintenanceTimeInterval = chainParamsConfig.getLong(ChainParameters.MAINTENANCE_INTERVAL);
       Assert.assertEquals(maintenanceTimeInterval,
           ByteArray.toLong(dynamicPropertiesStore.get(MAINTENANCE_TIME_INTERVAL)));
     }
 
-    if (forkConfig.hasPath(NEXT_MAINTENANCE_TIME)) {
-      long nextMaintenanceTime = forkConfig.getLong(NEXT_MAINTENANCE_TIME);
+    if (chainParamsConfig.hasPath(ChainParameters.NEXT_MAINTENANCE_TIME)) {
+      long nextMaintenanceTime = chainParamsConfig.getLong(ChainParameters.NEXT_MAINTENANCE_TIME);
       Assert.assertEquals(nextMaintenanceTime,
           ByteArray.toLong(dynamicPropertiesStore.get(MAINTENANCE_TIME)));
     }
+    close();
+  }
+
+  @Test
+  public void testDbForkAddsWitnessPermissionWhenMultiSignEnabled()
+      throws IOException, RocksDBException {
+    dbPath = folder.newFolder().toString();
+    forkPath = getConfig("fork.conf");
+    createDir();
+    init();
+    dynamicPropertiesStore.put(ALLOW_MULTI_SIGN, Longs.toByteArray(1L));
+    byte[] activeDefaultOperations = new byte[32];
+    Arrays.fill(activeDefaultOperations, (byte) 0x7f);
+    dynamicPropertiesStore.put(ACTIVE_DEFAULT_OPERATIONS, activeDefaultOperations);
+    close();
+
+    String[] args = new String[]{"-d",
+        dbPath, "-c",
+        forkPath};
+    CommandLine cli = new CommandLine(new DbFork());
+    Assert.assertEquals(0, cli.execute(args));
+
+    init();
+    Config forkConfig = ConfigFactory.parseFile(Paths.get(forkPath).toFile());
+    List<? extends Config> witnesses = forkConfig.getConfigList(WITNESS_KEY).stream()
+        .filter(c -> c.hasPath(WITNESS_ADDRESS))
+        .collect(Collectors.toList());
+
+    witnesses.forEach(w -> {
+      byte[] address = Commons.decodeFromBase58Check(w.getString(WITNESS_ADDRESS));
+      AccountCapsule account = new AccountCapsule(accountStore.get(address));
+      Assert.assertTrue(account.getInstance().hasOwnerPermission());
+      Assert.assertTrue(account.getInstance().hasWitnessPermission());
+      Assert.assertEquals(1, account.getInstance().getActivePermissionCount());
+      Assert.assertArrayEquals(address,
+          account.getInstance().getOwnerPermission().getKeys(0).getAddress().toByteArray());
+      Assert.assertArrayEquals(address, account.getWitnessPermissionAddress());
+      Assert.assertArrayEquals(activeDefaultOperations,
+          account.getInstance().getActivePermission(0).getOperations().toByteArray());
+    });
+
+    close();
+  }
+
+  @Test
+  public void testDbForkKeepsExistingWitnessPermissionWhenMultiSignEnabled()
+      throws IOException, RocksDBException {
+    dbPath = folder.newFolder().toString();
+    forkPath = getConfig("fork.conf");
+    createDir();
+    init();
+    dynamicPropertiesStore.put(ALLOW_MULTI_SIGN, Longs.toByteArray(1L));
+    byte[] activeDefaultOperations = new byte[32];
+    Arrays.fill(activeDefaultOperations, (byte) 0x7f);
+    dynamicPropertiesStore.put(ACTIVE_DEFAULT_OPERATIONS, activeDefaultOperations);
+
+    byte[] witnessAddress = Commons.decodeFromBase58Check("TS1hu4ZCcwBFYpQqUGoWy1GWBzamqxiT5W");
+    byte[] customWitnessAddress = Commons.decodeFromBase58Check("TLLM21wteSPs4hKjbxgmH1L6poyMjeTbHm");
+    Permission ownerPermission = AccountCapsule.createDefaultOwnerPermission(
+        ByteString.copyFrom(witnessAddress));
+    Permission activePermission = Permission.newBuilder()
+        .setType(PermissionType.Active)
+        .setId(2)
+        .setPermissionName("active")
+        .setThreshold(1)
+        .setParentId(0)
+        .setOperations(ByteString.copyFrom(activeDefaultOperations))
+        .addKeys(Key.newBuilder()
+            .setAddress(ByteString.copyFrom(witnessAddress))
+            .setWeight(1)
+            .build())
+        .build();
+    Permission witnessPermission = AccountCapsule.createDefaultWitnessPermission(
+        ByteString.copyFrom(customWitnessAddress));
+    AccountCapsule existingAccount = new AccountCapsule(Account.newBuilder()
+        .setAddress(ByteString.copyFrom(witnessAddress))
+        .setOwnerPermission(ownerPermission)
+        .addActivePermission(activePermission)
+        .setWitnessPermission(witnessPermission)
+        .build());
+    accountStore.put(witnessAddress, existingAccount.getData());
+    close();
+
+    String[] args = new String[]{"-d",
+        dbPath, "-c",
+        forkPath};
+    CommandLine cli = new CommandLine(new DbFork());
+    Assert.assertEquals(0, cli.execute(args));
+
+    init();
+    AccountCapsule account = new AccountCapsule(accountStore.get(witnessAddress));
+    Assert.assertTrue(account.getInstance().hasWitnessPermission());
+    Assert.assertArrayEquals(customWitnessAddress, account.getWitnessPermissionAddress());
     close();
   }
 

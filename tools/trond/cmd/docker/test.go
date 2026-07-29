@@ -2,11 +2,9 @@ package docker
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/spf13/cobra"
-	"github.com/tronprotocol/tron-docker/utils"
 )
 
 // testCmd represents the snapshot source command
@@ -54,15 +52,7 @@ var testCmd = &cobra.Command{
 		fmt.Println("The default result will be: tronprotocol/java-tron:latest")
 		fmt.Println("Start testing...")
 
-		cmd1 := fmt.Sprintf("./gradlew --no-daemon testDocker -PdockerOrgName=%s -PdockerArtifactName=%s -Prelease.releaseVersion=%s", org, artifact, version)
-		if len(network) > 0 {
-			cmd1 = fmt.Sprintf("./gradlew --no-daemon testDocker -PdockerOrgName=%s -PdockerArtifactName=%s -Prelease.releaseVersion=%s  -Pnetwork=%s", org, artifact, version, network)
-		}
-		if len(platform) > 0 {
-			cmd1 = fmt.Sprintf("%s -Pplatform=%s", cmd1, platform)
-		}
-		cmds := []string{cmd1}
-		if err := utils.RunMultipleCommands(strings.Join(cmds, " && "), "./tools/gradlew"); err != nil {
+		if err := runGradleDockerTask("testDocker", org, artifact, version, network, platform); err != nil {
 			fmt.Println("Error: ", err)
 		}
 	},

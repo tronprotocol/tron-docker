@@ -99,6 +99,33 @@ Here is an example of stopping the node using `trond`:
 
 For more detailed usage instructions, refer to the help command or the [command documentation](./docs/trond.md).
 
+## Security Configuration
+
+### SSH Host Key Verification
+
+When using `trond` for remote node deployment, SSH connections are made to remote servers. By default, host key verification is disabled for ease of testing and demonstration.
+
+For detailed security configuration and best practices, see [SECURITY.md](SECURITY.md).
+
+**Quick Start for Production:**
+
+```bash
+# Enable strict host key verification
+export TROND_STRICT_HOST_KEY_CHECK=true
+
+# Add remote servers to known_hosts
+ssh-keyscan -H remote-server-ip >> ~/.ssh/known_hosts
+
+# Then run trond commands
+./trond node env-multi
+./trond node run-multi start
+```
+
+For more information, refer to the security documentation for each command:
+- [trond node env-multi](docs/trond_node_env-multi.md#security-configuration)
+- [trond node run-multi](docs/trond_node_run-multi.md#security-configuration)
+- [trond node run-multi stop](docs/trond_node_run-multi_stop.md#security-configuration)
+
 ## TroubleShooting
 If you have any issues starting a java-tron node, please refer to the corresponding [TroubleShooting](../../single_node/README.md#troubleshot) guide.
 
