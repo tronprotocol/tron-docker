@@ -16,7 +16,7 @@ Download the `tron-docker` repository, enter the [metric_monitor](./) directory,
 ```sh
 docker-compose -f ./docker-compose/docker-compose-quick-start.yml up -d
 ```
-It will start a TRON FullNode that connects to the Mainnet, along with Prometheus and Grafana services. Note that in [main_net_config.conf](../conf/main_net_config.conf), it contains the configuration below to enable metrics.
+It will start a TRON FullNode that connects to the Mainnet, along with Prometheus and Grafana services. Note that in [main_net_config_open_metric.conf](../conf/main_net_config_open_metric.conf), it contains the configuration below to enable metrics.
 ```
 node.metrics{
   prometheus{
@@ -90,6 +90,7 @@ The TRON node metrics can be viewed through the Grafana dashboard or directly at
 - `tron:header_time`: The latest block time of java-tron on this node
 - `tron:header_height`: The latest block height of java-tron on this node
 - `tron:miner_total`: Used to display the blocks produced by a certain SR
+- `tron:sr_set_change_total`: Counter of SR set membership changes detected at each maintenance time interval. Labels: `action` (`add`/`remove`), `witness` (SR address). Useful for tracking governance and consensus participant rotation.
 
 ### Node system status
 Metric of specific container:
@@ -120,6 +121,11 @@ Used to check the block process performance from TronNetDelegate:
 - `tron:block_process_latency_seconds_count`: Count of events
 - `tron:block_process_latency_seconds_sum`: Total sum of all observed values
 
+Used to check the block generate performance from the Manager:
+- `tron:block_generate_latency_seconds_bucket`: Cumulative counters
+- `tron:block_generate_latency_seconds_count`: Count of events
+- `tron:block_generate_latency_seconds_sum`: Total sum of all observed values
+
 Used to check the block processing latency from the Manager, which is invoked by TronNetDelegate:
 - `tron:block_push_latency_seconds_bucket`: Cumulative counters
 - `tron:block_push_latency_seconds_count`: Count of events
@@ -140,6 +146,11 @@ Verify the latency of all transactions' signatures when processing a block:
 - `tron:verify_sign_latency_seconds_bucket`: Cumulative counters for
 - `tron:verify_sign_latency_seconds_count`: Count of events
 - `tron:verify_sign_latency_seconds_sum`: Total sum of all observed values
+
+Histogram of transaction count per block, with buckets `[0, 20, 50, 80, 100, 120, 140, 160, 180, 200, 230, 260, 300, 500, 2000]` (densified around 0–300 for percentile interpolation in the typical per-SR TPS range). Empty blocks can be queried via the `le="0.0"` bucket; the distribution buckets enable transaction volume analysis (P95/P99, large-block ratio, etc.):
+- `tron:block_transaction_count_bucket`: Cumulative counters per bucket. Label: `miner` (SR address).
+- `tron:block_transaction_count_count`: Count of observed blocks
+- `tron:block_transaction_count_sum`: Total sum of all observed transaction counts
 
 Check the usage from dashboard panel (enter edit mode), or by searching in [grafana_dashboard_tron_server.json](grafana_dashboard/grafana_dashboard_tron_server.json).
 ![image](../images/metric_block_latency.png)

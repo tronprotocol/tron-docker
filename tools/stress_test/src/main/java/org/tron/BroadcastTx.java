@@ -104,6 +104,7 @@ public class BroadcastTx implements Callable<Integer> {
     }
     Args.getInstance().setNodeListenPort(nodeListenPort);
     logger.info("rpc.port: {}, node.listen.port {}", rpcPort, nodeListenPort);
+    Args.getInstance().setOpenHistoryQueryWhenLiteFN(true);
 
     context = new TronApplicationContext(DefaultConfig.class);
     app = ApplicationFactory.create(context);

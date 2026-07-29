@@ -53,6 +53,8 @@ public class Statistic {
     int minTrxCntInOneBlock = 1000000;
     int trxCnt = 0;
     int totalTrxCnt = 0;
+    int minBlockNumber = 0;
+    int maxBlockNumber = 0;
 
     for (long i = startNumber; i < endNumber; i++) {
       block = apiWrapper.getBlockByNum(i);
@@ -61,9 +63,11 @@ public class Statistic {
 
       if (trxCnt > maxTrxCntInOneBlock) {
         maxTrxCntInOneBlock = trxCnt;
+        maxBlockNumber = (int) i;
       }
       if (trxCnt < minTrxCntInOneBlock) {
         minTrxCntInOneBlock = trxCnt;
+        minBlockNumber = (int) i;
       }
     }
 
@@ -83,8 +87,8 @@ public class Statistic {
     logger.info("total generate tx count: {}, total broadcast tx count: {}, tx on chain rate: {}",
         totalGenerateTxCnt, totalTrxCnt, 1.0 * totalTrxCnt / totalGenerateTxCnt);
     logger.info("cost time: {} minutes", 1.0 * actualTime / (60 * 1000));
-    logger.info("max block size: {}", maxTrxCntInOneBlock);
-    logger.info("min block size: {}", minTrxCntInOneBlock);
+    logger.info("max block size: {} in block: {}", maxTrxCntInOneBlock, maxBlockNumber);
+    logger.info("min block size: {} in block: {}", minTrxCntInOneBlock, minBlockNumber);
     logger.info("tps: {}", tps);
     logger.info("miss block rate: {}", missBlockRate);
 
@@ -102,13 +106,16 @@ public class Statistic {
       writer.newLine();
       writer.write(String.format("cost time: %f minutes", 1.0 * actualTime / (60 * 1000)));
       writer.newLine();
-      writer.write(String.format("max block size: %d", maxTrxCntInOneBlock));
+      writer.write(
+          String.format("max block size: %d in block: %d", maxTrxCntInOneBlock, maxBlockNumber));
       writer.newLine();
-      writer.write(String.format("min block size: %d", minTrxCntInOneBlock));
+      writer.write(
+          String.format("min block size: %d in block: %d", minTrxCntInOneBlock, minBlockNumber));
       writer.newLine();
       writer.write(String.format("tps: %f", tps));
       writer.newLine();
       writer.write(String.format("miss block rate: %f", missBlockRate));
+      writer.newLine();
     } catch (IOException e) {
       e.printStackTrace();
     }

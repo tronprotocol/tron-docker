@@ -84,6 +84,8 @@ public class TpsStatistic implements Callable<Integer> {
     Statistic.setApiWrapper(
         new ApiWrapper(config.getStatisticUrl(), config.getStatisticUrl(),
             config.getPrivateKey()));
+    Statistic.setBroadcastTpsLimit(config.getBroadcastTpsLimit());
+    Statistic.setTotalGenerateTxCnt(config.getTotalTxCnt());
     Statistic.result(startBlock, endBlock, output);
     return 0;
   }
