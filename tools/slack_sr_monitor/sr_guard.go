@@ -354,6 +354,10 @@ func saveGuardState(previousTop27 []string, nameCache map[string]string) {
 	}
 }
 
+func isBlockFresh(blockTime time.Time) bool {
+	return time.Since(blockTime) <= maxBlockAge
+}
+
 func runSRGuard(tronNodes []string, slackWebhook string, phoneAlertURL string) {
 	phoneLog := "disabled"
 	if phoneAlertURL != "" {
@@ -369,8 +373,12 @@ func runSRGuard(tronNodes []string, slackWebhook string, phoneAlertURL string) {
 	defer ticker.Stop()
 
 	for {
-		witnesses, err := getGuardWitnessListFromNodes(tronNodes)
+		blockTime, err := getLatestBlockTimeFromNodes(tronNodes)
 		if err != nil {
+			log.Printf("skipping SR guard round: failed to get latest block time: %v", err)
+		} else if !isBlockFresh(blockTime) {
+			log.Printf("skipping SR guard round: latest block is stale (age=%s)", time.Since(blockTime))
+		} else if witnesses, err := getGuardWitnessListFromNodes(tronNodes); err != nil {
 			log.Printf("failed to fetch witness list: %v", err)
 		} else {
 			fillDisplayNames(tronNodes, witnesses, nameCache)
