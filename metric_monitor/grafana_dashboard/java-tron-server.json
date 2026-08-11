@@ -4739,7 +4739,7 @@
           "disableTextWrap": false,
           "editorMode": "builder",
           "exemplar": true,
-          "expr": "rate(tron:tcp_bytes_sum[$__interval])",
+          "expr": "rate(tron:tcp_bytes_sum{group=`$group`,instance=`$instance`}[$__interval])",
           "format": "time_series",
           "fullMetaSearch": false,
           "hide": false,
@@ -5341,7 +5341,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,type = \"LEVELDB\"})",
+              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`})",
               "format": "time_series",
               "instant": false,
               "interval": "2m",
@@ -5352,7 +5352,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,type = \"LEVELDB\"}[24h]))",
+              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`}[24h]))",
               "hide": false,
               "interval": "",
               "legendFormat": "delta/24H",
@@ -5416,7 +5416,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,type=\"LEVELDB\",db=\"block\"})",
+              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"block\"})",
               "format": "time_series",
               "hide": false,
               "instant": false,
@@ -5428,7 +5428,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,type = \"LEVELDB\",db=\"block\"}[24h]))",
+              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"block\"}[24h]))",
               "hide": false,
               "interval": "",
               "legendFormat": "delta/24H",
@@ -5492,7 +5492,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,type=\"LEVELDB\",db=\"transactionRetStore\"})",
+              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"transactionRetStore\"})",
               "format": "time_series",
               "instant": false,
               "interval": "",
@@ -5503,7 +5503,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,type = \"LEVELDB\",db=\"transactionRetStore\"}[24h]))",
+              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"transactionRetStore\"}[24h]))",
               "hide": false,
               "interval": "",
               "legendFormat": "delta/24H",
@@ -5567,7 +5567,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,type=\"LEVELDB\",db=\"trans\"})",
+              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"trans\"})",
               "format": "time_series",
               "instant": false,
               "interval": "2m",
@@ -5578,7 +5578,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,type = \"LEVELDB\",db=\"trans\"}[24h]))",
+              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"trans\"}[24h]))",
               "hide": false,
               "interval": "",
               "legendFormat": "delta/24H",
@@ -5642,7 +5642,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,type=\"LEVELDB\",db=\"transactionHistoryStore\"})",
+              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"transactionHistoryStore\"})",
               "format": "time_series",
               "instant": false,
               "interval": "2m",
@@ -5653,7 +5653,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,type = \"LEVELDB\",db=\"transactionHistoryStore\"}[24h]))",
+              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"transactionHistoryStore\"}[24h]))",
               "hide": false,
               "interval": "",
               "legendFormat": "delta/24H",
@@ -5717,7 +5717,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,type=\"LEVELDB\",db=\"storage-row\"})",
+              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"storage-row\"})",
               "format": "time_series",
               "instant": false,
               "interval": "2m",
@@ -5728,7 +5728,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,type = \"LEVELDB\",db=\"storage-row\"}[24h]))",
+              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"storage-row\"}[24h]))",
               "hide": false,
               "interval": "",
               "legendFormat": "delta/24H",
@@ -5792,7 +5792,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,type=\"LEVELDB\",db=\"account\"})",
+              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"account\"})",
               "format": "time_series",
               "instant": false,
               "interval": "2m",
@@ -5803,7 +5803,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,type = \"LEVELDB\",db=\"account\"}[24h]))",
+              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"account\"}[24h]))",
               "hide": false,
               "interval": "",
               "legendFormat": "delta/24H",
@@ -5867,7 +5867,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,type=\"LEVELDB\",db=\"delegation\"})",
+              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"delegation\"})",
               "format": "time_series",
               "instant": false,
               "interval": "2m",
@@ -5878,7 +5878,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,type = \"LEVELDB\",db=\"delegation\"}[24h]))",
+              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"delegation\"}[24h]))",
               "hide": false,
               "interval": "",
               "legendFormat": "delta/24H",
@@ -5942,7 +5942,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,type=\"LEVELDB\",db=\"block-index\"})",
+              "expr": "sum(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"block-index\"})",
               "format": "time_series",
               "instant": false,
               "interval": "2m",
@@ -5953,7 +5953,7 @@
             {
               "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,type = \"LEVELDB\",db=\"block-index\"}[24h]))",
+              "expr": "sum(delta(tron:db_size_bytes{group=`$group`,instance=`$instance`,db=\"block-index\"}[24h]))",
               "hide": false,
               "interval": "",
               "legendFormat": "delta/24H",
