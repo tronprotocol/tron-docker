@@ -37,7 +37,6 @@
         "y": 0
       },
       "id": 86,
-      "panels": [],
       "title": "Chain",
       "type": "row"
     },
@@ -412,318 +411,6 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 16
-      },
-      "id": 34,
-      "panels": [
-        {
-          "datasource": "${datasource}",
-          "description": "The number of processors available to the java virtual machine.",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [],
-              "noValue": "N/A",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  }
-                ]
-              },
-              "unit": "none"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 0,
-            "y": 251
-          },
-          "id": 77,
-          "interval": "3s",
-          "maxDataPoints": 500,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "area",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "percentChangeColorMode": "standard",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showPercentChange": false,
-            "text": {},
-            "textMode": "auto",
-            "wideLayout": true
-          },
-          "pluginVersion": "11.4.0",
-          "targets": [
-            {
-              "exemplar": true,
-              "expr": "system_available_cpus{group=`$group`,instance=`$instance`}",
-              "hide": false,
-              "interval": "",
-              "legendFormat": "{{instance}}",
-              "refId": "B"
-            }
-          ],
-          "title": "CPUS",
-          "type": "stat"
-        },
-        {
-          "datasource": "${datasource}",
-          "description": "Total: total physical memory.\n\nFree: free physical memory.",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [],
-              "noValue": "N/A",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  }
-                ]
-              },
-              "unit": "bytes"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 6,
-            "y": 251
-          },
-          "id": 78,
-          "interval": "3s",
-          "maxDataPoints": 500,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "area",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "percentChangeColorMode": "standard",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showPercentChange": false,
-            "text": {},
-            "textMode": "auto",
-            "wideLayout": true
-          },
-          "pluginVersion": "11.4.0",
-          "targets": [
-            {
-              "exemplar": true,
-              "expr": "system_total_physical_memory_bytes{group=`$group`,instance=`$instance`}",
-              "hide": false,
-              "interval": "",
-              "legendFormat": "Total",
-              "refId": "B"
-            },
-            {
-              "exemplar": true,
-              "expr": "system_free_physical_memory_bytes{group=`$group`,instance=`$instance`}",
-              "hide": false,
-              "interval": "",
-              "legendFormat": "Free",
-              "refId": "A"
-            }
-          ],
-          "title": "Memory",
-          "type": "stat"
-        },
-        {
-          "datasource": "${datasource}",
-          "description": "The system load average for the last minute. The system load average is the sum of the number of runnable entities queued to the available processors and the number of runnable entities running on the available processors averaged over a period of time. The way in which the load average is calculated is operating system specific but is typically a damped time-dependent average.",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  }
-                ]
-              },
-              "unit": "none"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 12,
-            "y": 251
-          },
-          "id": 81,
-          "interval": "3s",
-          "maxDataPoints": 500,
-          "options": {
-            "legend": {
-              "calcs": [
-                "lastNotNull",
-                "min",
-                "max"
-              ],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "mode": "multi",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.4.0",
-          "targets": [
-            {
-              "exemplar": true,
-              "expr": "system_load_average{group=`$group`,instance=`$instance`}",
-              "hide": false,
-              "interval": "",
-              "legendFormat": "load average",
-              "refId": "B"
-            }
-          ],
-          "title": "Load Average",
-          "type": "timeseries"
-        },
-        {
-          "datasource": "${datasource}",
-          "description": "Max: maximum number of open file descriptors. \n\nCurrent: number of open file descriptors.",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "thresholds"
-              },
-              "mappings": [],
-              "noValue": "N/A",
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  }
-                ]
-              },
-              "unit": "none"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 18,
-            "y": 251
-          },
-          "id": 83,
-          "interval": "3s",
-          "maxDataPoints": 500,
-          "options": {
-            "colorMode": "value",
-            "graphMode": "area",
-            "justifyMode": "auto",
-            "orientation": "auto",
-            "percentChangeColorMode": "standard",
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ],
-              "fields": "",
-              "values": false
-            },
-            "showPercentChange": false,
-            "text": {},
-            "textMode": "auto",
-            "wideLayout": true
-          },
-          "pluginVersion": "11.4.0",
-          "targets": [
-            {
-              "exemplar": true,
-              "expr": "process_max_fds{group=`$group`,instance=`$instance`}",
-              "hide": false,
-              "interval": "",
-              "legendFormat": "Max",
-              "refId": "B"
-            },
-            {
-              "exemplar": true,
-              "expr": "process_open_fds{group=`$group`,instance=`$instance`}",
-              "hide": false,
-              "interval": "",
-              "legendFormat": "Current",
-              "refId": "A"
-            }
-          ],
-          "title": "Open Fds",
-          "type": "stat"
-        }
-      ],
-      "title": "System",
-      "type": "row"
-    },
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
         "y": 17
       },
       "id": 36,
@@ -1034,7 +721,7 @@
               "disableTextWrap": false,
               "editorMode": "builder",
               "exemplar": false,
-              "expr": "group by(contract) (rate(tron:process_transaction_latency_seconds_sum{type=\"block\"}[$__rate_interval])) / group by(contract) (rate(tron:process_transaction_latency_seconds_count{type=\"block\"}[$__rate_interval]))",
+              "expr": "rate(tron:process_transaction_latency_seconds_sum{group=\"$group\", instance=\"$instance\", subgroup=\"$subgroup\", type=\"block\"}[$__rate_interval]) / rate(tron:process_transaction_latency_seconds_count{group=\"$group\", instance=\"$instance\", subgroup=\"$subgroup\", type=\"block\"}[$__rate_interval])",
               "fullMetaSearch": false,
               "hide": false,
               "includeNullMetadata": true,
@@ -1051,7 +738,189 @@
         },
         {
           "datasource": "${datasource}",
-          "description": "Average transaction TPS from broadcasted transactions,  not from blocks.",
+          "description": "Average transaction processing time.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "s"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": []
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": []
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": []
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": []
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "avg"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#73BF69",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "__systemRef": "hideSeriesFrom",
+                "matcher": {
+                  "id": "byNames",
+                  "options": {
+                    "mode": "exclude",
+                    "names": [
+                      "tron-vip-vg-003"
+                    ],
+                    "prefix": "All except:",
+                    "readOnly": true
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": false,
+                      "tooltip": true,
+                      "viz": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 33
+          },
+          "id": 109,
+          "interval": "3s",
+          "maxDataPoints": 200,
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "exemplar": false,
+              "expr": "rate(tron:process_transaction_latency_seconds_sum{type=\"block\", contract=\"TriggerSmartContract\", instance=\"$instance\"}[$__rate_interval]) / rate(tron:process_transaction_latency_seconds_count{type=\"block\"}[$__rate_interval])",
+              "instant": false,
+              "interval": "6s",
+              "legendFormat": "{{instance}}",
+              "refId": "C"
+            }
+          ],
+          "title": "Transaction Process Latency - Smart Contract",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "${datasource}",
+          "description": "Transaction TPS from Block/1d",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1081,6 +950,7 @@
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -1095,7 +965,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": 0
                   },
                   {
                     "color": "red",
@@ -1185,6 +1056,716 @@
                     }
                   }
                 ]
+              },
+              {
+                "__systemRef": "hideSeriesFrom",
+                "matcher": {
+                  "id": "byNames",
+                  "options": {
+                    "mode": "exclude",
+                    "names": [
+                      "total"
+                    ],
+                    "prefix": "All except:",
+                    "readOnly": true
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": false,
+                      "tooltip": true,
+                      "viz": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 33
+          },
+          "id": 123,
+          "interval": "3s",
+          "maxDataPoints": 500,
+          "options": {
+            "alertThreshold": true,
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Mean",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "sum(tron:process_transaction_latency_seconds_count{group=\"$group\", instance=\"$instance\", type=\"block\"})-sum(tron:process_transaction_latency_seconds_count{group=\"$group\", instance=\"$instance\", type=\"block\"} offset 24h)",
+              "interval": "6s",
+              "legendFormat": "total",
+              "refId": "B"
+            }
+          ],
+          "title": "Transaction TPS from Block/1d",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "${datasource}",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": []
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": []
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": []
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": []
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "avg"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#73BF69",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 15,
+            "x": 0,
+            "y": 41
+          },
+          "id": 130,
+          "interval": "3s",
+          "maxDataPoints": 200,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "exemplar": false,
+              "expr": "rate(tron:block_transaction_count_sum{instance=\"$instance\"}[$__rate_interval]) / (rate(tron:block_transaction_count_count[$__rate_interval]))",
+              "instant": false,
+              "interval": "6s",
+              "legendFormat": "{{miner}}",
+              "refId": "C"
+            }
+          ],
+          "title": "Transaction Cnt Per Block",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "${datasource}",
+          "description": "Number of blocks with 20 or fewer transactions produced by each miner in the selected dashboard time range. One row per miner; only miners with at least one low-transaction block are shown.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": false,
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Low-Transaction Blocks"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "short"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 0
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 9,
+            "x": 15,
+            "y": 41
+          },
+          "id": 131,
+          "options": {
+            "showHeader": true
+          },
+          "targets": [
+            {
+              "datasource": "${datasource}",
+              "exemplar": false,
+              "expr": "sum by (miner) (increase(tron:block_transaction_count_bucket{group=\"$group\", subgroup=\"$subgroup\", instance=\"$instance\", le=\"20.0\"}[$__range])) > 0",
+              "format": "table",
+              "instant": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Low-Transaction Blocks (≤20 tx)",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "includeByName": {},
+                "indexByName": {},
+                "renameByName": {
+                  "Value": "Low-Transaction Blocks",
+                  "miner": "Miner"
+                }
+              }
+            },
+            {
+              "id": "sortBy",
+              "options": {
+                "sort": [
+                  {
+                    "desc": true,
+                    "displayName": "Low-Transaction Blocks"
+                  }
+                ]
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": "${datasource}",
+          "description": "Average transaction TPS from broadcasted transactions,  not from blocks.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "__systemRef": "hideSeriesFrom",
+                "matcher": {
+                  "id": "byNames",
+                  "options": {
+                    "mode": "exclude",
+                    "names": [
+                      "total",
+                      "AccountUpdateContract",
+                      "AccountUpdateContract"
+                    ],
+                    "prefix": "All except:",
+                    "readOnly": true
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": false,
+                      "tooltip": true,
+                      "viz": true
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 17
+          },
+          "id": 135,
+          "interval": "3s",
+          "maxDataPoints": 500,
+          "options": {
+            "alertThreshold": true,
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Mean",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "sum(rate(tron:process_transaction_latency_seconds_count{group=\"$group\", instance=\"$instance\", type!=\"block\"}[$__rate_interval]))",
+              "interval": "6s",
+              "legendFormat": "total",
+              "refId": "B"
+            },
+            {
+              "exemplar": true,
+              "expr": "rate(tron:process_transaction_latency_seconds_count{group=\"$group\", instance=\"$instance\", type!=\"block\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "6s",
+              "intervalFactor": 1,
+              "legendFormat": "{{contract}}",
+              "refId": "A"
+            }
+          ],
+          "title": "Transaction TPS Broadcast",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "${datasource}",
+          "description": "Average transaction TPS from blocks.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "__systemRef": "hideSeriesFrom",
+                "matcher": {
+                  "id": "byNames",
+                  "options": {
+                    "mode": "exclude",
+                    "names": [
+                      "total",
+                      "AccountUpdateContract",
+                      "AssetIssueContract",
+                      "UpdateAssetContract",
+                      "UpdateBrokerageContract",
+                      "UpdateSettingContract",
+                      "WitnessCreateContract",
+                      "WitnessUpdateContract",
+                      "AccountUpdateContract",
+                      "AssetIssueContract",
+                      "UpdateAssetContract",
+                      "UpdateBrokerageContract",
+                      "UpdateSettingContract",
+                      "WitnessCreateContract",
+                      "WitnessUpdateContract"
+                    ],
+                    "prefix": "All except:",
+                    "readOnly": true
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": false,
+                      "tooltip": true,
+                      "viz": true
+                    }
+                  }
+                ]
               }
             ]
           },
@@ -1192,59 +1773,214 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 416
+            "y": 25
           },
-          "id": 4,
+          "id": 136,
           "interval": "3s",
           "maxDataPoints": 500,
           "options": {
             "alertThreshold": true,
             "legend": {
               "calcs": [
-                "mean"
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Mean",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "sum(rate(tron:process_transaction_latency_seconds_count{group=\"$group\", instance=\"$instance\", type=\"block\"}[$__rate_interval]))",
+              "interval": "6s",
+              "legendFormat": "total",
+              "refId": "B"
+            },
+            {
+              "exemplar": true,
+              "expr": "rate(tron:process_transaction_latency_seconds_count{group=\"$group\", instance=\"$instance\", type=\"block\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": false,
+              "interval": "6s",
+              "intervalFactor": 1,
+              "legendFormat": "{{contract}}",
+              "refId": "A"
+            }
+          ],
+          "title": "Transaction TPS from Block",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "${datasource}",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 151
+          },
+          "id": 112,
+          "interval": "3s",
+          "options": {
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
               ],
               "displayMode": "table",
               "placement": "bottom",
               "showLegend": true
             },
             "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
             }
           },
-          "pluginVersion": "11.4.0",
           "targets": [
             {
-              "disableTextWrap": false,
-              "editorMode": "builder",
+              "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "sum(rate(tron:process_transaction_latency_seconds_count{group=\"$group\", instance=\"$instance\", type!=\"block\"}[$__interval]))",
-              "fullMetaSearch": false,
-              "hide": false,
-              "includeNullMetadata": true,
+              "expr": "sum(rate(tron:process_transaction_latency_seconds_count{group=\"$group\", instance=\"$instance\", type=\"block\"}[$__rate_interval]))",
               "interval": "6s",
               "legendFormat": "total",
-              "range": true,
-              "refId": "B",
-              "useBackend": false
+              "refId": "A"
             },
             {
-              "disableTextWrap": false,
-              "editorMode": "builder",
+              "datasource": "${datasource}",
               "exemplar": true,
-              "expr": "rate(tron:process_transaction_latency_seconds_count{group=\"$group\", instance=\"$instance\", type!=\"block\"}[$__interval])",
-              "format": "time_series",
-              "fullMetaSearch": false,
-              "includeNullMetadata": true,
+              "expr": "sum(rate(tron:process_transaction_latency_seconds_count{group=\"$group\", instance=\"$instance\", type=\"block\"}[$__rate_interval] offset 1w))",
               "instant": false,
               "interval": "6s",
-              "intervalFactor": 1,
+              "legendFormat": "total-7d",
+              "refId": "C"
+            },
+            {
+              "datasource": "${datasource}",
+              "exemplar": true,
+              "expr": "rate(tron:process_transaction_latency_seconds_count{group=\"$group\", instance=\"$instance\", type=\"block\"}[$__rate_interval])",
+              "instant": false,
+              "interval": "6s",
               "legendFormat": "{{contract}}",
-              "refId": "A",
-              "useBackend": false
+              "refId": "B"
+            },
+            {
+              "datasource": "${datasource}",
+              "exemplar": true,
+              "expr": "rate(tron:process_transaction_latency_seconds_count{group=\"$group\", instance=\"$instance\", type=\"block\"}[$__rate_interval] offset 1w)",
+              "instant": false,
+              "interval": "6s",
+              "legendFormat": "{{contract}}-7d",
+              "refId": "D"
             }
           ],
-          "title": " Transaction TPS",
+          "title": "Transaction TPS in Blocks",
           "type": "timeseries"
         }
       ],
@@ -1453,237 +2189,6 @@
             }
           ],
           "title": "Block Generate Latency",
-          "type": "timeseries"
-        },
-        {
-          "datasource": "${datasource}",
-          "description": "Average block processing time when is not catching up.",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 10,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "never",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "s"
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byValue",
-                  "options": {
-                    "op": "gte",
-                    "reducer": "allIsZero",
-                    "value": 0
-                  }
-                },
-                "properties": [
-                  {
-                    "id": "custom.hideFrom",
-                    "value": {
-                      "legend": true,
-                      "tooltip": true,
-                      "viz": false
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byValue",
-                  "options": {
-                    "op": "gte",
-                    "reducer": "allIsNull",
-                    "value": 0
-                  }
-                },
-                "properties": [
-                  {
-                    "id": "custom.hideFrom",
-                    "value": {
-                      "legend": true,
-                      "tooltip": true,
-                      "viz": false
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byValue",
-                  "options": {
-                    "op": "gte",
-                    "reducer": "allIsZero",
-                    "value": 0
-                  }
-                },
-                "properties": [
-                  {
-                    "id": "custom.hideFrom",
-                    "value": {
-                      "legend": true,
-                      "tooltip": true,
-                      "viz": false
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byValue",
-                  "options": {
-                    "op": "gte",
-                    "reducer": "allIsNull",
-                    "value": 0
-                  }
-                },
-                "properties": [
-                  {
-                    "id": "custom.hideFrom",
-                    "value": {
-                      "legend": true,
-                      "tooltip": true,
-                      "viz": false
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byValue",
-                  "options": {
-                    "op": "gte",
-                    "reducer": "allIsZero",
-                    "value": 0
-                  }
-                },
-                "properties": [
-                  {
-                    "id": "custom.hideFrom",
-                    "value": {
-                      "legend": true,
-                      "tooltip": true,
-                      "viz": false
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byValue",
-                  "options": {
-                    "op": "gte",
-                    "reducer": "allIsNull",
-                    "value": 0
-                  }
-                },
-                "properties": [
-                  {
-                    "id": "custom.hideFrom",
-                    "value": {
-                      "legend": true,
-                      "tooltip": true,
-                      "viz": false
-                    }
-                  }
-                ]
-              }
-            ]
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 34
-          },
-          "id": 101,
-          "interval": "1m",
-          "maxDataPoints": 500,
-          "options": {
-            "alertThreshold": true,
-            "legend": {
-              "calcs": [
-                "mean",
-                "max"
-              ],
-              "displayMode": "table",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "multi",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.0",
-          "targets": [
-            {
-              "editorMode": "code",
-              "exemplar": true,
-              "expr": "  rate(tron:block_process_latency_seconds_sum{group=`$group`,instance=`$instance`,sync =\"false\"}[$__interval])\n/\n  rate(tron:block_process_latency_seconds_count{group=`$group`,instance=`$instance`,sync =\"false\"}[$__interval])",
-              "hide": false,
-              "interval": "1m",
-              "legendFormat": "avg",
-              "range": true,
-              "refId": "B"
-            },
-            {
-              "exemplar": true,
-              "expr": "histogram_quantile(0.99, sum(rate(tron:block_process_latency_seconds_bucket{group=`$group`,instance=`$instance`,sync =\"false\"}[$__interval])) by (le))",
-              "format": "time_series",
-              "instant": false,
-              "interval": "1m",
-              "intervalFactor": 1,
-              "legendFormat": "tp99",
-              "refId": "A"
-            }
-          ],
-          "title": "Block Process Latency",
           "type": "timeseries"
         },
         {
@@ -2234,7 +2739,7 @@
               "disableTextWrap": false,
               "editorMode": "builder",
               "exemplar": true,
-              "expr": "rate(tron:block_push_latency_seconds_sum{group=\"$group\", instance=\"$instance\"}[$__interval]) / rate(tron:block_push_latency_seconds_count{group=\"$group\", instance=\"$instance\", sync=\"true\"}[$__interval])",
+              "expr": "rate(tron:block_push_latency_seconds_sum{group=\"$group\", instance=\"$instance\"}[$__rate_interval]) / rate(tron:block_push_latency_seconds_count{group=\"$group\", instance=\"$instance\"}[$__rate_interval])",
               "fullMetaSearch": false,
               "hide": false,
               "includeNullMetadata": true,
@@ -2505,7 +3010,7 @@
         },
         {
           "datasource": "${datasource}",
-          "description": "95th percentile of transaction count per block.",
+          "description": "The total Block Fork Count after startup",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -2515,9 +3020,10 @@
                 "axisBorderShow": false,
                 "axisCenteredZero": false,
                 "axisColorMode": "text",
-                "axisLabel": "TX Count",
+                "axisLabel": "",
                 "axisPlacement": "auto",
                 "barAlignment": 0,
+                "barWidthFactor": 0.6,
                 "drawStyle": "line",
                 "fillOpacity": 10,
                 "gradientMode": "none",
@@ -2526,13 +3032,15 @@
                   "tooltip": false,
                   "viz": false
                 },
-                "lineInterpolation": "smooth",
-                "lineWidth": 2,
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
                 "pointSize": 5,
                 "scaleDistribution": {
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -2548,56 +3056,179 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
                   }
                 ]
               },
-              "unit": "short",
-              "min": 0
+              "unit": "none"
             },
-            "overrides": []
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              }
+            ]
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 126
+            "y": 74
           },
-          "id": 111,
+          "id": 127,
+          "interval": "1m",
+          "maxDataPoints": 500,
           "options": {
+            "alertThreshold": true,
             "legend": {
               "calcs": [
                 "mean",
                 "max"
               ],
               "displayMode": "table",
-              "placement": "bottom"
+              "placement": "bottom",
+              "showLegend": true
             },
             "tooltip": {
+              "hideZeros": false,
               "mode": "multi",
-              "sort": "desc"
+              "sort": "none"
             }
           },
           "targets": [
             {
               "exemplar": true,
-              "expr": "histogram_quantile(0.95, sum by (le, miner) (rate(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`}[$__rate_interval])))",
-              "legendFormat": "P95 {{miner}}",
-              "refId": "A"
-            },
-            {
-              "exemplar": true,
-              "expr": "histogram_quantile(0.99, sum by (le, miner) (rate(tron:block_transaction_count_bucket{group=`$group`,instance=`$instance`}[$__rate_interval])))",
-              "legendFormat": "P99 {{miner}}",
+              "expr": "tron:block_fork_total{group=\"$group\", instance=\"$instance\"}",
+              "interval": "1m",
+              "legendFormat": "avg",
               "refId": "B"
             }
           ],
-          "title": "P95 / P99 Block Transaction Count",
+          "title": "Block Fork Count",
           "type": "timeseries"
         },
         {
           "datasource": "${datasource}",
-          "description": "Average number of transactions per block.",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -2607,9 +3238,10 @@
                 "axisBorderShow": false,
                 "axisCenteredZero": false,
                 "axisColorMode": "text",
-                "axisLabel": "Avg TXs / Block",
+                "axisLabel": "",
                 "axisPlacement": "auto",
                 "barAlignment": 0,
+                "barWidthFactor": 0.6,
                 "drawStyle": "line",
                 "fillOpacity": 10,
                 "gradientMode": "none",
@@ -2618,13 +3250,15 @@
                   "tooltip": false,
                   "viz": false
                 },
-                "lineInterpolation": "smooth",
-                "lineWidth": 2,
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
                 "pointSize": 5,
                 "scaleDistribution": {
                   "type": "linear"
                 },
                 "showPoints": "never",
+                "showValues": false,
                 "spanNulls": false,
                 "stacking": {
                   "group": "A",
@@ -2640,12 +3274,458 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
                   }
                 ]
               },
-              "unit": "short",
-              "min": 0
+              "unit": "none"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 74
+          },
+          "id": 128,
+          "interval": "1m",
+          "maxDataPoints": 500,
+          "options": {
+            "alertThreshold": true,
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "changes(tron:miner_total{group=\"$group\", type=\"miss\", instance=\"$instance\"}[1m])",
+              "interval": "1m",
+              "legendFormat": "avg",
+              "refId": "B"
+            }
+          ],
+          "title": "Block Miss change",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "${datasource}",
+          "description": "Average block processing time when is not catching up.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 10,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "never",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "s"
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsZero",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byValue",
+                  "options": {
+                    "op": "gte",
+                    "reducer": "allIsNull",
+                    "value": 0
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": true,
+                      "tooltip": true,
+                      "viz": false
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 50
+          },
+          "id": 137,
+          "interval": "1m",
+          "maxDataPoints": 500,
+          "options": {
+            "alertThreshold": true,
+            "legend": {
+              "calcs": [
+                "mean",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "exemplar": true,
+              "expr": "irate(tron:block_process_latency_seconds_sum{group=\"$group\", instance=\"$instance\", sync=\"false\"}[$__interval]) / irate(tron:block_process_latency_seconds_count{group=\"$group\", instance=\"$instance\", sync=\"false\"}[$__interval])",
+              "interval": "1m",
+              "legendFormat": "avg",
+              "refId": "B"
+            },
+            {
+              "exemplar": true,
+              "expr": "histogram_quantile(0.99, sum(rate(tron:block_process_latency_seconds_bucket{group=`$group`,instance=`$instance`,sync =\"false\"}[$__interval])) by (le))",
+              "format": "time_series",
+              "instant": false,
+              "interval": "1m",
+              "intervalFactor": 1,
+              "legendFormat": "tp99",
+              "refId": "A"
+            }
+          ],
+          "title": "Block Process Latency From Broadcast",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "${datasource}",
+          "description": "The latency calculated by the FullNode using nowTime - block.getTimeStamp(). Different FullNode may received differently.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 7,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              }
             },
             "overrides": []
           },
@@ -2653,59 +3733,85 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 126
+            "y": 8
           },
-          "id": 113,
+          "id": 110,
+          "interval": "2m",
+          "maxDataPoints": 100,
           "options": {
             "legend": {
               "calcs": [
+                "lastNotNull",
                 "mean",
                 "max"
               ],
               "displayMode": "table",
-              "placement": "bottom"
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Max",
+              "sortDesc": true
             },
             "tooltip": {
+              "hideZeros": false,
               "mode": "multi",
-              "sort": "desc"
+              "sort": "none"
             }
           },
           "targets": [
             {
-              "exemplar": true,
-              "expr": "rate(tron:block_transaction_count_sum{group=`$group`,instance=`$instance`}[$__rate_interval]) / rate(tron:block_transaction_count_count{group=`$group`,instance=`$instance`}[$__rate_interval])",
+              "datasource": "${datasource}",
+              "exemplar": false,
+              "expr": "rate(tron:miner_latency_seconds_sum{group=\"$group\", instance=\"$instance\"}[$__rate_interval]) / rate(tron:miner_latency_seconds_count{group=\"$group\", instance=\"$instance\"}[$__rate_interval])",
+              "format": "time_series",
+              "instant": true,
               "legendFormat": "{{miner}}",
               "refId": "A"
             }
           ],
-          "title": "Avg Transactions per Block",
+          "title": "SR Block Latency",
           "type": "timeseries"
-        }
-      ],
-      "title": "Block",
-      "type": "row"
-    },
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 20
-      },
-      "id": 115,
-      "panels": [
+        },
         {
           "datasource": "${datasource}",
-          "description": "Table of SR set change events showing additions and removals.",
+          "description": "The average time to fetch a block from a peer. \n",
           "fieldConfig": {
             "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
               "custom": {
-                "align": "auto",
-                "cellOptions": {
-                  "type": "auto"
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
                 },
-                "inspect": false
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
               },
               "mappings": [],
               "thresholds": {
@@ -2713,148 +3819,93 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
+                    "value": 0
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
                   }
                 ]
               }
             },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "action"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 80
-                  },
-                  {
-                    "id": "mappings",
-                    "value": [
-                      {
-                        "type": "value",
-                        "options": {
-                          "add": {
-                            "text": "ADD",
-                            "color": "green"
-                          },
-                          "remove": {
-                            "text": "REMOVE",
-                            "color": "red"
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "id": "custom.cellOptions",
-                    "value": {
-                      "type": "color-text"
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "witness"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 360
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Value"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 80
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Count"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Time"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 200
-                  }
-                ]
-              }
-            ]
+            "overrides": []
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 21
+            "y": 132
           },
-          "id": 116,
+          "id": 124,
           "options": {
-            "showHeader": true,
-            "sortBy": [
-              {
-                "displayName": "Time",
-                "desc": true
-              }
-            ],
-            "cellHeight": "sm",
-            "footer": {
-              "show": false
+            "legend": {
+              "calcs": [
+                "median",
+                "max"
+              ],
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Count",
+              "sortDesc": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
             }
           },
           "targets": [
             {
-              "exemplar": true,
-              "expr": "tron:sr_set_change_total{group=`$group`,instance=`$instance`}",
-              "format": "table",
-              "instant": true,
+              "expr": "rate(tron:block_fetch_latency_seconds_sum{group=\"$group\"}[$__interval]) / (rate(tron:block_fetch_latency_seconds_count{group=\"$group\", instance=\"$instance\"}[$__interval]))",
+              "legendFormat": "{{instance}}",
               "refId": "A"
             }
           ],
-          "transformations": [
-            {
-              "id": "organize",
-              "options": {
-                "excludeByName": {
-                  "__name__": true,
-                  "group": true,
-                  "instance": true,
-                  "job": true
-                },
-                "indexByName": {
-                  "Time": 0,
-                  "action": 1,
-                  "witness": 2,
-                  "Value": 3
-                }
-              }
-            }
-          ],
-          "title": "SR Set Change Counts",
-          "type": "table"
+          "title": "Block Fetch Latency second",
+          "type": "timeseries"
         },
         {
           "datasource": "${datasource}",
-          "description": "Cumulative count of SR additions and removals.",
+          "description": "The worst time to fetch a block from a peer. \n",
           "fieldConfig": {
             "defaults": {
               "color": {
-                "mode": "thresholds"
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
               },
               "mappings": [],
               "thresholds": {
@@ -2862,92 +3913,54 @@
                 "steps": [
                   {
                     "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "yellow",
-                    "value": 5
+                    "value": 0
                   },
                   {
                     "color": "red",
-                    "value": 10
-                  }
-                ]
-              },
-              "unit": "short"
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "SR Removed"
-                },
-                "properties": [
-                  {
-                    "id": "thresholds",
-                    "value": {
-                      "mode": "absolute",
-                      "steps": [
-                        {
-                          "color": "green",
-                          "value": null
-                        },
-                        {
-                          "color": "orange",
-                          "value": 5
-                        },
-                        {
-                          "color": "red",
-                          "value": 10
-                        }
-                      ]
-                    }
+                    "value": 80
                   }
                 ]
               }
-            ]
+            },
+            "overrides": []
           },
           "gridPos": {
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 21
+            "y": 132
           },
-          "id": 117,
+          "id": 129,
           "options": {
-            "colorMode": "value",
-            "graphMode": "area",
-            "justifyMode": "auto",
-            "orientation": "horizontal",
-            "reduceOptions": {
+            "legend": {
               "calcs": [
-                "lastNotNull"
+                "count"
               ],
-              "fields": "",
-              "values": false
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Count",
+              "sortDesc": true
             },
-            "textMode": "auto",
-            "wideLayout": true
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
           },
           "targets": [
             {
-              "exemplar": true,
-              "expr": "sum(tron:sr_set_change_total{group=`$group`,instance=`$instance`,action=\"add\"}) or vector(0)",
-              "legendFormat": "SR Added",
-              "refId": "A"
-            },
-            {
-              "exemplar": true,
-              "expr": "sum(tron:sr_set_change_total{group=`$group`,instance=`$instance`,action=\"remove\"}) or vector(0)",
-              "legendFormat": "SR Removed",
+              "expr": "histogram_quantile(0.99, sum by(le, instance) (rate(tron:block_fetch_latency_seconds_bucket{group=\"$group\"}[$__rate_interval]))) >= 2.5",
+              "instant": false,
+              "legendFormat": "{{instance}} P99",
               "refId": "B"
             }
           ],
-          "title": "SR Set Change Total",
-          "type": "stat"
+          "title": "Block Fetch Latency > 2.5 counter",
+          "type": "timeseries"
         }
       ],
-      "title": "SR Set",
+      "title": "Block",
       "type": "row"
     },
     {
@@ -2956,10 +3969,278 @@
         "h": 1,
         "w": 24,
         "x": 0,
+        "y": 20
+      },
+      "id": 115,
+      "title": "SR Set",
+      "type": "row"
+    },
+    {
+      "datasource": "${datasource}",
+      "description": "Counts active-SR membership additions and removals observed by the selected node during the selected dashboard time range. A syncing or replaying node may report historical changes.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "action"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Action"
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              },
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "add": {
+                        "color": "green",
+                        "text": "ADD"
+                      },
+                      "remove": {
+                        "color": "red",
+                        "text": "REMOVE"
+                      }
+                    },
+                    "type": "value"
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "witness"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Witness"
+              },
+              {
+                "id": "custom.width",
+                "value": 360
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Count"
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "decimals",
+                "value": 0
+              },
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
         "y": 21
       },
+      "id": 116,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Count"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum by (action, witness) (increase(tron:sr_set_change_total{group=\"$group\", subgroup=\"$subgroup\", instance=\"$instance\"}[$__range])) > 0",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "SR Set Change Counts",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "__name__": true,
+              "group": true,
+              "instance": true,
+              "job": true,
+              "monitor": true,
+              "receive_cluster": true,
+              "subgroup": true,
+              "tenant_id": true
+            },
+            "indexByName": {
+              "Time": 0,
+              "Value": 3,
+              "action": 1,
+              "witness": 2
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": "${datasource}",
+      "description": "Total active-SR membership additions and removals observed by the selected node during the selected dashboard time range. A syncing or replaying node may report historical changes.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SR Added"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "SR Removed"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 21
+      },
+      "id": 117,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(increase(tron:sr_set_change_total{group=\"$group\", subgroup=\"$subgroup\", instance=\"$instance\", action=\"add\"}[$__range])) or vector(0)",
+          "instant": true,
+          "legendFormat": "SR Added",
+          "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum(increase(tron:sr_set_change_total{group=\"$group\", subgroup=\"$subgroup\", instance=\"$instance\", action=\"remove\"}[$__range])) or vector(0)",
+          "instant": true,
+          "legendFormat": "SR Removed",
+          "refId": "B"
+        }
+      ],
+      "title": "SR Set Change Total",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 37
+      },
       "id": 46,
-      "panels": [],
       "title": "Net",
       "type": "row"
     },
@@ -2988,7 +4269,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 22
+        "y": 38
       },
       "id": 20,
       "interval": "3s",
@@ -3104,7 +4385,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 22
+        "y": 38
       },
       "id": 17,
       "interval": "10m",
@@ -3172,7 +4453,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 30
+        "y": 46
       },
       "id": 108,
       "interval": "3s",
@@ -3306,7 +4587,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 30
+        "y": 46
       },
       "id": 107,
       "interval": "10m",
@@ -3431,7 +4712,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 38
+        "y": 54
       },
       "id": 16,
       "interval": "10m",
@@ -3535,7 +4816,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 38
+        "y": 54
       },
       "id": 106,
       "options": {
@@ -3579,7 +4860,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 60
       },
       "id": 44,
       "panels": [
@@ -3644,7 +4925,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 60
+            "y": 76
           },
           "id": 99,
           "interval": "3s",
@@ -3752,7 +5033,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 60
+            "y": 76
           },
           "id": 8,
           "interval": "1m",
@@ -3848,7 +5129,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 96
+            "y": 112
           },
           "id": 100,
           "interval": "3s",
@@ -3956,7 +5237,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 96
+            "y": 112
           },
           "id": 10,
           "interval": "1m",
@@ -4002,7 +5283,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 61
       },
       "id": 48,
       "panels": [
@@ -4032,7 +5313,7 @@
             "h": 6,
             "w": 24,
             "x": 0,
-            "y": 61
+            "y": 77
           },
           "id": 56,
           "interval": "5m",
@@ -4107,7 +5388,7 @@
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 67
+            "y": 83
           },
           "id": 21,
           "interval": "5m",
@@ -4183,7 +5464,7 @@
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 67
+            "y": 83
           },
           "id": 51,
           "interval": "5m",
@@ -4258,7 +5539,7 @@
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 73
+            "y": 89
           },
           "id": 49,
           "interval": "5m",
@@ -4333,7 +5614,7 @@
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 73
+            "y": 89
           },
           "id": 50,
           "interval": "5m",
@@ -4408,7 +5689,7 @@
             "h": 5,
             "w": 12,
             "x": 0,
-            "y": 79
+            "y": 95
           },
           "id": 52,
           "interval": "5m",
@@ -4483,7 +5764,7 @@
             "h": 5,
             "w": 12,
             "x": 12,
-            "y": 79
+            "y": 95
           },
           "id": 53,
           "interval": "5m",
@@ -4558,7 +5839,7 @@
             "h": 5,
             "w": 12,
             "x": 0,
-            "y": 84
+            "y": 100
           },
           "id": 54,
           "interval": "5m",
@@ -4633,7 +5914,7 @@
             "h": 5,
             "w": 12,
             "x": 12,
-            "y": 84
+            "y": 100
           },
           "id": 55,
           "interval": "5m",
@@ -4681,6 +5962,671 @@
           ],
           "title": "block-index",
           "type": "stat"
+        },
+        {
+          "datasource": "${datasource}",
+          "description": "all storage > 0",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                }
+              },
+              "mappings": [],
+              "noValue": "N/A",
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 12,
+            "w": 17,
+            "x": 7,
+            "y": 146
+          },
+          "id": 139,
+          "interval": "5m",
+          "maxDataPoints": 1000,
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true,
+              "sortBy": "Value",
+              "sortDesc": true,
+              "values": [
+                "value"
+              ]
+            },
+            "pieType": "pie",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "sort": "desc",
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "${datasource}",
+              "exemplar": true,
+              "expr": "sum by(db) (tron:db_size_bytes{group=\"$group\", instance=\"$instance\"}) > 0",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "__auto",
+              "refId": "A"
+            }
+          ],
+          "title": "Storage",
+          "type": "piechart"
+        },
+        {
+          "datasource": "${datasource}",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": [],
+              "noValue": "N/A",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 16,
+            "x": 8,
+            "y": 188
+          },
+          "id": 119,
+          "interval": "5m",
+          "maxDataPoints": 1000,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "last"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "targets": [
+            {
+              "datasource": "${datasource}",
+              "exemplar": true,
+              "expr": "sum by(level) (tron:db_size_bytes{group=\"$group\", instance=\"$instance\", db=\"account\"})",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "Level - {{level}}",
+              "refId": "A"
+            }
+          ],
+          "title": "account levels",
+          "type": "stat"
+        },
+        {
+          "datasource": "${datasource}",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": [],
+              "noValue": "N/A",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 8,
+            "x": 0,
+            "y": 207
+          },
+          "id": 125,
+          "interval": "5m",
+          "maxDataPoints": 1000,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "last"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "targets": [
+            {
+              "datasource": "${datasource}",
+              "exemplar": true,
+              "expr": "sum(tron:db_size_bytes{group=\"$group\", instance=\"$instance\", db=\"account-asset\"})",
+              "format": "time_series",
+              "instant": false,
+              "interval": "2m",
+              "intervalFactor": 1,
+              "legendFormat": "account-asset",
+              "refId": "A"
+            },
+            {
+              "datasource": "${datasource}",
+              "exemplar": true,
+              "expr": "sum(delta(tron:db_size_bytes{group=\"$group\", instance=\"$instance\", db=\"account-asset\"}[24h]))",
+              "interval": "",
+              "legendFormat": "delta/24H",
+              "refId": "B"
+            }
+          ],
+          "title": "account-asset",
+          "type": "stat"
+        },
+        {
+          "datasource": "${datasource}",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": [],
+              "noValue": "N/A",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 16,
+            "x": 8,
+            "y": 207
+          },
+          "id": 126,
+          "interval": "5m",
+          "maxDataPoints": 1000,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "last"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "targets": [
+            {
+              "datasource": "${datasource}",
+              "exemplar": true,
+              "expr": "sum by(level) (tron:db_size_bytes{group=\"$group\", instance=\"$instance\", db=\"account-asset\"})",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "Level - {{level}}",
+              "refId": "A"
+            }
+          ],
+          "title": "account-asset levels",
+          "type": "stat"
+        },
+        {
+          "datasource": "${datasource}",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": [],
+              "noValue": "N/A",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 16,
+            "x": 8,
+            "y": 158
+          },
+          "id": 114,
+          "interval": "5m",
+          "maxDataPoints": 1000,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "last"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "targets": [
+            {
+              "datasource": "${datasource}",
+              "exemplar": true,
+              "expr": "sum by(level) (tron:db_size_bytes{group=\"$group\", instance=\"$instance\", db=\"block\"})",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "Level - {{level}}",
+              "refId": "A"
+            }
+          ],
+          "title": "block levels",
+          "type": "stat"
+        },
+        {
+          "datasource": "${datasource}",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": [],
+              "noValue": "N/A",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 7,
+            "w": 16,
+            "x": 8,
+            "y": 200
+          },
+          "id": 121,
+          "interval": "5m",
+          "maxDataPoints": 1000,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "last"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "targets": [
+            {
+              "datasource": "${datasource}",
+              "exemplar": true,
+              "expr": "sum by(level) (tron:db_size_bytes{group=\"$group\", instance=\"$instance\", db=\"block-index\"})",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "Level - {{level}}",
+              "refId": "A"
+            }
+          ],
+          "title": "blockIndex levels",
+          "type": "stat"
+        },
+        {
+          "datasource": "${datasource}",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": [],
+              "noValue": "N/A",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 16,
+            "x": 8,
+            "y": 194
+          },
+          "id": 120,
+          "interval": "5m",
+          "maxDataPoints": 1000,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "last"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "targets": [
+            {
+              "datasource": "${datasource}",
+              "exemplar": true,
+              "expr": "sum by(level) (tron:db_size_bytes{group=\"$group\", instance=\"$instance\", db=\"delegation\"})",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "Level - {{level}}",
+              "refId": "A"
+            }
+          ],
+          "title": "delegation levels",
+          "type": "stat"
+        },
+        {
+          "datasource": "${datasource}",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": [],
+              "noValue": "N/A",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 16,
+            "x": 8,
+            "y": 170
+          },
+          "id": 140,
+          "interval": "5m",
+          "maxDataPoints": 1000,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "last"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "targets": [
+            {
+              "datasource": "${datasource}",
+              "exemplar": true,
+              "expr": "sum by(level) (tron:db_size_bytes{group=\"$group\", instance=\"$instance\", db=\"trans\"})",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "Level - {{level}}",
+              "refId": "A"
+            }
+          ],
+          "title": "trans levels",
+          "type": "stat"
+        },
+        {
+          "datasource": "${datasource}",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": [],
+              "noValue": "N/A",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 16,
+            "x": 8,
+            "y": 176
+          },
+          "id": 141,
+          "interval": "5m",
+          "maxDataPoints": 1000,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "last"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "targets": [
+            {
+              "datasource": "${datasource}",
+              "exemplar": true,
+              "expr": "sum by(level) (tron:db_size_bytes{group=\"$group\", instance=\"$instance\", db=\"transactionHistoryStore\"})",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "Level - {{level}}",
+              "refId": "A"
+            }
+          ],
+          "title": "transactionHistoryStore levels",
+          "type": "stat"
+        },
+        {
+          "datasource": "${datasource}",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "mappings": [],
+              "noValue": "N/A",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 16,
+            "x": 8,
+            "y": 164
+          },
+          "id": 142,
+          "interval": "5m",
+          "maxDataPoints": 1000,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "last"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "text": {},
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "targets": [
+            {
+              "datasource": "${datasource}",
+              "exemplar": true,
+              "expr": "sum by(level) (tron:db_size_bytes{group=\"$group\", instance=\"$instance\", db=\"transactionRetStore\"})",
+              "format": "time_series",
+              "instant": false,
+              "interval": "",
+              "intervalFactor": 1,
+              "legendFormat": "Level - {{level}}",
+              "refId": "A"
+            }
+          ],
+          "title": "transactionRetStore levels",
+          "type": "stat"
         }
       ],
       "title": "DB",
@@ -4692,7 +6638,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 46
+        "y": 62
       },
       "id": 64,
       "panels": [
@@ -4735,7 +6681,7 @@
             "h": 2,
             "w": 24,
             "x": 0,
-            "y": 106
+            "y": 122
           },
           "id": 91,
           "maxDataPoints": 100,
@@ -4773,117 +6719,6 @@
           ],
           "title": "JVM Version",
           "type": "stat"
-        },
-        {
-          "datasource": "${datasource}",
-          "description": "JVM heap used /  JVM heap init.\nJVM heap used /  JVM heap max.",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "#EAB839",
-                    "value": 0.81
-                  }
-                ]
-              },
-              "unit": "percentunit"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 108
-          },
-          "id": 69,
-          "interval": "3s",
-          "maxDataPoints": 500,
-          "options": {
-            "legend": {
-              "calcs": [
-                "lastNotNull",
-                "max",
-                "min"
-              ],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "multi",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.0",
-          "targets": [
-            {
-              "datasource": "${datasource}",
-              "editorMode": "code",
-              "exemplar": true,
-              "expr": "sum(jvm_memory_bytes_used{group=`$group`,instance=`$instance`})/sum(jvm_memory_bytes_init{group=`$group`,instance=`$instance`})",
-              "hide": false,
-              "interval": "",
-              "legendFormat": "Usage",
-              "range": true,
-              "refId": "B"
-            },
-            {
-              "datasource": "${datasource}",
-              "editorMode": "code",
-              "expr": "sum(jvm_memory_bytes_used{group=`$group`,instance=`$instance`})/sum(jvm_memory_bytes_max{group=`$group`,instance=`$instance`})",
-              "hide": false,
-              "instant": false,
-              "legendFormat": "{{label_name}}",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "Memory Usage Rate ",
-          "type": "timeseries"
         },
         {
           "datasource": "${datasource}",
@@ -4972,7 +6807,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 108
+            "y": 124
           },
           "id": 71,
           "interval": "3s",
@@ -5082,7 +6917,7 @@
             "h": 9,
             "w": 12,
             "x": 0,
-            "y": 116
+            "y": 132
           },
           "id": 93,
           "options": {
@@ -5184,7 +7019,7 @@
             "h": 9,
             "w": 12,
             "x": 12,
-            "y": 116
+            "y": 132
           },
           "id": 97,
           "options": {
@@ -5221,6 +7056,112 @@
             }
           ],
           "title": "GC Count/Minute",
+          "type": "timeseries"
+        },
+        {
+          "datasource": "${datasource}",
+          "description": "JVM heap used /  JVM heap init.\nJVM heap used /  JVM heap max.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "showValues": false,
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": 0
+                  },
+                  {
+                    "color": "#EAB839",
+                    "value": 0.81
+                  }
+                ]
+              },
+              "unit": "percentunit"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 141
+          },
+          "id": 138,
+          "interval": "3s",
+          "maxDataPoints": 500,
+          "options": {
+            "legend": {
+              "calcs": [
+                "lastNotNull",
+                "max",
+                "min"
+              ],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "multi",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": "${datasource}",
+              "exemplar": true,
+              "expr": "sum(jvm_memory_bytes_used{group=`$group`,instance=`$instance`})/sum(jvm_memory_bytes_init{group=`$group`,instance=`$instance`})",
+              "interval": "",
+              "legendFormat": "Used/Init",
+              "refId": "B"
+            },
+            {
+              "datasource": "${datasource}",
+              "expr": "sum(jvm_memory_bytes_used{group=`$group`,instance=`$instance`})/sum(jvm_memory_bytes_max{group=`$group`,instance=`$instance`})",
+              "instant": false,
+              "legendFormat": "Used/Max",
+              "refId": "A"
+            }
+          ],
+          "title": "JVM Memory Usage Rate",
           "type": "timeseries"
         }
       ],
