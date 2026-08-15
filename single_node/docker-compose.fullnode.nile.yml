@@ -15,6 +15,6 @@ services:
       - ../output-directory/nile:/java-tron/output-directory
     command:
       - -jvm
-      - "{-Xmx14g -XX:+UseConcMarkSweepGC -XX:+PrintGC -Xloggc:./logs/gc.log }"  # Using environment variable for JVM arguments
+      - "{-Xmx14g}"  # Using environment variable for JVM arguments
       - -c
       - /java-tron/conf/nile_net_config.conf

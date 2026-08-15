@@ -14,7 +14,7 @@ services:
       - ../logs:/java-tron/logs
       - ../output-directory:/java-tron/output-directory
     command: >
-      -jvm "{-Xmx14g -Xmn2g -XX:MaxDirectMemorySize=1G -XX:+UseConcMarkSweepGC -XX:+PrintGC -Xloggc:./logs/gc.log}"
+      -jvm "{-Xmx14g -Xmn2g -XX:MaxDirectMemorySize=1G}"
       -c /java-tron/conf/main_net_config.conf
       -d /java-tron/output-directory
       -w

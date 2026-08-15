@@ -10,4 +10,4 @@ services:
       - "18888:18888/udp"
       - "50051:50051"
     command: >
-      -jvm "{-Xmx14g -Xmn2g -XX:MaxDirectMemorySize=1G -XX:+UseConcMarkSweepGC -XX:+PrintGC -Xloggc:./logs/gc.log}"
+      -jvm "{-Xmx14g -Xmn2g -XX:MaxDirectMemorySize=1G}"
