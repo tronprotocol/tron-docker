@@ -83,7 +83,18 @@ public class BroadcastRelay {
       long startTps = System.currentTimeMillis();
       long endTps;
       while ((transaction = Transaction.parseDelimitedFrom(fis)) != null) {
+        TransactionMessage message = new TransactionMessage(transaction);
+        int peerCnt = tronNetService.fastBroadcastTransaction(message);
+        while (peerCnt <= 0) {
+          logger.warn("broadcast relay task has no available peers to broadcast, please wait");
+          Thread.sleep(100);
+          peerCnt = tronNetService.fastBroadcastTransaction(message);
+        }
+
         trxCount++;
+        if (trxCount % 10000 == 0) {
+          logger.info("total broadcast tx num: {}", trxCount);
+        }
         if (cnt > TxConfig.getInstance().getBroadcastTpsLimit()) {
           endTps = System.currentTimeMillis();
           if (endTps - startTps < 1000) {
@@ -92,24 +103,11 @@ public class BroadcastRelay {
           cnt = 0;
           startTps = System.currentTimeMillis();
         } else {
-          try {
-            TransactionMessage message = new TransactionMessage(transaction);
-            int peerCnt = tronNetService.fastBroadcastTransaction(message);
-            while (peerCnt <= 0) {
-              logger.warn("broadcast relay task has no available peers to broadcast, please wait");
-              Thread.sleep(100);
-              peerCnt = tronNetService.fastBroadcastTransaction(message);
-            }
-            if (trxCount % 1000 == 0) {
-              logger.info("total broadcast tx num: {}", trxCount);
-            }
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-          if (saveTrxId) {
-            transactionIDs.add(transaction);
-          }
           cnt++;
+        }
+
+        if (saveTrxId) {
+          transactionIDs.add(transaction);
         }
       }
 

@@ -57,23 +57,25 @@ prometheus.remote_write "default" {
 
         endpoint {
                 url            = "http://xxxx/api/v1/receive"
-                remote_timeout = "10s"
+                remote_timeout = "7s"
                 headers        = {
                         "X-Auth-Token"    = "token",
                         "X-Service-Group" = "fullnode",
                 }
 
                 queue_config {
-                        capacity             = 55000
-                        max_shards           = 200
-                        max_samples_per_send = 15000
-                        batch_send_deadline  = "6s"
-                        min_backoff          = "200ms"
+                        capacity             = 3000
+                        max_shards           = 10       // Maximum number of parallel requests
+                        max_samples_per_send = 3000     // Maximum samples per send
+                        batch_send_deadline  = "3s"     // Maximum delay before sending a batch
+                        min_backoff          = "3000ms" // Minimum retry interval
+                        sample_age_limit     = "7s"     // The maximum age of samples to send. This value must be greater than the scrape interval and batch_send_deadline.
+                        retry_on_http_429    = false    // Drop requests when receiving an HTTP 429 (Too Many Requests) status code
                 }
 
                 metadata_config {
-                        send_interval        = "6s"
-                        max_samples_per_send = 15000
+                        send_interval        = "120s"  // Low frequency for relative static value
+                        max_samples_per_send = 1000
                 }
         }
 }

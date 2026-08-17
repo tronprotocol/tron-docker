@@ -1,0 +1,27 @@
+services:
+  slack-sr-monitor:
+    build: .
+    container_name: slack-sr-monitor
+    restart: unless-stopped
+    command: ["./slack_sr_monitor", "monitor"]
+    environment:
+      - SLACK_WEBHOOK=${SLACK_WEBHOOK}
+      - SLACK_SR_MONITOR_WEBHOOK=${SLACK_SR_MONITOR_WEBHOOK:-}
+      - TRON_NODES=${TRON_NODES:-}
+      - TRON_NODE=${TRON_NODE:-https://api.trongrid.io}
+    volumes:
+      - ./logs:/home/monitor/logs
+
+  slack-sr-guard:
+    build: .
+    container_name: slack-sr-guard
+    restart: unless-stopped
+    command: ["./slack_sr_monitor", "guard"]
+    environment:
+      - SLACK_WEBHOOK=${SLACK_WEBHOOK}
+      - SLACK_SR_GUARD_WEBHOOK=${SLACK_SR_GUARD_WEBHOOK:-}
+      - TRON_NODES=${TRON_NODES:-}
+      - TRON_NODE=${TRON_NODE:-https://api.trongrid.io}
+      - PHONE_ALERT_URL=${PHONE_ALERT_URL:-}
+    volumes:
+      - ./logs:/home/monitor/logs

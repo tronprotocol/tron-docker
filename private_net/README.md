@@ -4,6 +4,17 @@ Here is a quick-start guide for setting up a TRON private network using Docker.
 
 A private chain needs at least one fullnode run by a [Super Representative (SR)](https://tronprotocol.github.io/documentation-en/mechanism-algorithm/sr/) to produce blocks, and any number of fullnodes to synchronize blocks and broadcast transactions.
 
+## ⚠️ Security Notice
+
+The configuration files in this directory contain **DEMO private keys for local testing purposes ONLY**.
+
+**IMPORTANT:**
+- These keys are publicly known and should NEVER be used in production
+- Always generate new private keys for any real deployment
+- NEVER use these keys on mainnet or with real funds
+- For production use, consider using encrypted keystore files instead of plaintext private keys
+- Refer to the [localwitnesskeystore documentation](https://tronprotocol.github.io/documentation-en/using_javatron/installing_javatron/?h=keystore#specifying-super-representative-account-private-key-using-keystore-password) for secure key management
+
 ## Prerequisites
 
 ### Minimum hardware requirements

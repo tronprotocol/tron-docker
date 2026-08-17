@@ -1,0 +1,4 @@
+/slack_sr_monitor
+/slack_sr_guard
+logs/
+.env

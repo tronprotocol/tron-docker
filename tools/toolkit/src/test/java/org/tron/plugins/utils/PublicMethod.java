@@ -6,21 +6,27 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
+import org.bouncycastle.util.encoders.Hex;
 import org.tron.api.GrpcAPI;
 import org.tron.api.WalletGrpc;
 import org.tron.common.crypto.ECKey;
 import org.tron.common.crypto.ECKey.ECDSASignature;
 import org.tron.common.parameter.CommonParameter;
 import org.tron.common.utils.Sha256Hash;
+import org.tron.common.utils.Utils;
 import org.tron.core.Wallet;
-import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Transaction;
 import org.tron.protos.Protocol.Transaction.Contract;
-import org.tron.protos.contract.BalanceContract;
 import org.tron.protos.contract.BalanceContract.TransferContract;
 
 public class PublicMethod {
+
+  public static String getRandomPrivateKey() {
+    return Hex.toHexString(Objects
+        .requireNonNull(new ECKey(Utils.getRandom()).getPrivKeyBytes()));
+  }
 
   /**
    * Transfer TRX.
@@ -47,15 +53,15 @@ public class PublicMethod {
     while (times++ <= 2) {
 
       TransferContract.Builder builder =
-          BalanceContract.TransferContract.newBuilder();
-      com.google.protobuf.ByteString bsTo = com.google.protobuf.ByteString.copyFrom(to);
-      com.google.protobuf.ByteString bsOwner = ByteString.copyFrom(owner);
+          TransferContract.newBuilder();
+      ByteString bsTo = ByteString.copyFrom(to);
+      ByteString bsOwner = ByteString.copyFrom(owner);
       builder.setToAddress(bsTo);
       builder.setOwnerAddress(bsOwner);
       builder.setAmount(amount);
 
       TransferContract contract = builder.build();
-      Protocol.Transaction transaction = blockingStubFull.createTransaction(contract);
+      Transaction transaction = blockingStubFull.createTransaction(contract);
       if (transaction == null || transaction.getRawData().getContractCount() == 0) {
         continue;
       }
@@ -71,8 +77,8 @@ public class PublicMethod {
    * @param ecKey ecKey of the private key
    * @param transaction transaction object
    */
-  public static Protocol.Transaction signTransaction(ECKey ecKey,
-      Protocol.Transaction transaction) {
+  public static Transaction signTransaction(ECKey ecKey,
+      Transaction transaction) {
     if (ecKey == null || ecKey.getPrivKey() == null) {
       return null;
     }
@@ -83,7 +89,7 @@ public class PublicMethod {
   public static Transaction setTimestamp(Transaction transaction) {
     long currentTime = System.currentTimeMillis();//*1000000 + System.nanoTime()%1000000;
     Transaction.Builder builder = transaction.toBuilder();
-    org.tron.protos.Protocol.Transaction.raw.Builder rowBuilder = transaction.getRawData()
+    Transaction.raw.Builder rowBuilder = transaction.getRawData()
         .toBuilder();
     rowBuilder.setTimestamp(currentTime);
     builder.setRawData(rowBuilder.build());
@@ -113,7 +119,7 @@ public class PublicMethod {
    * @param blockingStubFull Grpc interface
    */
   public static GrpcAPI.Return broadcastTransaction(
-      Protocol.Transaction transaction, WalletGrpc.WalletBlockingStub blockingStubFull) {
+      Transaction transaction, WalletGrpc.WalletBlockingStub blockingStubFull) {
     int i = 10;
     GrpcAPI.Return response = blockingStubFull.broadcastTransaction(transaction);
     while (!response.getResult() && response.getCode() == GrpcAPI.Return.response_code.SERVER_BUSY

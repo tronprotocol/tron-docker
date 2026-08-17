@@ -15,7 +15,7 @@ services:
       - ../output-directory/private:/java-tron/output-directory
     command:
       - -jvm
-      - "{-Xmx4g -Xms2g -XX:+UseConcMarkSweepGC -XX:+PrintGC -Xloggc:./logs/gc.log}"  # Using environment variable for JVM arguments
+      - "{-Xmx4g -Xms2g}"  # Using environment variable for JVM arguments
       - -c
       - /java-tron/conf/private_net_config_witness1.conf
       - -w

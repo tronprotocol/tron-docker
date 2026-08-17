@@ -31,8 +31,42 @@ check_docker_compose() {
             exit 1
         elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
             # Linux
-            sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
+            compose_os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+            compose_arch="$(uname -m)"
+            compose_binary="docker-compose-${compose_os}-${compose_arch}"
+            compose_version="$(curl -fsSLI https://github.com/docker/compose/releases/latest \
+                | awk -F'/' '/^location:/ {gsub(/\r/,"",$NF); print $NF}')"
+
+            if [[ -z "$compose_version" ]]; then
+                echo "Failed to determine latest Docker Compose version"
+                exit 1
+            fi
+
+            tmp_dir="$(mktemp -d)"
+            compose_url="https://github.com/docker/compose/releases/download/${compose_version}/${compose_binary}"
+            checksums_url="https://github.com/docker/compose/releases/download/${compose_version}/checksums.txt"
+
+            if ! curl -fsSL "$compose_url" -o "${tmp_dir}/${compose_binary}"; then
+                rm -rf "$tmp_dir"
+                echo "Failed to download Docker Compose binary: ${compose_url}"
+                exit 1
+            fi
+
+            if ! curl -fsSL "$checksums_url" -o "${tmp_dir}/checksums.txt"; then
+                rm -rf "$tmp_dir"
+                echo "Failed to download Docker Compose checksums: ${checksums_url}"
+                exit 1
+            fi
+
+            if ! grep -E "[[:space:]]\\*${compose_binary}$" "${tmp_dir}/checksums.txt" \
+                | (cd "$tmp_dir" && sha256sum -c -); then
+                rm -rf "$tmp_dir"
+                echo "Docker Compose checksum verification failed"
+                exit 1
+            fi
+
+            sudo install -m 0755 "${tmp_dir}/${compose_binary}" /usr/local/bin/docker-compose
+            rm -rf "$tmp_dir"
         fi
     fi
 }
