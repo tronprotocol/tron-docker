@@ -90,7 +90,7 @@ The TRON node metrics can be viewed through the Grafana dashboard or directly at
 - `tron:header_time`: The latest block time of java-tron on this node
 - `tron:header_height`: The latest block height of java-tron on this node
 - `tron:miner_total`: Used to display the blocks produced by a certain SR
-- `tron:sr_set_change_total`: Counter of SR set membership changes detected at each maintenance time interval. Labels: `action` (`add`/`remove`), `witness` (SR address). Useful for tracking governance and consensus participant rotation.
+- `tron:sr_set_change_total`: Counts witnesses added to or removed from the active SR set at a maintenance boundary. The `action` label is `add` or `remove`, and the `witness` label is the witness's Base58Check address.
 
 ### Node system status
 Metric of specific container:
@@ -130,6 +130,11 @@ Used to check the block processing latency from the Manager, which is invoked by
 - `tron:block_push_latency_seconds_bucket`: Cumulative counters
 - `tron:block_push_latency_seconds_count`: Count of events
 - `tron:block_push_latency_seconds_sum`: Total sum of all observed values
+
+Used to monitor the distribution of transaction counts in blocks pushed to the node, grouped by the block producer's Base58Check address in the `miner` label:
+- `tron:block_transaction_count_bucket`: Cumulative number of observed block pushes whose transaction count is less than or equal to the `le` value
+- `tron:block_transaction_count_count`: Number of observed block pushes
+- `tron:block_transaction_count_sum`: Total number of transactions across the observed block pushes
 
 When handling the above block push logic, TRON's processing logic needs to acquire a synchronization lock. The `lock_acquire_latency_seconds_x` metric is used to indicate the latency.
 - `tron:lock_acquire_latency_seconds_bucket`: Cumulative counters
