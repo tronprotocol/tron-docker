@@ -29,7 +29,7 @@ To use the DBFork tool, we need to obtain the state data of the public chain fir
 
 - Launch the FullNode and sync directly.
 
-If we want the state data of specified block height, we can modify the `node.shutdown.BlockHeight` option in the [config](https://github.com/tronprotocol/tron-deployment/blob/master/main_net_config.conf) to make the FullNode sync to the target height after downloading the snapshot.
+If we want the state data of specified block height, we can modify the `node.shutdown.BlockHeight` option in the [config](https://github.com/tronprotocol/java-tron/blob/master/framework/src/main/resources/config.conf) to make the FullNode sync to the target height after downloading the snapshot.
 ```conf
 node.shutdown = {
 #  BlockTime  = "54 59 08 * * ?" # if block header time in persistent db matched.
@@ -161,7 +161,7 @@ java -jar Toolkit.jar db fork -c /path/to/fork.conf -d /path/to/output-directory
 ```
 
 ### Launch the FullNode
-Launch the FullNode against the modified state. To launch the node smoothly, we may need to change some parameters in the [config](https://github.com/tronprotocol/tron-deployment/blob/master/main_net_config.conf):
+Launch the FullNode against the modified state. To launch the node smoothly, we may need to change some parameters in the [config](https://github.com/tronprotocol/java-tron/blob/master/framework/src/main/resources/config.conf):
 ```config
 needSyncCheck = false
 minParticipationRate = 0
