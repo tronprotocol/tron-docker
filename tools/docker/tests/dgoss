@@ -77,7 +77,7 @@ id=
 sync_id=
 log_pid=
 tmp_dir=$(mktemp -d /tmp/tmp.XXXXXXXXXX)
-chmod 777 "$tmp_dir"
+chmod 700 "$tmp_dir"
 # shellcheck disable=SC2154
 trap 'ret=$?;cleanup;exit $ret' EXIT
 
