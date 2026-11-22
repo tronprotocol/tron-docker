@@ -18,9 +18,9 @@ var testCmd = &cobra.Command{
 
 				1. Perform port checks
 				2. Verify whether block synchronization is functioning normally
-				3. Automatically remove the test container it starts. If, for any reason, this process is manually killed, you can find the container ID from the log message "Container ID: xxxxxx" and manually remove the test container using "docker rm -f xxxxxx".
+				3. Remove the sync probe and node containers on exit. If the runner is killed before cleanup, use their logged IDs to remove the probe first and then the node with "docker rm -f".
 
-			It is used to test TRON Mainnet block synchronization within the docker container. It has a timeout limit of 1000 seconds and may encounter the error “ERROR: goss_wait.yaml never passed” due to network issues or timeouts. If this happens, please check your network status and try again.
+			A temporary Python container shares the node's network and checks for an increase in block height. The sync check times out after 1000 seconds. If it times out, check the node's peer connections.
 		`),
 	Example: heredoc.Doc(`
 			# Test java-tron docker image, defualt: tronprotocol/java-tron:latest

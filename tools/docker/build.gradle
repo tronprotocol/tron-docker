@@ -112,6 +112,7 @@ task sourceDocker {
     }
 }
 
+// The dgoss wrapper is maintained in this repository alongside the sync probe.
 tasks.register("downloadGossBinaries") {
   def gossVersion = 'v0.4.9'
   def baseUrl = "https://github.com/goss-org/goss/releases/download/${gossVersion}"
@@ -140,23 +141,6 @@ tasks.register("downloadGossBinaries") {
       println "Successfully downloaded goss-linux-${currentArch}"
     } else {
       println "goss-linux-${currentArch} already exists"
-    }
-
-    // Download dgoss if it doesn't exist
-    def dgossFile = new File(testDir, 'dgoss')
-    if (!dgossFile.exists()) {
-      println "Downloading dgoss..."
-      download.run {
-        src "${baseUrl}/dgoss"
-        dest dgossFile
-        overwrite false
-        onlyIfModified true
-      }
-
-      dgossFile.setExecutable(true)
-      println "Successfully downloaded dgoss"
-    } else {
-      println "dgoss already exists"
     }
   }
 }

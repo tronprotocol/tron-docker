@@ -16,6 +16,9 @@ error() {
 cleanup() {
     set +e
     { kill "$log_pid" && wait "$log_pid"; } 2> /dev/null
+    if [[ -n "${sync_id:-}" ]]; then
+        docker rm -vf "$sync_id" > /dev/null
+    fi
     rm -rf "$tmp_dir"
     if [[ $id ]];then
         info "Deleting container"
@@ -31,7 +34,6 @@ setup_container(){
     chmod 755 "$tmp_dir/goss"
     [[ -e "${GOSS_FILES_PATH}/goss.yaml" ]] && cp "${GOSS_FILES_PATH}/goss.yaml" "$tmp_dir"
     [[ -e "${GOSS_FILES_PATH}/goss_wait.yaml" ]] && cp "${GOSS_FILES_PATH}/goss_wait.yaml" "$tmp_dir"
-    [[ -e "${GOSS_FILES_PATH}/testSync.sh" ]] && cp "${GOSS_FILES_PATH}/testSync.sh" "$tmp_dir"
     # shellcheck disable=SC2236
     [[ ! -z "${GOSS_VARS}" ]] && [[ -e "${GOSS_FILES_PATH}/${GOSS_VARS}" ]] && cp "${GOSS_FILES_PATH}/${GOSS_VARS}" "$tmp_dir"
     # copy the Dockerfile if path has been provided
@@ -49,8 +51,7 @@ setup_container(){
         ;;
       cp)
         info "Creating docker container"
-        # shellcheck disable=SC2068
-        id=$(docker create ${@:2})
+        id=$(docker create "${@:2}")
         info "Copy goss files into container"
         docker cp "$tmp_dir"/. "$id":/goss
         info "Starting docker container"
@@ -72,6 +73,9 @@ get_file_from_docker() {
 }
 
 # Main
+id=
+sync_id=
+log_pid=
 tmp_dir=$(mktemp -d /tmp/tmp.XXXXXXXXXX)
 chmod 777 "$tmp_dir"
 # shellcheck disable=SC2154
@@ -86,6 +90,8 @@ GOSS_SLEEP=${GOSS_SLEEP:-1.0}
 case "$1" in
     run)
         info "Run Docker tests"
+        sync_probe="$GOSS_FILES_PATH/testSync.py"
+        [[ -f "$sync_probe" && -r "$sync_probe" ]] || error "Missing or unreadable sync probe: $sync_probe"
         setup_container "$@"
         if [[ -e "${GOSS_FILES_PATH}/goss_wait.yaml" ]]; then
             info "Found goss_wait.yaml, waiting for it to pass before running tests"
@@ -99,6 +105,11 @@ case "$1" in
                 fi
             fi
         fi
+        info "Checking block synchronization"
+        sync_id=$(docker create -i --network "container:$id" \
+            python:3.13-alpine@sha256:9ef1a599f863231c3d91e941389bfdc4a2d6070557243d54df1a4e57015b960e python -u -)
+        info "Sync probe container ID: $sync_id"
+        docker start -ai "$sync_id" < "$sync_probe" >&2
         [[ $GOSS_SLEEP ]] && { info "Sleeping for $GOSS_SLEEP"; sleep "$GOSS_SLEEP"; }
         # info "Container health"
         # if ! docker top $id; then
