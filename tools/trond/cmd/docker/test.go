@@ -9,8 +9,9 @@ import (
 
 // testCmd represents the snapshot source command
 var testCmd = &cobra.Command{
-	Use:   "test",
-	Short: "Test java-tron docker image.",
+	Use:          "test",
+	Short:        "Test java-tron docker image.",
+	SilenceUsage: true,
 	Long: heredoc.Doc(`
 			Test java-tron docker image locally. If no flags are provided, "tronprotocol/java-tron:latest" image will be tested.
 
@@ -34,7 +35,7 @@ var testCmd = &cobra.Command{
 			$ ./trond docker test -o tronprotocol -a java-tron -v latest -p linux/arm64
 			$ ./trond docker test -o tronnile -a java-tron -v latest -n nile -p linux/arm64
 		`),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
 		/* if yes, err := utils.IsJDK1_8(); err != nil || !yes {
 			fmt.Println("Error: JDK version should be 1.8")
@@ -52,9 +53,7 @@ var testCmd = &cobra.Command{
 		fmt.Println("The default result will be: tronprotocol/java-tron:latest")
 		fmt.Println("Start testing...")
 
-		if err := runGradleDockerTask("testDocker", org, artifact, version, network, platform); err != nil {
-			fmt.Println("Error: ", err)
-		}
+		return runGradleDockerTask("testDocker", org, artifact, version, network, platform)
 	},
 }
 
