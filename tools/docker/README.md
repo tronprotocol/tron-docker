@@ -21,6 +21,12 @@ The command below builds the java-tron image for `linux/amd64` by default. Use `
 ./gradlew --no-daemon sourceDocker
 ```
 
+Each Dockerfile pins an Ubuntu OpenJDK package version for its architecture (Java 8 on amd64 and Java 17 on arm64). To override it for one build, pass the full Ubuntu package version with `-POPENJDK_VERSION` or set the `OPENJDK_VERSION` environment variable. A nonempty Gradle property takes precedence.
+
+```sh
+./gradlew sourceDocker -Pplatform=linux/arm64 -POPENJDK_VERSION='<full Ubuntu Java 17 package version>'
+```
+
 The compilation process may take above 30 minutes, depending on your network conditions. Once it successfully completes, you will be able to see the generated image.
 ```
 $ docker images

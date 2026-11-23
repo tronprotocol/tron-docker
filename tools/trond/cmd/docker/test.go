@@ -53,7 +53,7 @@ var testCmd = &cobra.Command{
 		fmt.Println("The default result will be: tronprotocol/java-tron:latest")
 		fmt.Println("Start testing...")
 
-		return runGradleDockerTask("testDocker", org, artifact, version, network, platform)
+		return runGradleDockerTask("testDocker", org, artifact, version, network, platform, "")
 	},
 }
 

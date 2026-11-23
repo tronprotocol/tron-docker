@@ -97,17 +97,20 @@ task sourceDocker {
             into "${dockerBuildDir}"
         }
         exec {
-            def dockerPlatform = "--platform ${targetingPlatform}"
             println "Building for platform ${targetingPlatform}"
 
             def gitDetails = getGitCommitDetails(7)
-            executable shell
+            def openjdkVersion = project.findProperty('OPENJDK_VERSION') ?: System.getenv('OPENJDK_VERSION')
+            executable 'docker'
             workingDir dockerBuildDir
-            /* if (targetingPlatform.contains("aarch64") || targetingPlatform.contains("arm64")) {
-                environment 'DOCKER_BUILDKIT', '0'
-            } */
             // Add `--provenance=false --sbom=false` to fix unknown dirty manifests: https://github.com/orgs/community/discussions/45969
-            args "-c", "docker build --provenance=false --sbom=false --no-cache ${dockerPlatform} --build-arg BUILD_DATE=${buildTime()} --build-arg VERSION=${dockerBuildVersion} --build-arg VCS_REF=${gitDetails.hash} -t ${image} ."
+            args 'build', '--provenance=false', '--sbom=false', '--no-cache', '--platform', targetingPlatform,
+                 '--build-arg', "BUILD_DATE=${buildTime()}", '--build-arg', "VERSION=${dockerBuildVersion}",
+                 '--build-arg', "VCS_REF=${gitDetails.hash}"
+            if (openjdkVersion) {
+                args '--build-arg', "OPENJDK_VERSION=${openjdkVersion}"
+            }
+            args '-t', image, '.'
         }
     }
 }
