@@ -7,34 +7,41 @@ ENV TMP_DIR="/tron-build"
 ENV BASE_DIR="/java-tron"
 ENV JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
 
+# Apply Ubuntu updates to packages inherited from the base image before installing build tools.
 RUN apt-get --error-on=any update $NO_PROXY_CACHE \
   && DEBIAN_FRONTEND=noninteractive apt-get --quiet --yes --no-install-recommends --with-new-pkgs upgrade \
   && apt-get --quiet --yes --no-install-recommends install ca-certificates git libtcmalloc-minimal4 \
        "openjdk-8-jdk-headless=$OPENJDK_VERSION" "openjdk-8-jre-headless=$OPENJDK_VERSION" \
-  && git clone --branch master https://github.com/tronprotocol/java-tron.git "$TMP_DIR" \
-  && cd "$TMP_DIR" \
+  && echo "git clone" \
+  && mkdir -p $TMP_DIR \
+  && cd $TMP_DIR \
+  && git clone https://github.com/tronprotocol/java-tron.git \
+  && cd java-tron \
+  && git checkout master \
   && ./gradlew clean build -x test -x check --no-daemon \
   && cd build/distributions \
   && "$JAVA_HOME/bin/jar" xf java-tron-1.0.0.zip \
   && mv java-tron-1.0.0 "$BASE_DIR" \
   && chmod 755 "$BASE_DIR/bin/FullNode" "$BASE_DIR/bin/FullNode.bat" \
-  && cp "$TMP_DIR/framework/src/main/resources/config.conf" "$BASE_DIR/config.conf" \
+  && cp ../../framework/src/main/resources/config.conf "$BASE_DIR/config.conf" \
   && cd / \
-  && rm -rf "$TMP_DIR" ~/.gradle \
+  && rm -rf $TMP_DIR \
+  && rm -rf ~/.gradle \
   && apt-get --quiet --yes purge --auto-remove git openjdk-8-jdk-headless \
+  # Clean apt cache
   && apt-get clean \
+  && rm -rf /var/cache/apt/archives/* /var/cache/apt/archives/partial/* \
   && rm -rf /var/lib/apt/lists/*
 
+# The explicitly installed Java 8 JRE stays in this directory after the JDK is purged.
 ENV JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre"
 ENV PATH=$JAVA_HOME/bin:$PATH
 ENV LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libtcmalloc_minimal.so.4"
 ENV TCMALLOC_RELEASE_RATE=10
 
-COPY docker-entrypoint.sh $BASE_DIR/bin
-
 WORKDIR $BASE_DIR
 
-ENTRYPOINT ["./bin/docker-entrypoint.sh"]
+ENTRYPOINT ["./bin/FullNode"]
 
 # Build-time metadata as defined at http://label-schema.org
 ARG BUILD_DATE

@@ -86,15 +86,10 @@ task sourceDocker {
     }
 
     doLast {
-        copy {
-            from file("${rootDir}/../docker/${dockerfileName}")
-            into(dockerBuildDir)
-        }
-        file("${dockerBuildDir}/${dockerfileName}").renameTo("${dockerBuildDir}/Dockerfile")
-
-        copy {
-            from file("${rootDir}/../docker/docker-entrypoint.sh")
-            into "${dockerBuildDir}"
+        project.sync { spec ->
+            spec.from(file(dockerfileName))
+            spec.into(dockerBuildDir)
+            spec.rename { 'Dockerfile' }
         }
         exec {
             println "Building for platform ${targetingPlatform}"

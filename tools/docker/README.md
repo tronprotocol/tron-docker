@@ -36,7 +36,7 @@ tronprotocol/java-tron   1.0.0      76702facd55e   23 seconds ago   549MB
 
 ### What ./gradlew sourceDocker do?
 
-It will trigger the execution of `task sourceDocker` in [build.gradle](build.gradle). Reviewing the logic, `task sourceDocker` essentially copies the Dockerfile and shell script to a build directory, then runs the docker build. From the logic, you can run `./gradlew sourceDocker` with customised `dockerOrgName`, `dockerArtifactName`, `release.releaseVersion` and `network`.
+The `sourceDocker` task selects the Dockerfile for the requested network and platform, copies it into the build directory and runs `docker build`. The image starts `./bin/FullNode` directly and passes container arguments to it. You can set `dockerOrgName`, `dockerArtifactName`, `release.releaseVersion` and `network` when invoking the task.
 
 For example:
 ```sh
