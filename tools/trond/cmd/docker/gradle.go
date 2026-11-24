@@ -31,7 +31,7 @@ func validateDockerGradleFlags(org, artifact, version, network, platform string)
 	return nil
 }
 
-func runGradleDockerTask(task, org, artifact, version, network, platform string) error {
+func runGradleDockerTask(task, org, artifact, version, network, platform, openJDKVersion string) error {
 	if err := validateDockerGradleFlags(org, artifact, version, network, platform); err != nil {
 		return err
 	}
@@ -49,6 +49,9 @@ func runGradleDockerTask(task, org, artifact, version, network, platform string)
 	}
 	if platform != "" {
 		args = append(args, fmt.Sprintf("-Pplatform=%s", platform))
+	}
+	if openJDKVersion != "" {
+		args = append(args, "-POPENJDK_VERSION="+openJDKVersion)
 	}
 
 	cmd := exec.Command("./gradlew", args...)

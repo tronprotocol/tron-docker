@@ -25,8 +25,3 @@ addr:
   tcp://localhost:8090:
     reachable: true
     timeout: 500
-
-command:
-  /goss/testSync.sh: # use absolute directory to run shell
-    exit-status: 0
-    timeout: 10000000

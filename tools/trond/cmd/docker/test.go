@@ -9,8 +9,9 @@ import (
 
 // testCmd represents the snapshot source command
 var testCmd = &cobra.Command{
-	Use:   "test",
-	Short: "Test java-tron docker image.",
+	Use:          "test",
+	Short:        "Test java-tron docker image.",
+	SilenceUsage: true,
 	Long: heredoc.Doc(`
 			Test java-tron docker image locally. If no flags are provided, "tronprotocol/java-tron:latest" image will be tested.
 
@@ -18,9 +19,9 @@ var testCmd = &cobra.Command{
 
 				1. Perform port checks
 				2. Verify whether block synchronization is functioning normally
-				3. Automatically remove the test container it starts. If, for any reason, this process is manually killed, you can find the container ID from the log message "Container ID: xxxxxx" and manually remove the test container using "docker rm -f xxxxxx".
+				3. Remove the sync probe and node containers on exit. If the runner is killed before cleanup, use their logged IDs to remove the probe first and then the node with "docker rm -f".
 
-			It is used to test TRON Mainnet block synchronization within the docker container. It has a timeout limit of 1000 seconds and may encounter the error “ERROR: goss_wait.yaml never passed” due to network issues or timeouts. If this happens, please check your network status and try again.
+			A temporary Python container shares the node's network and checks for an increase in block height. The sync check times out after 1000 seconds. If it times out, check the node's peer connections.
 		`),
 	Example: heredoc.Doc(`
 			# Test java-tron docker image, defualt: tronprotocol/java-tron:latest
@@ -34,7 +35,7 @@ var testCmd = &cobra.Command{
 			$ ./trond docker test -o tronprotocol -a java-tron -v latest -p linux/arm64
 			$ ./trond docker test -o tronnile -a java-tron -v latest -n nile -p linux/arm64
 		`),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
 		/* if yes, err := utils.IsJDK1_8(); err != nil || !yes {
 			fmt.Println("Error: JDK version should be 1.8")
@@ -52,9 +53,7 @@ var testCmd = &cobra.Command{
 		fmt.Println("The default result will be: tronprotocol/java-tron:latest")
 		fmt.Println("Start testing...")
 
-		if err := runGradleDockerTask("testDocker", org, artifact, version, network, platform); err != nil {
-			fmt.Println("Error: ", err)
-		}
+		return runGradleDockerTask("testDocker", org, artifact, version, network, platform, "")
 	},
 }
 
